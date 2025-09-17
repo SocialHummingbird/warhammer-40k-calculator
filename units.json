@@ -1,0 +1,82 @@
+{
+  "units": [
+    {
+      "name": "Space Marine Intercessor",
+      "toughness": 4,
+      "save": "3+",
+      "wounds": 2,
+      "weapons": [
+        {
+          "name": "Bolt Rifle",
+          "type": "ranged",
+          "attacks": "2",
+          "skill": "3+",
+          "strength": 4,
+          "ap": -1,
+          "damage": 1
+        },
+        {
+          "name": "Astartes Combat Knife",
+          "type": "melee",
+          "attacks": 3,
+          "skill": "3+",
+          "strength": 4,
+          "ap": 0,
+          "damage": 1
+        }
+      ]
+    },
+    {
+      "name": "Ork Boy",
+      "toughness": 5,
+      "save": "5+",
+      "wounds": 1,
+      "weapons": [
+        {
+          "name": "Shoota",
+          "type": "ranged",
+          "attacks": 2,
+          "skill": "5+",
+          "strength": 4,
+          "ap": 0,
+          "damage": 1
+        },
+        {
+          "name": "Choppa",
+          "type": "melee",
+          "attacks": 4,
+          "skill": "3+",
+          "strength": 4,
+          "ap": 0,
+          "damage": 1
+        }
+      ]
+    },
+    {
+      "name": "Necron Warrior",
+      "toughness": 4,
+      "save": "4+",
+      "wounds": 1,
+      "weapons": [
+        {
+          "name": "Gauss Flayer",
+          "type": "ranged",
+          "attacks": 1,
+          "skill": "4+",
+          "strength": 4,
+          "ap": -1,
+          "damage": 1
+        },
+        {
+          "name": "Bayonet",
+          "type": "melee",
+          "attacks": 1,
+          "skill": "4+",
+          "strength": 4,
+          "ap": 0,
+          "damage": 1
+        }
+      ]
+    }
+  ]
+}

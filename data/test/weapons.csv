@@ -1,0 +1,2 @@
+weapon_id,unit_id,name,weapon_type,attacks,skill,strength,ap,damage,keywords,reroll_hits,reroll_wounds,lethal_hits,sustained_hits,devastating_wounds
+se1:bolt-rifle,se1,Bolt Rifle,ranged,2,3+,4,-1,1,Rapid Fire 1,,,,,

@@ -1,0 +1,37 @@
+<catalogue name="Adeptus Astartes" id="cat1">
+  <selectionEntries>
+    <selectionEntry id="se1" name="Intercessor Squad" type="unit">
+      <profiles>
+        <profile id="p_unit" name="Intercessor Squad" typeName="Unit">
+          <characteristics>
+            <characteristic name="Toughness">4</characteristic>
+            <characteristic name="Save">3+</characteristic>
+            <characteristic name="Wounds">2</characteristic>
+            <characteristic name="Leadership">6+</characteristic>
+            <characteristic name="Objective Control">2</characteristic>
+          </characteristics>
+        </profile>
+        <profile id="p_weapon" name="Bolt Rifle" typeName="Weapon">
+          <characteristics>
+            <characteristic name="Range">24"</characteristic>
+            <characteristic name="Attacks">2</characteristic>
+            <characteristic name="Ballistic Skill">3+</characteristic>
+            <characteristic name="Strength">4</characteristic>
+            <characteristic name="AP">-1</characteristic>
+            <characteristic name="Damage">1</characteristic>
+            <characteristic name="Keywords">Rapid Fire 1</characteristic>
+          </characteristics>
+        </profile>
+        <profile id="p_ability" name="And They Shall Know No Fear" typeName="Ability">
+          <characteristics>
+            <characteristic name="Description">Each time this unit takes a Battle-shock test, roll one additional D6 and discard one of the results.</characteristic>
+          </characteristics>
+        </profile>
+      </profiles>
+      <categoryLinks>
+        <categoryLink name="Infantry" />
+        <categoryLink name="Tacticus" />
+      </categoryLinks>
+    </selectionEntry>
+  </selectionEntries>
+</catalogue>

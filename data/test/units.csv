@@ -1,0 +1,2 @@
+unit_id,faction,name,toughness,save,invulnerable_save,wounds,leadership,objective_control,feel_no_pain,damage_cap
+se1,Adeptus Astartes,Intercessor Squad,4,3+,,2,6+,2,,
