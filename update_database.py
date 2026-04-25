@@ -16,12 +16,16 @@ from typing import Dict, Iterable, List, Optional, Sequence
 
 from audit_import import build_audit_report, write_audit_report, write_schema_review
 from review_profiles import write_profile_review
+from warhammer.rules import available_rulesets
 
 
 PROJECT_ROOT = Path(__file__).resolve().parent
 DEFAULT_REPO_DIR = PROJECT_ROOT / "data" / "wh40k-10e"
-DEFAULT_CSV_DIR = PROJECT_ROOT / "data" / "latest"
-DEFAULT_SNAPSHOT_DIR = PROJECT_ROOT / "data" / "snapshots"
+DEFAULT_EDITION = "10e"
+DEFAULT_DATA_DIR = PROJECT_ROOT / "data"
+LEGACY_LATEST_DIR = DEFAULT_DATA_DIR / "latest"
+DEFAULT_ML_DIR = DEFAULT_DATA_DIR / "ml"
+DEFAULT_MODEL_DIR = PROJECT_ROOT / "models"
 
 TABLES = {
     "units": ("units.csv", "unit_id"),
@@ -38,6 +42,7 @@ DATA_ARTIFACTS = (
     "keywords.csv",
     "unit_keywords.csv",
     "metadata.json",
+    "edition_status.json",
     "audit_report.json",
     "schema_review.csv",
     "import_diff.json",
@@ -60,6 +65,10 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     args = _parse_args(argv)
     repo_dir = args.repo_dir.resolve()
     csv_dir = args.csv_dir.resolve()
+    legacy_latest_dir = args.legacy_latest_dir.resolve() if args.legacy_latest_dir else None
+
+    if legacy_latest_dir and csv_dir != legacy_latest_dir and not csv_dir.exists() and legacy_latest_dir.exists():
+        _copy_artifacts(legacy_latest_dir, csv_dir)
 
     before = _load_tables(csv_dir)
     source_before = _git_metadata(repo_dir)
@@ -84,8 +93,20 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     write_audit_report(audit_report, csv_dir / "audit_report.json")
     schema_review_rows = write_schema_review(csv_dir)
     profile_review_counts = write_profile_review(csv_dir)
+    _write_json(csv_dir / "edition_status.json", _build_edition_status(csv_dir, args.edition, source_after, audit_report))
     _write_text(csv_dir / "update_report.md", _build_update_report(diff, audit_report))
     _write_json(csv_dir / "artifact_manifest.json", _build_artifact_manifest(csv_dir, source_after))
+
+    ml_artifacts = None
+    if not args.skip_ml:
+        ml_artifacts = _refresh_ml_artifacts(
+            csv_dir=csv_dir,
+            edition=args.edition,
+            max_rows=args.ml_max_rows,
+            strategy=args.ml_strategy,
+            seed=args.ml_seed,
+            feature_set=args.ml_feature_set,
+        )
 
     if not args.skip_html:
         _run([sys.executable, "export_local_html.py", "--csv-dir", str(csv_dir)], cwd=PROJECT_ROOT)
@@ -94,22 +115,66 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     if not args.skip_snapshot:
         snapshot_path = _write_snapshot(csv_dir, args.snapshot_dir.resolve(), source_after)
 
-    _print_summary(source_before, source_after, diff, audit_report, snapshot_path, profile_review_counts, schema_review_rows)
+    if legacy_latest_dir and csv_dir != legacy_latest_dir and not args.skip_legacy_latest:
+        _copy_artifacts(csv_dir, legacy_latest_dir)
+
+    _print_summary(
+        source_before,
+        source_after,
+        diff,
+        audit_report,
+        snapshot_path,
+        profile_review_counts,
+        schema_review_rows,
+        ml_artifacts,
+    )
     return 0
 
 
 def _parse_args(argv: Optional[Sequence[str]]) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Update BSData source, regenerate CSVs, audit, diff, and local HTML")
     parser.add_argument("--repo-dir", type=Path, default=DEFAULT_REPO_DIR, help="Local BSData Git checkout")
-    parser.add_argument("--csv-dir", type=Path, default=DEFAULT_CSV_DIR, help="Output directory for generated CSVs")
-    parser.add_argument("--snapshot-dir", type=Path, default=DEFAULT_SNAPSHOT_DIR, help="Directory for versioned snapshots")
+    parser.add_argument("--csv-dir", type=Path, help="Output directory for generated CSVs")
+    parser.add_argument("--snapshot-dir", type=Path, help="Directory for versioned snapshots")
     parser.add_argument("--remote", default="origin", help="Git remote to fetch from")
     parser.add_argument("--branch", default="main", help="Git branch to fast-forward")
     parser.add_argument("--skip-fetch", action="store_true", help="Do not fetch or merge the BSData checkout")
+    parser.add_argument("--skip-ml", action="store_true", help="Do not regenerate ML feature/model artifacts")
+    parser.add_argument("--ml-max-rows", type=int, default=10000, help="Maximum ML feature rows to export")
+    parser.add_argument("--ml-strategy", choices=["sample", "sequential"], default="sample", help="ML feature row selection strategy")
+    parser.add_argument("--ml-seed", type=int, default=40, help="Random seed for sampled ML feature exports")
+    parser.add_argument("--ml-feature-set", choices=["pre_match", "full"], default="pre_match", help="ML feature set to train")
     parser.add_argument("--skip-html", action="store_true", help="Do not regenerate the standalone local HTML")
-    parser.add_argument("--skip-snapshot", action="store_true", help="Do not copy generated data into data/snapshots")
-    parser.add_argument("--edition", default="10e", help="Rules edition represented by the imported data")
-    return parser.parse_args(argv)
+    parser.add_argument("--skip-snapshot", action="store_true", help="Do not copy generated data into the edition snapshot directory")
+    parser.add_argument("--edition", default=DEFAULT_EDITION, help="Rules edition represented by the imported data")
+    parser.add_argument(
+        "--legacy-latest-dir",
+        type=Path,
+        default=LEGACY_LATEST_DIR,
+        help="Compatibility mirror for older commands that still read data/latest",
+    )
+    parser.add_argument("--skip-legacy-latest", action="store_true", help="Do not update the data/latest compatibility mirror")
+    args = parser.parse_args(argv)
+    if args.csv_dir is None:
+        args.csv_dir = _edition_latest_dir(args.edition)
+    if args.snapshot_dir is None:
+        args.snapshot_dir = _edition_snapshot_dir(args.edition)
+    if args.ml_strategy == "sample" and args.ml_max_rows <= 0:
+        parser.error("--ml-strategy sample requires --ml-max-rows to be positive")
+    return args
+
+
+def _edition_latest_dir(edition: str) -> Path:
+    return DEFAULT_DATA_DIR / _edition_dir_name(edition) / "latest"
+
+
+def _edition_snapshot_dir(edition: str) -> Path:
+    return DEFAULT_DATA_DIR / _edition_dir_name(edition) / "snapshots"
+
+
+def _edition_dir_name(edition: str) -> str:
+    cleaned = (edition or DEFAULT_EDITION).strip().lower()
+    return cleaned or DEFAULT_EDITION
 
 
 def _ensure_clean_source(repo_dir: Path) -> None:
@@ -286,6 +351,7 @@ def _build_update_report(diff: dict[str, object], audit_report: dict[str, object
             "- `unit_weapon_coverage_review.csv`: each unit's ranged/melee weapon counts and coverage category.",
             "- `loadout_review.csv`: units with many imported weapon profiles where all-weapons calculations may need loadout selection.",
             "- `source_catalogue_review.csv`: per-catalogue unit, weapon, ability, suspicious, loadout review counts, and exact upstream GitHub file URLs.",
+            "- `edition_status.json`: edition readiness, ruleset availability, source commit, and calculation status.",
             "- `artifact_manifest.json`: file sizes and SHA-256 hashes for generated data artifacts.",
             "- `schema_review.csv`: required versus actual importer CSV columns for schema auditing.",
         ]
@@ -376,6 +442,139 @@ def _write_snapshot(csv_dir: Path, snapshot_dir: Path, source_after: dict[str, o
     return target
 
 
+def _build_edition_status(
+    csv_dir: Path,
+    requested_edition: str,
+    source_after: dict[str, object],
+    audit_report: dict[str, object],
+) -> dict[str, object]:
+    metadata = _read_json(csv_dir / "metadata.json")
+    metadata_edition = str(metadata.get("rules_edition") or "").strip()
+    edition = metadata_edition or _edition_dir_name(requested_edition)
+    supported_rules = sorted(available_rulesets())
+    rules_available = edition in supported_rules
+    audit_summary = audit_report.get("summary", {}) if isinstance(audit_report.get("summary"), dict) else {}
+    audit_errors = int(audit_summary.get("error", 0) or 0)
+    calculable = rules_available and audit_errors == 0
+    blockers: list[str] = []
+    if not rules_available:
+        blockers.append("Ruleset not implemented")
+    if audit_errors:
+        blockers.append(f"Audit has {audit_errors} error samples")
+
+    return {
+        "generated_at": datetime.now(UTC).isoformat().replace("+00:00", "Z"),
+        "edition": edition,
+        "requested_edition": _edition_dir_name(requested_edition),
+        "metadata_edition": metadata_edition,
+        "rules_available": rules_available,
+        "supported_rules_editions": supported_rules,
+        "calculations_enabled": calculable,
+        "status": "ready" if calculable else "blocked",
+        "blockers": blockers,
+        "data_dir": str(csv_dir),
+        "source": {
+            "remote_origin": source_after.get("remote_origin", ""),
+            "branch": source_after.get("branch", ""),
+            "commit": source_after.get("commit", ""),
+            "commit_date": source_after.get("commit_date", ""),
+            "commit_subject": source_after.get("commit_subject", ""),
+            "dirty": bool(source_after.get("dirty")),
+        },
+        "counts": metadata.get("counts", {}),
+        "audit_summary": audit_summary,
+    }
+
+
+def _read_json(path: Path) -> dict[str, object]:
+    if not path.exists():
+        return {}
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return {}
+    return payload if isinstance(payload, dict) else {}
+
+
+def _copy_artifacts(source_dir: Path, target_dir: Path) -> None:
+    target_dir.mkdir(parents=True, exist_ok=True)
+    for artifact in ARTIFACTS:
+        source = source_dir / artifact
+        if source.exists():
+            shutil.copy2(source, target_dir / artifact)
+
+
+def _refresh_ml_artifacts(
+    *,
+    csv_dir: Path,
+    edition: str,
+    max_rows: int,
+    strategy: str,
+    seed: int,
+    feature_set: str,
+) -> Optional[dict[str, object]]:
+    resolved_edition = _edition_dir_name(edition)
+    if resolved_edition not in available_rulesets():
+        print(f"Skipping ML refresh for unsupported rules edition: {resolved_edition}")
+        return None
+
+    feature_path = _ml_feature_path(resolved_edition)
+    model_path = _ml_model_path(resolved_edition)
+    export_command = [
+        sys.executable,
+        "export_ml_features.py",
+        "--csv-dir",
+        str(csv_dir),
+        "--output",
+        str(feature_path),
+        "--edition",
+        resolved_edition,
+        "--max-rows",
+        str(max_rows),
+        "--strategy",
+        strategy,
+        "--seed",
+        str(seed),
+    ]
+    train_command = [
+        sys.executable,
+        "train_ml_model.py",
+        "--features",
+        str(feature_path),
+        "--output",
+        str(model_path),
+        "--feature-set",
+        feature_set,
+        "--seed",
+        str(seed),
+    ]
+    _run(export_command, cwd=PROJECT_ROOT)
+    _run(train_command, cwd=PROJECT_ROOT)
+    return {
+        "edition": resolved_edition,
+        "feature_path": feature_path,
+        "model_path": model_path,
+        "audit_path": model_path.with_suffix(".md"),
+        "feature_rows": _csv_data_row_count(feature_path),
+        "feature_set": feature_set,
+    }
+
+
+def _ml_feature_path(edition: str) -> Path:
+    return DEFAULT_ML_DIR / _edition_dir_name(edition) / "matchup_training_rows.csv"
+
+
+def _ml_model_path(edition: str) -> Path:
+    return DEFAULT_MODEL_DIR / _edition_dir_name(edition) / "matchup_centroid_model.json"
+
+
+def _csv_data_row_count(path: Path) -> int:
+    if not path.exists():
+        return 0
+    with path.open("r", encoding="utf-8", newline="") as handle:
+        return max(0, sum(1 for _ in handle) - 1)
+
+
 def _build_artifact_manifest(csv_dir: Path, source_after: dict[str, object]) -> dict[str, object]:
     artifacts = {}
     for filename in DATA_ARTIFACTS:
@@ -420,6 +619,7 @@ def _print_summary(
     snapshot_path: Optional[Path],
     profile_review_counts: dict[str, int],
     schema_review_rows: int,
+    ml_artifacts: Optional[dict[str, object]] = None,
 ) -> None:
     print("Database update complete.")
     print(f"Source: {source_after.get('remote_origin')}")
@@ -447,6 +647,13 @@ def _print_summary(
     )
     if snapshot_path:
         print(f"Snapshot: {snapshot_path}")
+    if ml_artifacts:
+        print(
+            "ML artifacts: "
+            f"{ml_artifacts['feature_rows']} feature rows, "
+            f"feature set {ml_artifacts['feature_set']}, "
+            f"model {ml_artifacts['model_path']}"
+        )
 
 
 if __name__ == "__main__":

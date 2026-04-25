@@ -12,8 +12,11 @@ from warhammer.profiles import UnitProfile, WeaponProfile
 
 
 PROJECT_ROOT = Path(__file__).resolve().parent
+DEFAULT_CSV_DIR = PROJECT_ROOT / "data" / "10e" / "latest"
+LEGACY_CSV_DIR = PROJECT_ROOT / "data" / "latest"
 DEFAULT_TEMPLATE = PROJECT_ROOT / "web" / "index.html"
 DEFAULT_OUTPUT = PROJECT_ROOT / "warhammer_calculator_local.html"
+DEFAULT_MODEL = PROJECT_ROOT / "models" / "10e" / "matchup_centroid_model.json"
 
 
 def _weapon_payload(weapon: WeaponProfile) -> dict[str, Any]:
@@ -94,13 +97,21 @@ def _local_script(data: dict[str, Any]) -> str:
       auditReport: LOCAL_DATA.auditReport || null,
       importDiff: LOCAL_DATA.importDiff || null,
       metadata: LOCAL_DATA.metadata || null,
+      editionStatus: LOCAL_DATA.editionStatus || null,
       updateReport: LOCAL_DATA.updateReport || null,
       profileReview: LOCAL_DATA.profileReview || null,
+      modelAudit: LOCAL_DATA.modelAudit || null,
       reviewFiles: LOCAL_DATA.reviewFiles || [],
+      modelFiles: LOCAL_DATA.modelFiles || [],
+      mlModel: LOCAL_DATA.mlModel || null,
+      mlModels: {{}},
       unitDetails: {{}},
       selectedUnitIds: {{ attacker: null, defender: null }},
       searchTimer: null,
-      openMenu: null
+      openMenu: null,
+      rulesEdition: "10e",
+      supportedRulesEditions: ["10e"],
+      availableEditions: []
     }};
 
     const el = (id) => document.getElementById(id);
@@ -146,8 +157,62 @@ def _local_script(data: dict[str, Any]) -> str:
     }}
 
     function loadHealth() {{
-      setStatus(LOCAL_DATA.units.length, sourceInfoFromMetadata(state.metadata), true);
+      const sourceInfo = sourceInfoFromMetadata(state.metadata);
+      state.rulesEdition = sourceInfo.rules_edition || "10e";
+      state.mlModels = state.mlModel ? {{ [state.rulesEdition]: modelStatus(state.mlModel) }} : {{}};
+      state.supportedRulesEditions = sourceInfo.supported_rules_editions || [state.rulesEdition];
+      state.availableEditions = [{{
+        edition: state.rulesEdition,
+        label: editionLabel(state.rulesEdition),
+        units: LOCAL_DATA.units.length,
+        active: true,
+        loaded: true,
+        rules_available: true,
+        status: "loaded",
+        unavailable_reason: ""
+      }}];
+      renderEditionSelect();
+      setStatus(LOCAL_DATA.units.length, sourceInfo, true, state.mlModels);
       return Promise.resolve();
+    }}
+
+    function modelStatus(model) {{
+      const validation = model && model.validation ? model.validation : {{}};
+      return {{
+        available: Boolean(model),
+        model_type: model ? model.model_type : "",
+        feature_set: model ? (model.feature_set || "custom") : "",
+        label_source: model ? model.label_source : "",
+        labels: model ? (model.labels || []) : [],
+        training_rows: model ? (model.training_rows || 0) : 0,
+        validation_rows: model ? (model.validation_rows || 0) : 0,
+        validation_accuracy: validation.accuracy
+      }};
+    }}
+
+    function renderEditionSelect() {{
+      const select = el("edition");
+      const editions = state.supportedRulesEditions.length ? state.supportedRulesEditions : ["10e"];
+      select.innerHTML = editions.map((edition) => `<option value="${{escapeHtml(edition)}}">${{editionLabel(edition)}}</option>`).join("");
+      select.value = editions.includes(state.rulesEdition) ? state.rulesEdition : editions[0];
+      select.disabled = editions.length <= 1;
+      const discovered = state.availableEditions.length
+        ? state.availableEditions.map((row) => editionDiscoveryText(row)).join(" | ")
+        : "";
+      select.title = discovered || "Only the loaded edition is available for calculation.";
+    }}
+
+    function editionDiscoveryText(row) {{
+      const label = row.label || editionLabel(row.edition);
+      const status = row.active ? "loaded" : (row.status || (row.rules_available ? "available" : "blocked"));
+      const reason = row.unavailable_reason ? `: ${{row.unavailable_reason}}` : "";
+      return `${{label}}: ${{row.units || 0}} units (${{status}}${{reason}})`;
+    }}
+
+    function editionLabel(edition) {{
+      if (edition === "10e") return "10th Edition";
+      if (edition === "11e") return "11th Edition";
+      return String(edition).toUpperCase();
     }}
 
     function sourceInfoFromMetadata(metadata) {{
@@ -166,10 +231,17 @@ def _local_script(data: dict[str, Any]) -> str:
       }};
     }}
 
-    function setStatus(unitCount, sourceInfo = {{}}, locally = false) {{
+    function setStatus(unitCount, sourceInfo = {{}}, locally = false, mlModels = {{}}) {{
       const parts = [`${{unitCount}} units loaded${{locally ? " locally" : ""}}`];
       if (sourceInfo.rules_edition) parts.push(`${{String(sourceInfo.rules_edition).toUpperCase()}} rules`);
       if (sourceInfo.commit_short) parts.push(`BSData ${{sourceInfo.commit_short}}`);
+      const mlStatus = mlModels[sourceInfo.rules_edition || state.rulesEdition] || null;
+      if (mlStatus && mlStatus.available) {{
+        const accuracy = hasNumber(mlStatus.validation_accuracy)
+          ? `${{Math.round(Number(mlStatus.validation_accuracy) * 100)}}%`
+          : "n/a";
+        parts.push(`ML ${{accuracy}}`);
+      }}
       if (sourceInfo.dirty) parts.push("dirty source");
       if (sourceInfo.generated_at) parts.push(`generated ${{sourceInfo.generated_at}}`);
       el("status").textContent = parts.join(" | ");
@@ -177,6 +249,9 @@ def _local_script(data: dict[str, Any]) -> str:
       if (sourceInfo.remote_origin) titleParts.push(sourceInfo.remote_origin);
       if (sourceInfo.branch) titleParts.push(`branch ${{sourceInfo.branch}}`);
       if (sourceInfo.commit) titleParts.push(sourceInfo.commit);
+      if (mlStatus && mlStatus.available) {{
+        titleParts.push(`ML ${{mlStatus.model_type || "model"}}; feature set ${{mlStatus.feature_set || "custom"}}; training rows ${{mlStatus.training_rows || 0}}`);
+      }}
       el("status").title = titleParts.join(" | ");
     }}
 
@@ -218,9 +293,12 @@ def _local_script(data: dict[str, Any]) -> str:
         audit_report: state.auditReport,
         import_diff: state.importDiff,
         metadata: state.metadata,
+        edition_status: state.editionStatus,
         update_report: state.updateReport,
         profile_review: state.profileReview,
-        review_files: state.reviewFiles
+        model_audit: state.modelAudit,
+        review_files: state.reviewFiles,
+        model_files: state.modelFiles
       }});
     }}
 
@@ -747,6 +825,141 @@ def _local_script(data: dict[str, Any]) -> str:
       }};
     }}
 
+    function attachMlJudgement(result, attacker, defender) {{
+      const model = state.mlModel;
+      if (!model || !model.centroids || !model.feature_stats) return result;
+      const row = mlFeatureRow(result, attacker, defender);
+      const prediction = predictMlRow(model, row);
+      if (!prediction) return result;
+      const label = prediction.label;
+      const winner = label === "attacker" ? attacker.name : (label === "defender" ? defender.name : "");
+      const accuracy = model.validation && hasNumber(model.validation.accuracy) ? Number(model.validation.accuracy) : null;
+      const accuracyText = accuracy === null ? "unknown validation accuracy" : `${{Math.round(accuracy * 100)}}% validation accuracy`;
+      const outcome = winner
+        ? `The baseline model classifies ${{winner}} as favoured.`
+        : "The baseline model classifies this as close.";
+      result.ml_judgement = {{
+        available: true,
+        title: winner ? `ML advisory: ${{winner}} (${{Math.round(prediction.confidence * 100)}}%)` : `ML advisory: close matchup (${{Math.round(prediction.confidence * 100)}}%)`,
+        body: `${{outcome}} Confidence is distance-based at ${{Math.round(prediction.confidence * 100)}}%; model has ${{accuracyText}}. Use this as an advisory signal only, not a rules result.`,
+        winner_label: label,
+        winner,
+        confidence: prediction.confidence,
+        model_type: model.model_type || "unknown",
+        feature_set: model.feature_set || "custom",
+        label_source: model.label_source || "",
+        training_rows: model.training_rows || 0,
+        validation_accuracy: accuracy
+      }};
+      return result;
+    }}
+
+    function mlFeatureRow(result, attacker, defender) {{
+      const outgoing = result.outgoing || {{}};
+      const incoming = result.incoming || {{}};
+      const row = {{
+        mode: result.mode,
+        outgoing_damage: numberValue(outgoing.total_damage),
+        outgoing_unsaved_wounds: numberValue(outgoing.total_unsaved_wounds),
+        outgoing_models_destroyed: numberValue(outgoing.expected_models_destroyed),
+        outgoing_points_removed: numberValue(outgoing.estimated_points_removed),
+        incoming_damage: numberValue(incoming.total_damage),
+        incoming_unsaved_wounds: numberValue(incoming.total_unsaved_wounds),
+        incoming_models_destroyed: numberValue(incoming.expected_models_destroyed),
+        incoming_points_removed: numberValue(incoming.estimated_points_removed)
+      }};
+      row.damage_delta = row.outgoing_damage - row.incoming_damage;
+      row.points_removed_delta = row.outgoing_points_removed - row.incoming_points_removed;
+      Object.assign(row, mlUnitFeatures(attacker, "attacker", result.mode));
+      Object.assign(row, mlUnitFeatures(defender, "defender", result.mode));
+      return row;
+    }}
+
+    function mlUnitFeatures(unit, prefix, mode) {{
+      const models = pointsBasisModels(unit);
+      const modeWeapons = (unit.weapons || []).filter((weapon) => weapon.type === mode);
+      return {{
+        [`${{prefix}}_points`]: unit.points || 0,
+        [`${{prefix}}_models`]: models || 0,
+        [`${{prefix}}_toughness`]: unit.toughness || 0,
+        [`${{prefix}}_save`]: unit.save || 0,
+        [`${{prefix}}_invulnerable_save`]: unit.invulnerableSave || 0,
+        [`${{prefix}}_wounds`]: unit.wounds || 0,
+        [`${{prefix}}_keywords_count`]: (unit.keywords || []).length,
+        [`${{prefix}}_weapon_count`]: (unit.weapons || []).length,
+        [`${{prefix}}_mode_weapon_count`]: modeWeapons.length,
+        [`${{prefix}}_points_per_model`]: pointsPerModel(unit) || 0,
+        [`${{prefix}}_mode_avg_attacks`]: average(modeWeapons.map((weapon) => weapon.attacksAverage)),
+        [`${{prefix}}_mode_max_attacks`]: maximum(modeWeapons.map((weapon) => weapon.attacksAverage)),
+        [`${{prefix}}_mode_avg_skill`]: average(modeWeapons.map((weapon) => weapon.skill)),
+        [`${{prefix}}_mode_avg_strength`]: average(modeWeapons.map((weapon) => weapon.strength)),
+        [`${{prefix}}_mode_max_strength`]: maximum(modeWeapons.map((weapon) => weapon.strength)),
+        [`${{prefix}}_mode_avg_ap`]: average(modeWeapons.map((weapon) => weapon.ap)),
+        [`${{prefix}}_mode_best_ap`]: minimum(modeWeapons.map((weapon) => weapon.ap)),
+        [`${{prefix}}_mode_avg_damage`]: average(modeWeapons.map((weapon) => weapon.damageAverage)),
+        [`${{prefix}}_mode_max_damage`]: maximum(modeWeapons.map((weapon) => weapon.damageAverage)),
+        [`${{prefix}}_mode_keyword_count`]: modeWeapons.reduce((sum, weapon) => sum + (weapon.keywords || []).length, 0),
+        [`${{prefix}}_mode_special_rule_count`]: modeWeapons.reduce((sum, weapon) => sum + specialRuleCount(weapon), 0)
+      }};
+    }}
+
+    function average(values) {{
+      const numbers = values.map(numberValue);
+      return numbers.length ? numbers.reduce((sum, value) => sum + value, 0) / numbers.length : 0;
+    }}
+
+    function maximum(values) {{
+      const numbers = values.map(numberValue);
+      return numbers.length ? Math.max(...numbers) : 0;
+    }}
+
+    function minimum(values) {{
+      const numbers = values.map(numberValue);
+      return numbers.length ? Math.min(...numbers) : 0;
+    }}
+
+    function specialRuleCount(weapon) {{
+      return [
+        weapon.lethalHits,
+        weapon.sustainedHits,
+        weapon.devastatingWounds,
+        weapon.autoHits,
+        weapon.assault,
+        weapon.heavy,
+        weapon.torrent,
+        weapon.twinLinked,
+        weapon.ignoresCover,
+        weapon.blast,
+        weapon.melta,
+        weapon.rapidFire,
+        weapon.antiRules && weapon.antiRules.length
+      ].filter(Boolean).length;
+    }}
+
+    function predictMlRow(model, row) {{
+      const columns = model.feature_columns || [];
+      const stats = model.feature_stats || {{}};
+      const values = columns.map((column) => {{
+        const stat = stats[column] || {{ mean: 0, std: 1 }};
+        return (numberValue(row[column]) - Number(stat.mean || 0)) / (Number(stat.std || 1) || 1);
+      }});
+      const distances = {{}};
+      for (const [label, centroid] of Object.entries(model.centroids || {{}})) {{
+        distances[label] = Math.sqrt(values.reduce((sum, value, index) => sum + Math.pow(value - Number(centroid[index] || 0), 2), 0));
+      }}
+      const entries = Object.entries(distances).sort((a, b) => a[1] - b[1]);
+      if (!entries.length) return null;
+      const nearest = entries[0];
+      const next = entries[1] ? entries[1][1] : nearest[1];
+      const confidence = next > 0 ? Math.max(0, Math.min(1, (next - nearest[1]) / next)) : 1;
+      return {{ label: nearest[0], confidence, distances }};
+    }}
+
+    function numberValue(value) {{
+      const number = Number(value);
+      return Number.isFinite(number) ? number : 0;
+    }}
+
     async function calculate() {{
       el("error").textContent = "";
       if (!el("attacker").value.trim() || !el("defender").value.trim()) {{
@@ -761,9 +974,10 @@ def _local_script(data: dict[str, Any]) -> str:
         const mode = el("mode").value;
         const outgoingContext = normalizeContext(contextPayload("attacker-"));
         const incomingContext = normalizeContext(contextPayload("return-"));
-        renderResults({{
+        const result = {{
           attacker: unitSummary(attacker),
           defender: unitSummary(defender),
+          edition: el("edition").value || state.rulesEdition,
           mode,
           weapon_filters: {{
             outgoing: el("outgoing-weapon").value === "__all__" ? null : el("outgoing-weapon").value,
@@ -775,7 +989,8 @@ def _local_script(data: dict[str, Any]) -> str:
           }},
           outgoing: evaluateUnit(attacker, defender, mode, outgoingContext, el("outgoing-weapon").value, el("outgoing-multiplier").value),
           incoming: evaluateUnit(defender, attacker, mode, incomingContext, el("incoming-weapon").value, el("incoming-multiplier").value)
-        }});
+        }};
+        renderResults(attachMlJudgement(result, attacker, defender));
       }} catch (error) {{
         el("error").textContent = error.message;
       }} finally {{
@@ -914,6 +1129,21 @@ def _local_script(data: dict[str, Any]) -> str:
       }};
     }}
 
+    function renderMlJudgement(payload) {{
+      const judgement = payload.ml_judgement;
+      if (!judgement || !judgement.available) return "";
+      const accuracy = hasNumber(judgement.validation_accuracy)
+        ? `${{Math.round(Number(judgement.validation_accuracy) * 100)}}%`
+        : "n/a";
+      return `
+        <div class="judgement ml">
+          <h3>${{escapeHtml(judgement.title || "ML advisory")}}</h3>
+          <p>${{escapeHtml(judgement.body || "")}}</p>
+          <p class="small">Model: ${{escapeHtml(judgement.model_type || "unknown")}} | Feature set: ${{escapeHtml(judgement.feature_set || "custom")}} | Training rows: ${{escapeHtml(judgement.training_rows || 0)}} | Validation accuracy: ${{escapeHtml(accuracy)}}</p>
+        </div>
+      `;
+    }}
+
     function renderResults(payload) {{
       state.lastResult = payload;
       const outgoing = payload.outgoing;
@@ -935,8 +1165,9 @@ def _local_script(data: dict[str, Any]) -> str:
         <div class="judgement">
           <h3>${{escapeHtml(judgement.title)}}</h3>
           <p>${{escapeHtml(judgement.body)}}</p>
-          <p class="small">Attacker scope: ${{escapeHtml(scopeText(payload, "outgoing"))}} | Return scope: ${{escapeHtml(scopeText(payload, "incoming"))}}</p>
+          <p class="small">Edition: ${{escapeHtml(editionLabel(payload.edition || state.rulesEdition))}} | Attacker scope: ${{escapeHtml(scopeText(payload, "outgoing"))}} | Return scope: ${{escapeHtml(scopeText(payload, "incoming"))}}</p>
         </div>
+        ${{renderMlJudgement(payload)}}
         ${{renderLoadoutWarnings(payload)}}
         ${{renderWeaponList(outgoing, `${{payload.attacker.name}} attack`, `No ${{payload.mode}} weapons found for ${{payload.attacker.name}}.`)}}
         ${{renderWeaponList(incoming, `${{payload.defender.name}} return strike`, `No ${{payload.mode}} weapons found for ${{payload.defender.name}}.`)}}
@@ -960,10 +1191,13 @@ def _local_script(data: dict[str, Any]) -> str:
       const audit = payload.audit_report;
       const diff = payload.import_diff;
       const metadata = payload.metadata;
+      const editionStatus = payload.edition_status;
       const updateReport = payload.update_report;
       const profileReview = payload.profile_review;
+      const modelAudit = payload.model_audit;
       const reviewFiles = payload.review_files || [];
-      if (!audit && !diff && !metadata && !updateReport && !profileReview) {{
+      const modelFiles = payload.model_files || [];
+      if (!audit && !diff && !metadata && !editionStatus && !updateReport && !profileReview && !modelAudit) {{
         el("results").innerHTML = `<div class="empty">No generated audit or import diff files were found.</div>`;
         return;
       }}
@@ -984,12 +1218,30 @@ def _local_script(data: dict[str, Any]) -> str:
           ${{metric("Warnings", summary.warning || 0)}}
           ${{metric("Info", summary.info || 0)}}
           ${{metric("Rows checked", audit && audit.row_counts ? Object.values(audit.row_counts).reduce((total, value) => total + Number(value || 0), 0) : 0)}}
+          ${{editionStatus ? metric("Edition status", escapeHtml(editionStatus.status || "unknown")) : ""}}
         </div>
-        ${{renderReviewFiles(reviewFiles)}}
+        ${{renderEditionStatus(editionStatus)}}
+        ${{renderReviewFiles([...reviewFiles, ...modelFiles])}}
+        ${{renderModelAudit(modelAudit)}}
         ${{renderUpdateReport(updateReport)}}
         ${{renderProfileReview(profileReview)}}
         ${{renderDiff(diff)}}
         ${{renderAuditSections(audit)}}
+      `;
+    }}
+
+    function renderEditionStatus(status) {{
+      if (!status) return "";
+      const blockers = status.blockers && status.blockers.length
+        ? `<p><b>Blockers:</b> ${{status.blockers.map(escapeHtml).join(", ")}}</p>`
+        : `<p>No calculation blockers recorded.</p>`;
+      return `
+        <div class="review-section">
+          <h3>Edition Readiness</h3>
+          <p><b>${{escapeHtml(String(status.edition || "unknown").toUpperCase())}}</b> calculations are ${{status.calculations_enabled ? "enabled" : "blocked"}}.</p>
+          <p>Ruleset available: ${{status.rules_available ? "yes" : "no"}} | supported rulesets: ${{escapeHtml((status.supported_rules_editions || []).join(", ") || "none")}}</p>
+          ${{blockers}}
+        </div>
       `;
     }}
 
@@ -1025,6 +1277,11 @@ def _local_script(data: dict[str, Any]) -> str:
     function renderUpdateReport(updateReport) {{
       if (!updateReport) return "";
       return renderMarkdownReport("Update Report", updateReport);
+    }}
+
+    function renderModelAudit(modelAudit) {{
+      if (!modelAudit) return "";
+      return renderMarkdownReport("ML Model Audit", modelAudit);
     }}
 
     function renderMarkdownReport(title, markdown) {{
@@ -1256,9 +1513,13 @@ def build_local_html(*, csv_dir: Path, template_path: Path, output_path: Path) -
         "auditReport": _load_json(csv_dir / "audit_report.json"),
         "importDiff": _load_json(csv_dir / "import_diff.json"),
         "metadata": _load_json(csv_dir / "metadata.json"),
+        "editionStatus": _load_json(csv_dir / "edition_status.json"),
         "updateReport": _load_text(csv_dir / "update_report.md"),
         "profileReview": _load_text(csv_dir / "profile_review.md"),
+        "modelAudit": _load_text(DEFAULT_MODEL.with_suffix(".md")),
         "reviewFiles": _review_files(csv_dir),
+        "modelFiles": _model_files(DEFAULT_MODEL.parent),
+        "mlModel": _load_json(DEFAULT_MODEL),
     }
     template = template_path.read_text(encoding="utf-8")
     start = template.index("  <script>")
@@ -1297,6 +1558,7 @@ def _review_files(csv_dir: Path) -> list[dict[str, Any]]:
         "loadout_review.csv": "Loadout review CSV",
         "source_catalogue_review.csv": "Source catalogue review CSV",
         "schema_review.csv": "Schema review CSV",
+        "edition_status.json": "Edition status JSON",
         "artifact_manifest.json": "Artifact manifest JSON",
         "profile_review.md": "Profile review summary",
         "update_report.md": "Update report",
@@ -1309,21 +1571,59 @@ def _review_files(csv_dir: Path) -> list[dict[str, Any]]:
                 {
                     "label": label,
                     "filename": filename,
-                    "href": f"data/latest/{filename}",
+                    "href": _review_file_href(csv_dir, filename),
                     "bytes": path.stat().st_size,
                 }
             )
     return files
 
 
+def _model_files(model_dir: Path) -> list[dict[str, Any]]:
+    labels = {
+        "matchup_centroid_model.md": "ML model audit report",
+        "matchup_centroid_model.json": "ML model JSON",
+    }
+    files = []
+    for filename, label in labels.items():
+        path = model_dir / filename
+        if path.exists():
+            files.append(
+                {
+                    "label": label,
+                    "filename": filename,
+                    "href": _relative_or_absolute_href(path),
+                    "bytes": path.stat().st_size,
+                }
+            )
+    return files
+
+
+def _review_file_href(csv_dir: Path, filename: str) -> str:
+    return _relative_or_absolute_href(csv_dir / filename)
+
+
+def _relative_or_absolute_href(path: Path) -> str:
+    try:
+        relative = path.resolve().relative_to(Path.cwd().resolve())
+    except ValueError:
+        return str(path.resolve())
+    return relative.as_posix()
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Export a standalone local HTML calculator")
-    parser.add_argument("--csv-dir", type=Path, default=PROJECT_ROOT / "data" / "latest")
+    parser.add_argument("--csv-dir", type=Path, default=_default_csv_dir())
     parser.add_argument("--template", type=Path, default=DEFAULT_TEMPLATE)
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
     args = parser.parse_args()
     build_local_html(csv_dir=args.csv_dir, template_path=args.template, output_path=args.output)
     print(f"Wrote {args.output}")
+
+
+def _default_csv_dir() -> Path:
+    if DEFAULT_CSV_DIR.exists():
+        return DEFAULT_CSV_DIR
+    return LEGACY_CSV_DIR
 
 
 if __name__ == "__main__":

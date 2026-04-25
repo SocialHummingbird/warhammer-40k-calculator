@@ -1,9 +1,32 @@
 # Changelog
 
 ## Planned Work
+- [ ] Refactor core boundaries before adding ML-heavy features.
+  - [x] Extract deterministic matchup orchestration into `warhammer.matchups` so the web API and future ML exporters can share one calculation path.
+  - [x] Extract generated review artifact loading into `warhammer.data_review`.
+  - [x] Extract edition metadata, discovery, and readiness rows into `warhammer.editions`.
+  - [x] Extract API payload parsing into `warhammer.api_payloads` and unit filtering into `warhammer.unit_search`.
+- [ ] Add ML foundation.
+  - [x] Add `warhammer.ml.features` and `export_ml_features.py` to generate deterministic calculator-derived matchup feature rows.
+  - [x] Add seeded sampling for capped feature exports so training rows cover more than the first sorted pair block.
+  - [x] Add a dependency-free nearest-centroid advisory model trainer.
+  - [x] Expose saved model predictions as a separate `ml_judgement` advisory in the local server UI and standalone HTML export.
+  - [x] Surface model availability, training rows, and validation accuracy through `/api/health` and the UI status bar.
+  - [x] Add a Markdown ML audit report covering label source, class balance, validation confusion, feature columns, and synthetic-label caveats.
+  - [x] Add a `pre_match` ML feature set that excludes deterministic calculator output columns, while keeping the previous `full` feature set for comparison.
+  - [x] Add same-mode weapon aggregate features to `pre_match` training rows so the model can see weapon profile shape without seeing calculator outputs.
+  - [x] Surface ML model audit content and model artifact links through the Data Review screen and standalone HTML export.
+  - [x] Regenerate ML features, model, and audit during `update_database.py` before rebuilding standalone HTML, with `--skip-ml` for data-only refreshes.
+  - Later replace or augment the dependency-free baseline with a stronger optional model.
 - [ ] Add multi-edition support so 10th edition and future 11th edition data can coexist without sharing incompatible rules assumptions.
   - [x] First step: introduce an explicit ruleset registry and route current calculator behavior through a `10e` ruleset while keeping current outputs unchanged.
   - [x] Add edition metadata to generated data artifacts and display the active rules edition in the UI status.
+  - [x] Add an edition selector and calculate-request edition field, currently locked to available `10e` data.
+  - [x] Add edition-scoped data layout with `data/10e/latest` and `data/10e/snapshots`, while mirroring `data/latest` for compatibility.
+  - [x] Add server-side discovery for `data/<edition>/latest` folders and surface discovered edition data in the UI.
+  - [x] Load discovered edition datasets server-side and route unit search, unit detail, data review, review downloads, and calculations through the selected edition.
+  - [x] Keep discovered editions with missing rulesets visible as blocked, e.g. future `11e` data before an `11e` rules engine exists.
+  - [x] Write `edition_status.json` during database updates so each generated data folder records ruleset availability, calculation readiness, blockers, and source provenance.
   - Later add separate 11th-edition importer/data snapshots once an upstream data source and rules mapping are available.
 
 ## 2025-10-02

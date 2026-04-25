@@ -1,0 +1,35 @@
+{
+  "generated_at": "2026-04-25T20:11:44.913626Z",
+  "edition": "10e",
+  "requested_edition": "10e",
+  "metadata_edition": "10e",
+  "rules_available": true,
+  "supported_rules_editions": [
+    "10e"
+  ],
+  "calculations_enabled": true,
+  "status": "ready",
+  "blockers": [],
+  "data_dir": "C:\\Users\\ap010\\OneDrive\\Documents\\dev\\Warhammer 40K Calculator\\250916 0942 Warhammer 40k damage calculator\\data\\10e\\latest",
+  "source": {
+    "remote_origin": "https://github.com/BSData/wh40k-10e.git",
+    "branch": "main",
+    "commit": "32b4525d9f69f062f3458d517c6cf82512ef6fef",
+    "commit_date": "2026-04-21 17:44:59 +0100",
+    "commit_subject": "Fixes #7066",
+    "dirty": false
+  },
+  "counts": {
+    "units": 2093,
+    "weapons": 10808,
+    "abilities": 3173,
+    "keywords": 1425,
+    "unit_keywords": 9644
+  },
+  "audit_summary": {
+    "error": 0,
+    "warning": 0,
+    "info": 0,
+    "total": 0
+  }
+}

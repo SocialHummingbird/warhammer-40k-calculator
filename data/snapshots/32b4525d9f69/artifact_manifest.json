@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-25T18:17:03.291883Z",
+  "generated_at": "2026-04-25T18:21:30.304905Z",
   "source": {
     "path": "C:\\Users\\ap010\\OneDrive\\Documents\\dev\\Warhammer 40K Calculator\\250916 0942 Warhammer 40k damage calculator\\data\\wh40k-10e",
     "remote_origin": "https://github.com/BSData/wh40k-10e.git",
@@ -33,11 +33,11 @@
     },
     "metadata.json": {
       "bytes": 1196,
-      "sha256": "58c3b5ee1a34012767740502fef98b921291423031b409327bb07d4564aa2ac4"
+      "sha256": "bdfa6dfb788d627a0152aa4ed45d643bd7290d870c1a97edabdb119b42268702"
     },
     "audit_report.json": {
       "bytes": 812,
-      "sha256": "cad14650c73d120f7248a2bb628283743cafdee176c49dba5d732dbaa0869ad6"
+      "sha256": "19354fc8d890c5733ca449b3000ddd207a3fec5a81a1f19f632a4ce56e40dfef"
     },
     "schema_review.csv": {
       "bytes": 1307,
@@ -45,11 +45,11 @@
     },
     "import_diff.json": {
       "bytes": 2279,
-      "sha256": "550501c9f73a441e3e44ee9825308d84b713f4ccacd9811b4e91bd04f50cf21d"
+      "sha256": "e27effb4ac1bba9b4d6e355a31df4639efcdf2715e7eeb0cac44d3fb7b90b976"
     },
     "update_report.md": {
       "bytes": 2360,
-      "sha256": "89ad1b15d277922e86c117e3088108b0d8dfe00e7404541cfe155cf97b7cc74a"
+      "sha256": "76c1532a90b70549216f3bcf10b98463079916e0b2470be9f0eb4b94aead61a2"
     },
     "weapon_profile_review.csv": {
       "bytes": 2611451,
@@ -85,7 +85,7 @@
     },
     "profile_review.md": {
       "bytes": 6891,
-      "sha256": "db93fd9f1e24f677c412a0ad527e251940aca295514237c51022569d3bc89a9e"
+      "sha256": "a318eb32efce905942053d2b42114eef22fb9ffcc8b51428ca5629c62e815783"
     }
   }
 }

@@ -19,7 +19,7 @@ from warhammer.webapp import _evaluate_unit_with_weapon_filter
 
 ROOT = Path(__file__).resolve().parents[1]
 LOCAL_HTML = ROOT / "warhammer_calculator_local.html"
-CSV_DIR = ROOT / "data" / "latest"
+CSV_DIR = ROOT / "data" / "10e" / "latest"
 
 
 def _find_chrome() -> str | None:
@@ -227,6 +227,9 @@ def test_standalone_html_can_calculate_matchup_in_headless_browser():
                     resultsText: document.getElementById("results")?.innerText || "",
                     status: document.getElementById("status")?.textContent || "",
                     statusTitle: document.getElementById("status")?.title || "",
+                    editionValue: document.getElementById("edition")?.value || "",
+                    editionDisabled: document.getElementById("edition")?.disabled || false,
+                    editionTitle: document.getElementById("edition")?.title || "",
                     weaponRows: document.querySelectorAll(".weapon").length,
                     outgoingDamage: state.lastResult?.outgoing?.total_damage,
                     incomingDamage: state.lastResult?.incoming?.total_damage,
@@ -256,9 +259,15 @@ def test_standalone_html_can_calculate_matchup_in_headless_browser():
             assert "pts" in result["attackerSelected"]
             assert "pts" in result["defenderSelected"]
             assert "10E rules" in result["status"]
+            assert "ML " in result["status"]
+            assert result["editionValue"] == "10e"
+            assert result["editionDisabled"] is True
+            assert "10th Edition" in result["editionTitle"]
+            assert "loaded" in result["editionTitle"]
             assert "BSData" in result["status"]
             assert "generated" in result["status"]
             assert "wh40k-10e" in result["statusTitle"]
+            assert "training rows" in result["statusTitle"]
             summary = result["summary"].casefold()
             assert "outgoing points" in summary
             assert "return points" in summary
@@ -324,7 +333,9 @@ def test_standalone_html_can_calculate_matchup_in_headless_browser():
                             outgoingScope: state.lastResult?.weapon_filters?.outgoing,
                             incomingScope: state.lastResult?.weapon_filters?.incoming,
                             outgoingMultiplier: state.lastResult?.multipliers?.outgoing,
-                            incomingMultiplier: state.lastResult?.multipliers?.incoming
+                            incomingMultiplier: state.lastResult?.multipliers?.incoming,
+                            mlAvailable: state.lastResult?.ml_judgement?.available === true,
+                            mlText: document.body.textContent.includes("ML advisory")
                           };
                         })()
                     """,
@@ -341,6 +352,8 @@ def test_standalone_html_can_calculate_matchup_in_headless_browser():
             assert ranged["incomingScope"] == ranged["incomingWeapon"]
             assert ranged["outgoingMultiplier"] == 2
             assert ranged["incomingMultiplier"] == 3
+            assert ranged["mlAvailable"] is True
+            assert ranged["mlText"] is True
             ranged_attacker = units_by_id[ranged["attackerId"]]
             ranged_defender = units_by_id[ranged["defenderId"]]
             outgoing_context = EngagementContext(
@@ -382,7 +395,11 @@ def test_standalone_html_can_calculate_matchup_in_headless_browser():
                           renderDataReview(await loadDataReview());
                           return {
                             sourceLinks: document.querySelectorAll('.report-markdown a[href*="github.com/BSData/wh40k-10e/blob/"]').length,
-                            schemaReviewLink: [...document.querySelectorAll('.review-link')].some((link) => /schema_review\.csv/.test(link.getAttribute("download") || link.textContent || ""))
+                            schemaReviewLink: [...document.querySelectorAll('.review-link')].some((link) => /schema_review\.csv/.test(link.getAttribute("download") || link.textContent || "")),
+                            editionStatusLink: [...document.querySelectorAll('.review-link')].some((link) => /edition_status\.json/.test(link.getAttribute("download") || link.textContent || "")),
+                            modelAuditLink: [...document.querySelectorAll('.review-link')].some((link) => /matchup_centroid_model\.md/.test(link.getAttribute("download") || link.textContent || "")),
+                            readinessText: document.body.textContent.includes("Edition Readiness"),
+                            modelAuditText: document.body.textContent.includes("ML Model Audit")
                           };
                         })()
                     """,
@@ -395,6 +412,10 @@ def test_standalone_html_can_calculate_matchup_in_headless_browser():
                 pytest.fail(str(review_response["result"]["exceptionDetails"]))
             assert review_result["sourceLinks"] > 0
             assert review_result["schemaReviewLink"] is True
+            assert review_result["editionStatusLink"] is True
+            assert review_result["modelAuditLink"] is True
+            assert review_result["readinessText"] is True
+            assert review_result["modelAuditText"] is True
         finally:
             if websocket is not None:
                 try:

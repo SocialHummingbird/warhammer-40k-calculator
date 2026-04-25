@@ -1,0 +1,389 @@
+{
+  "model_type": "nearest_centroid_classifier",
+  "feature_set": "pre_match",
+  "label_source": "deterministic_calculator",
+  "created_at": "2026-04-25T20:11:47.981869Z",
+  "feature_columns": [
+    "attacker_points",
+    "attacker_models",
+    "attacker_toughness",
+    "attacker_save",
+    "attacker_invulnerable_save",
+    "attacker_wounds",
+    "attacker_keywords_count",
+    "attacker_weapon_count",
+    "attacker_mode_weapon_count",
+    "attacker_points_per_model",
+    "attacker_mode_avg_attacks",
+    "attacker_mode_max_attacks",
+    "attacker_mode_avg_skill",
+    "attacker_mode_avg_strength",
+    "attacker_mode_max_strength",
+    "attacker_mode_avg_ap",
+    "attacker_mode_best_ap",
+    "attacker_mode_avg_damage",
+    "attacker_mode_max_damage",
+    "attacker_mode_keyword_count",
+    "attacker_mode_special_rule_count",
+    "defender_points",
+    "defender_models",
+    "defender_toughness",
+    "defender_save",
+    "defender_invulnerable_save",
+    "defender_wounds",
+    "defender_keywords_count",
+    "defender_weapon_count",
+    "defender_mode_weapon_count",
+    "defender_points_per_model",
+    "defender_mode_avg_attacks",
+    "defender_mode_max_attacks",
+    "defender_mode_avg_skill",
+    "defender_mode_avg_strength",
+    "defender_mode_max_strength",
+    "defender_mode_avg_ap",
+    "defender_mode_best_ap",
+    "defender_mode_avg_damage",
+    "defender_mode_max_damage",
+    "defender_mode_keyword_count",
+    "defender_mode_special_rule_count"
+  ],
+  "label_column": "winner_label",
+  "labels": [
+    "attacker",
+    "close",
+    "defender"
+  ],
+  "class_counts": {
+    "attacker": 4129,
+    "defender": 3515,
+    "close": 356
+  },
+  "feature_stats": {
+    "attacker_points": {
+      "mean": 63.1525,
+      "std": 151.13340297151387
+    },
+    "attacker_models": {
+      "mean": 1.9995,
+      "std": 2.5747814955836543
+    },
+    "attacker_toughness": {
+      "mean": 6.03225,
+      "std": 2.8801840110485997
+    },
+    "attacker_save": {
+      "mean": 3.347875,
+      "std": 1.1880058856651343
+    },
+    "attacker_invulnerable_save": {
+      "mean": 1.135625,
+      "std": 1.9907864926643941
+    },
+    "attacker_wounds": {
+      "mean": 6.717625,
+      "std": 7.181322257034216
+    },
+    "attacker_keywords_count": {
+      "mean": 4.673875,
+      "std": 3.3619960565674374
+    },
+    "attacker_weapon_count": {
+      "mean": 5.43925,
+      "std": 5.6164766034854985
+    },
+    "attacker_mode_weapon_count": {
+      "mean": 2.814375,
+      "std": 3.29202344453605
+    },
+    "attacker_points_per_model": {
+      "mean": 47.83619768186794,
+      "std": 149.18681564198275
+    },
+    "attacker_mode_avg_attacks": {
+      "mean": 3.3816536768298957,
+      "std": 1.975586487557013
+    },
+    "attacker_mode_max_attacks": {
+      "mean": 4.327375,
+      "std": 2.8930650890318734
+    },
+    "attacker_mode_avg_skill": {
+      "mean": 3.18051813717226,
+      "std": 0.775341874974749
+    },
+    "attacker_mode_avg_strength": {
+      "mean": 5.886244437874631,
+      "std": 2.1372938308518656
+    },
+    "attacker_mode_max_strength": {
+      "mean": 7.211375,
+      "std": 3.5771421008082696
+    },
+    "attacker_mode_avg_ap": {
+      "mean": -1.0958416180612356,
+      "std": 0.9007721115424401
+    },
+    "attacker_mode_best_ap": {
+      "mean": -1.667375,
+      "std": 1.3699400021077566
+    },
+    "attacker_mode_avg_damage": {
+      "mean": 1.673166108507533,
+      "std": 0.8440634027745109
+    },
+    "attacker_mode_max_damage": {
+      "mean": 2.2531875,
+      "std": 1.6497696323559088
+    },
+    "attacker_mode_keyword_count": {
+      "mean": 4.014375,
+      "std": 5.47753761825284
+    },
+    "attacker_mode_special_rule_count": {
+      "mean": 1.934125,
+      "std": 3.8071361263257977
+    },
+    "defender_points": {
+      "mean": 58.960625,
+      "std": 141.7879061295757
+    },
+    "defender_models": {
+      "mean": 1.999125,
+      "std": 2.6123981768434534
+    },
+    "defender_toughness": {
+      "mean": 5.93275,
+      "std": 2.82638947024291
+    },
+    "defender_save": {
+      "mean": 3.381625,
+      "std": 1.231457412732978
+    },
+    "defender_invulnerable_save": {
+      "mean": 1.088375,
+      "std": 1.9486700232145513
+    },
+    "defender_wounds": {
+      "mean": 6.46575,
+      "std": 7.026864659113622
+    },
+    "defender_keywords_count": {
+      "mean": 4.54475,
+      "std": 3.364520387440088
+    },
+    "defender_weapon_count": {
+      "mean": 5.044625,
+      "std": 5.334101012295792
+    },
+    "defender_mode_weapon_count": {
+      "mean": 2.534875,
+      "std": 3.166193887678864
+    },
+    "defender_points_per_model": {
+      "mean": 43.861700361838835,
+      "std": 139.10809494405586
+    },
+    "defender_mode_avg_attacks": {
+      "mean": 3.1399531929931825,
+      "std": 2.147861526583766
+    },
+    "defender_mode_max_attacks": {
+      "mean": 3.987875,
+      "std": 3.068821513932506
+    },
+    "defender_mode_avg_skill": {
+      "mean": 2.947373534358144,
+      "std": 1.1476105401379946
+    },
+    "defender_mode_avg_strength": {
+      "mean": 5.430333442124055,
+      "std": 2.590542117349204
+    },
+    "defender_mode_max_strength": {
+      "mean": 6.614875,
+      "std": 3.880825135763656
+    },
+    "defender_mode_avg_ap": {
+      "mean": -1.007193678655254,
+      "std": 0.9175825189084965
+    },
+    "defender_mode_best_ap": {
+      "mean": -1.5185,
+      "std": 1.3803650785208963
+    },
+    "defender_mode_avg_damage": {
+      "mean": 1.5422584403790431,
+      "std": 0.9231690636691843
+    },
+    "defender_mode_max_damage": {
+      "mean": 2.0558125,
+      "std": 1.6208342650757819
+    },
+    "defender_mode_keyword_count": {
+      "mean": 3.551375,
+      "std": 5.1844344541497485
+    },
+    "defender_mode_special_rule_count": {
+      "mean": 1.682375,
+      "std": 3.5728125278798215
+    }
+  },
+  "centroids": {
+    "attacker": [
+      0.10169919029123094,
+      -0.035267225968183956,
+      0.2785706198335634,
+      -0.21841295149521303,
+      0.11508628642689257,
+      0.2600502392850471,
+      0.22414936376637537,
+      0.20954058862877692,
+      0.2458253102700617,
+      0.10357373026289786,
+      0.25369190376849327,
+      0.3332451582416824,
+      -0.1735038478048559,
+      0.3359840552475696,
+      0.3635900778488214,
+      -0.2960432486252966,
+      -0.3387986621302303,
+      0.2923333031149813,
+      0.31908706698223194,
+      0.2210151768252584,
+      0.1837824064917466,
+      -0.1039614396245147,
+      0.04381484641647595,
+      -0.29616767219513657,
+      0.24726599936300386,
+      -0.10388942266752077,
+      -0.2691494505269705,
+      -0.23043828302478622,
+      -0.26626056459757574,
+      -0.3027181154384871,
+      -0.1078130792376985,
+      -0.3688449697930633,
+      -0.4235550784330681,
+      -0.07418062369694915,
+      -0.4532912874965435,
+      -0.47646365849497274,
+      0.3916185726472736,
+      0.43317389719174354,
+      -0.4002899747263653,
+      -0.41359446607832007,
+      -0.2680316432512369,
+      -0.2243420763504398
+    ],
+    "defender": [
+      -0.11621253118440728,
+      0.034778462495600036,
+      -0.3216523140566004,
+      0.2598804542733714,
+      -0.1370069574459782,
+      -0.2957114747730435,
+      -0.2602659150584319,
+      -0.2367026546391919,
+      -0.2785756900440257,
+      -0.11825271025158438,
+      -0.2953393659268246,
+      -0.38269994604772783,
+      0.20261434466303765,
+      -0.40012648941333495,
+      -0.4275593171177941,
+      0.35186662981149897,
+      0.40035043887852284,
+      -0.34226274601699563,
+      -0.36962858164339735,
+      -0.24907247952042777,
+      -0.20702675919673327,
+      0.12144921106890848,
+      -0.05847206328501046,
+      0.35344428126291255,
+      -0.28217427078405743,
+      0.12181220863625335,
+      0.32150090032500617,
+      0.2667957553564484,
+      0.3092447721293703,
+      0.35195022106124185,
+      0.12857195507061683,
+      0.426912315158511,
+      0.4935723528772616,
+      0.06879349604395235,
+      0.521667442782091,
+      0.5501546195856875,
+      -0.45024581383606693,
+      -0.49638928566028373,
+      0.460705301075167,
+      0.47870945944174387,
+      0.3093249226721613,
+      0.25850765699038863
+    ],
+    "close": [
+      -0.03210367864979306,
+      0.06565191109717028,
+      -0.055084846583903155,
+      -0.03273235968295294,
+      0.01794432237629438,
+      -0.09640900050759227,
+      -0.029994470676979103,
+      -0.0932114027852374,
+      -0.10061560561909944,
+      -0.033701280115629166,
+      -0.026337077043008795,
+      -0.08645771916333414,
+      0.011820129482217336,
+      0.05383833194010327,
+      0.004515641099074755,
+      -0.040586039925754665,
+      -0.023404822253426633,
+      -0.011209708741738694,
+      -0.051309087339923475,
+      -0.10416263931800981,
+      -0.08746769052772377,
+      0.0066370991641446836,
+      0.06915112807081902,
+      -0.05472002849849938,
+      -0.08179424034807992,
+      0.0022177326905013987,
+      -0.052689841057672444,
+      0.038462332953567664,
+      0.03481600333844368,
+      0.03600581914393017,
+      -0.019017466013331253,
+      0.06282048453201253,
+      0.03919128788354033,
+      0.18113105800619841,
+      0.10668164239946196,
+      0.09417123056738078,
+      -0.09657036749087909,
+      -0.1229401191262044,
+      0.0938712706911908,
+      0.07041516994298172,
+      0.054566156718388534,
+      0.049589940814189035
+    ]
+  },
+  "training_rows": 8000,
+  "validation_rows": 2000,
+  "validation": {
+    "accuracy": 0.694,
+    "correct": 1388,
+    "total": 2000,
+    "confusion": {
+      "defender": {
+        "defender": 640,
+        "close": 288,
+        "attacker": 16
+      },
+      "close": {
+        "close": 63,
+        "attacker": 4,
+        "defender": 14
+      },
+      "attacker": {
+        "attacker": 685,
+        "close": 268,
+        "defender": 22
+      }
+    }
+  }
+}

@@ -1,0 +1,345 @@
+faction,unit_name,selection_type,unit_id,source_file,points,models_min,models_max,total_weapons,ranged_weapons,melee_weapons,coverage,review_reason
+Imperium - Adeptus Astartes - Space Marines,Champion of the Chapter [Crucible],model,74ba-6762-ef01-32d6,Imperium - Space Marines.cat,0,1,1,49,29,20,both,many imported weapon profiles; many ranged profiles; many melee profiles; mixed loadout profiles
+Imperium - Adeptus Astartes - Space Marines,Librarius Adept [Crucible],model,0385-0e03-0eac-d91c,Imperium - Space Marines.cat,0,1,1,49,29,20,both,many imported weapon profiles; many ranged profiles; many melee profiles; mixed loadout profiles
+Imperium - Agents of the Imperium,Deathwatch Agent [Crucible],model,9a75-f3a2-bff5-9f08,Imperium - Agents of the Imperium.cat,105,1,1,38,29,9,both,many imported weapon profiles; many ranged profiles; mixed loadout profiles
+Imperium - Agents of the Imperium,Enthroned Agent [Crucible],model,2b47-b5e8-b297-7bd8,Imperium - Agents of the Imperium.cat,120,1,1,38,29,9,both,many imported weapon profiles; many ranged profiles; mixed loadout profiles
+Imperium - Agents of the Imperium,Martial Agent [Crucible],model,90e0-c5a9-17c5-fba4,Imperium - Agents of the Imperium.cat,60,1,1,38,29,9,both,many imported weapon profiles; many ranged profiles; mixed loadout profiles
+Chaos - Chaos Space Marines,Exalted Champion [Crucible],model,b9a4-a9c4-5f8d-ed3a,Chaos - Chaos Space Marines.cat,0,1,1,36,22,14,both,many imported weapon profiles; many ranged profiles; many melee profiles; mixed loadout profiles
+Chaos - Chaos Space Marines,Sorcerous Champion [Crucible],model,b6c0-4be6-7487-73dc,Chaos - Chaos Space Marines.cat,0,1,1,36,22,14,both,many imported weapon profiles; many ranged profiles; many melee profiles; mixed loadout profiles
+Chaos - Chaos Space Marines,Soul Forge Tyrant [Crucible],model,9573-8b24-3796-d9d9,Chaos - Chaos Space Marines.cat,0,1,1,36,22,14,both,many imported weapon profiles; many ranged profiles; many melee profiles; mixed loadout profiles
+Xenos - Orks,Hordeboss [Crucible],model,2ba9-e97a-909d-3ac5,Orks.cat,15,1,1,36,18,18,both,many imported weapon profiles; many ranged profiles; many melee profiles; mixed loadout profiles
+Xenos - Orks,Upstart Gretchin [Crucible],model,6a69-8e75-49ae-408f,Orks.cat,15,1,1,36,18,18,both,many imported weapon profiles; many ranged profiles; many melee profiles; mixed loadout profiles
+Xenos - Orks,Warphead [Crucible],model,54de-2004-bbc1-3ac6,Orks.cat,15,1,1,36,18,18,both,many imported weapon profiles; many ranged profiles; many melee profiles; mixed loadout profiles
+Imperium - Adeptus Mechanicus,Cohort Commander [Crucible],model,7d17-4620-8dbf-4ef6,Imperium - Adeptus Mechanicus.cat,10,1,1,35,23,12,both,many imported weapon profiles; many ranged profiles; many melee profiles; mixed loadout profiles
+Imperium - Adeptus Mechanicus,Ironstrider Alpha [Crucible],model,6b3e-11ad-7a9d-ca5d,Imperium - Adeptus Mechanicus.cat,10,1,1,35,23,12,both,many imported weapon profiles; many ranged profiles; many melee profiles; mixed loadout profiles
+Imperium - Adeptus Mechanicus,Magos [Crucible],model,18e0-96d4-7d85-2b3b,Imperium - Adeptus Mechanicus.cat,10,1,1,35,23,12,both,many imported weapon profiles; many ranged profiles; many melee profiles; mixed loadout profiles
+Xenos - T'au Empire,Battlesuit Veteran [Crucible],model,ed9c-6a08-c915-c757,T'au Empire.cat,10,1,1,35,27,8,both,many imported weapon profiles; many ranged profiles; mixed loadout profiles
+Xenos - T'au Empire,Kinband Champion [Crucible],model,86c3-1150-ef4d-d870,T'au Empire.cat,10,1,1,35,27,8,both,many imported weapon profiles; many ranged profiles; mixed loadout profiles
+Xenos - T'au Empire,Shas'nel [Crucible],model,2e61-8399-60bf-1c85,T'au Empire.cat,10,1,1,35,27,8,both,many imported weapon profiles; many ranged profiles; mixed loadout profiles
+Imperium - Astra Militarum - Library,Augmented Bone 'Ead [Crucible],model,7280-8daf-312a-b01d,Imperium - Astra Militarum - Library.cat,60,1,1,33,20,13,both,many imported weapon profiles; many ranged profiles; many melee profiles; mixed loadout profiles
+Imperium - Astra Militarum - Library,Front-line Commander [Crucible],model,4fc5-184d-b305-3551,Imperium - Astra Militarum - Library.cat,55,1,1,33,20,13,both,many imported weapon profiles; many ranged profiles; many melee profiles; mixed loadout profiles
+Imperium - Astra Militarum - Library,Sentinel Commander [Crucible],model,a040-9715-5d3a-52af,Imperium - Astra Militarum - Library.cat,75,1,1,33,20,13,both,many imported weapon profiles; many ranged profiles; many melee profiles; mixed loadout profiles
+Library - Tyranids,Macro Organism [Crucible],model,a89f-8ad1-3d79-174f,Library - Tyranids.cat,0,1,1,33,21,12,both,many imported weapon profiles; many ranged profiles; many melee profiles; mixed loadout profiles
+Library - Tyranids,Node Organism [Crucible],model,527c-d3c6-c620-c7c6,Library - Tyranids.cat,0,1,1,33,21,12,both,many imported weapon profiles; many ranged profiles; many melee profiles; mixed loadout profiles
+Library - Tyranids,Prime Organism [Crucible],model,6f46-0c77-acd0-3f5d,Library - Tyranids.cat,0,1,1,33,21,12,both,many imported weapon profiles; many ranged profiles; many melee profiles; mixed loadout profiles
+Xenos - Leagues of Votann,Kinhost Commander [Crucible],model,05b6-7622-edbe-7a9a,Leagues of Votann.cat,0,1,1,32,18,14,both,many imported weapon profiles; many ranged profiles; many melee profiles; mixed loadout profiles
+Xenos - Leagues of Votann,Living Ancestor [Crucible],model,0039-5b91-2e96-0e08,Leagues of Votann.cat,0,1,1,32,18,14,both,many imported weapon profiles; many ranged profiles; many melee profiles; mixed loadout profiles
+Xenos - Leagues of Votann,Steeljack Elder [Crucible],model,4eaf-78d5-9195-0e36,Leagues of Votann.cat,0,1,1,32,18,14,both,many imported weapon profiles; many ranged profiles; many melee profiles; mixed loadout profiles
+Chaos - Death Guard,Plague Lord [Crucible],model,89d8-7e90-be47-59b6,Chaos - Death Guard.cat,10,1,1,31,20,11,both,many imported weapon profiles; many ranged profiles; many melee profiles; mixed loadout profiles
+Chaos - Death Guard,Plague Sorcerer [Crucible],model,d037-162a-ac85-9c88,Chaos - Death Guard.cat,10,1,1,31,20,11,both,many imported weapon profiles; many ranged profiles; many melee profiles; mixed loadout profiles
+Chaos - Death Guard,Tri-lobe Vector,model,fbf5-7844-61de-07c6,Chaos - Death Guard.cat,10,1,1,31,20,11,both,many imported weapon profiles; many ranged profiles; many melee profiles; mixed loadout profiles
+Chaos - Death Guard,Tri-lobe Vectors [Crucible],unit,fa2a-1b44-a513-318d,Chaos - Death Guard.cat,120,3,3,31,20,11,both,many imported weapon profiles; many ranged profiles; many melee profiles; mixed loadout profiles
+Imperium - Adeptus Astartes - Black Templars,Crusader Squad [Legends],unit,2da2-ad08-6057-5a1c,Imperium - Black Templars.cat,85,4,9,31,24,7,both,many imported weapon profiles; many ranged profiles; mixed loadout profiles
+Imperium - Grey Knights,Champion of Titan [Crucible],model,9782-7a59-9b65-21e4,Imperium - Grey Knights.cat,0,1,1,31,19,12,both,many imported weapon profiles; many ranged profiles; many melee profiles; mixed loadout profiles
+Imperium - Grey Knights,Dreadknight Champion [Crucible],model,e60e-8ccf-41b2-292e,Imperium - Grey Knights.cat,0,1,1,31,19,12,both,many imported weapon profiles; many ranged profiles; many melee profiles; mixed loadout profiles
+Imperium - Grey Knights,Venerable Daemon Slayer [Crucible],model,2a2d-1f49-9373-4084,Imperium - Grey Knights.cat,0,1,1,31,19,12,both,many imported weapon profiles; many ranged profiles; many melee profiles; mixed loadout profiles
+Aeldari - Aeldari Library,Craftworld Warleader [Crucible],model,8e2c-2234-8595-f191,Aeldari - Aeldari Library.cat,15,1,1,30,20,10,both,many imported weapon profiles; many ranged profiles; many melee profiles; mixed loadout profiles
+Aeldari - Aeldari Library,Ghost Warrior [Crucible],model,5578-f918-6e88-3d0e,Aeldari - Aeldari Library.cat,0,1,1,30,20,10,both,many imported weapon profiles; many ranged profiles; many melee profiles; mixed loadout profiles
+Aeldari - Aeldari Library,Skyrunner [Crucible],model,915f-4ee6-3358-31ca,Aeldari - Aeldari Library.cat,0,1,1,30,20,10,both,many imported weapon profiles; many ranged profiles; many melee profiles; mixed loadout profiles
+Imperium - Adeptus Astartes - Space Marines,Command Squad [Legends],unit,78ae-14b4-56d0-cc9d,Imperium - Space Marines.cat,165,7,7,30,23,7,both,many imported weapon profiles; many ranged profiles; mixed loadout profiles
+Xenos - Genestealer Cults,Cult Guerrilla [Crucible],model,5138-978e-c8e6-b90c,Genestealer Cults.cat,60,1,1,30,19,11,both,many imported weapon profiles; many ranged profiles; many melee profiles; mixed loadout profiles
+Xenos - Genestealer Cults,Cult Insurrectionist [Crucible],model,0f8d-ba1b-c2cf-c8e7,Genestealer Cults.cat,80,1,1,30,19,11,both,many imported weapon profiles; many ranged profiles; many melee profiles; mixed loadout profiles
+Xenos - Genestealer Cults,Voice of the Patriarch [Crucible],model,678c-b59c-f85d-0a43,Genestealer Cults.cat,70,1,1,30,19,11,both,many imported weapon profiles; many ranged profiles; many melee profiles; mixed loadout profiles
+Imperium - Adepta Sororitas,Inspiring Devotee [Crucible],model,622e-1e15-13f1-601a,Imperium - Adepta Sororitas.cat,15,1,1,29,19,10,both,many imported weapon profiles; many ranged profiles; many melee profiles; mixed loadout profiles
+Imperium - Adepta Sororitas,Militant Commander [Crucible],model,8f3c-d887-6e18-02e8,Imperium - Adepta Sororitas.cat,15,1,1,29,19,10,both,many imported weapon profiles; many ranged profiles; many melee profiles; mixed loadout profiles
+Imperium - Adepta Sororitas,Reliquant Knight [Crucible],model,1b8d-2b8b-084a-feba,Imperium - Adepta Sororitas.cat,15,1,1,29,19,10,both,many imported weapon profiles; many ranged profiles; many melee profiles; mixed loadout profiles
+Imperium - Adeptus Astartes - Space Marines,Company Veterans,model,7fda-f23f-c551-4bfd,Imperium - Space Marines.cat,,1,1,28,23,5,both,many imported weapon profiles; many ranged profiles; mixed loadout profiles
+Xenos - Necrons,Dynastic Conqueror [Crucible],model,be60-a5ae-6c7c-df47,Necrons.cat,10,1,1,28,11,17,both,many imported weapon profiles; many ranged profiles; many melee profiles; mixed loadout profiles
+Xenos - Necrons,Hyperscientist [Crucible],model,e884-dd7a-a1cd-bad8,Necrons.cat,10,1,1,28,11,17,both,many imported weapon profiles; many ranged profiles; many melee profiles; mixed loadout profiles
+Xenos - Necrons,Triarchal Overseer [Crucible],model,50cd-aa29-f506-8ed1,Necrons.cat,120,1,1,28,11,17,both,many imported weapon profiles; many ranged profiles; many melee profiles; mixed loadout profiles
+Chaos - Emperor's Children,Champion of Excess [Crucible],model,cc4d-41d6-dfea-414f,Chaos - Emperor's Children.cat,0,1,1,26,15,11,both,many imported weapon profiles; many ranged profiles; many melee profiles; mixed loadout profiles
+Chaos - Emperor's Children,Excruciator [Crucible],model,eeac-c9b8-3904-11a5,Chaos - Emperor's Children.cat,0,1,1,26,15,11,both,many imported weapon profiles; many ranged profiles; many melee profiles; mixed loadout profiles
+Chaos - Emperor's Children,Flawless Champion [Crucible],model,2334-eccf-6ea5-562e,Chaos - Emperor's Children.cat,0,1,1,26,15,11,both,many imported weapon profiles; many ranged profiles; many melee profiles; mixed loadout profiles
+Imperium - Adeptus Astartes - Space Marines,Tactical Squad,unit,c09a-6504-d25f-477,Imperium - Space Marines.cat,140,11,11,26,20,6,both,many imported weapon profiles; many ranged profiles; mixed loadout profiles
+Imperium - Adeptus Astartes - Space Wolves,Wolf Scouts [Legends],unit,91e4-38c4-a96f-2090,Imperium - Space Wolves.cat,80,5,10,25,18,7,both,many imported weapon profiles; many ranged profiles; mixed loadout profiles
+Chaos - Thousand Sons,Brayherd Chieftain [Crucible],model,d288-821d-7fef-f3ae,Chaos - Thousand Sons.cat,0,1,1,24,18,6,both,many imported weapon profiles; many ranged profiles; mixed loadout profiles
+Chaos - Thousand Sons,Brayherd Shaman [Crucible],model,f75a-a5e6-f478-6f55,Chaos - Thousand Sons.cat,0,1,1,24,18,6,both,many imported weapon profiles; many ranged profiles; mixed loadout profiles
+Chaos - Thousand Sons,Magister [Crucible],model,8e43-1b14-4d87-7d17,Chaos - Thousand Sons.cat,0,1,1,24,18,6,both,many imported weapon profiles; many ranged profiles; mixed loadout profiles
+Chaos - Daemons Library,Daemonic Charioteer [Crucible],model,8597-d6dd-511e-80ae,Chaos - Chaos Daemons Library.cat,0,1,1,23,6,17,both,many imported weapon profiles; many melee profiles; mixed loadout profiles
+Chaos - Daemons Library,Daemonic Herald [Crucible],model,3a39-0b56-25e0-eff8,Chaos - Chaos Daemons Library.cat,0,1,1,23,6,17,both,many imported weapon profiles; many melee profiles; mixed loadout profiles
+Chaos - Daemons Library,Immortal Champion [Crucible],model,3594-bf68-4a46-fbf8,Chaos - Chaos Daemons Library.cat,0,1,1,23,6,17,both,many imported weapon profiles; many melee profiles; mixed loadout profiles
+Chaos - World Eaters,Eight-blessed Lord [Crucible],model,71ad-8562-f833-5872,Chaos - World Eaters.cat,0,1,1,22,9,13,both,many imported weapon profiles; many melee profiles; mixed loadout profiles
+Imperium - Adeptus Astartes - Space Marines,Bike Squad [Legends],unit,e6c4-3c73-1f0e-816d,Imperium - Space Marines.cat,80,4,8,22,17,5,both,many imported weapon profiles; many ranged profiles; mixed loadout profiles
+Imperium - Adeptus Astartes - Space Wolves,Long Fangs [Legends],unit,47fa-f42-bb06-77d2,Imperium - Space Wolves.cat,120,5,6,22,18,4,both,many imported weapon profiles; many ranged profiles; mixed loadout profiles
+Imperium - Agents of the Imperium,Proteus Kill Team [Legends],unit,4681-2af4-acf9-2bce,Imperium - Agents of the Imperium.cat,160,10,20,22,14,8,both,many imported weapon profiles; many ranged profiles; mixed loadout profiles
+Chaos - World Eaters,Bloodcult Champion [Crucible],model,544e-3db3-4878-3db3,Chaos - World Eaters.cat,0,1,1,21,9,12,both,many imported weapon profiles; many melee profiles; mixed loadout profiles
+Chaos - World Eaters,Butcherlord [Crucible],model,85e5-721a-d505-3881,Chaos - World Eaters.cat,0,1,1,21,9,12,both,many imported weapon profiles; many melee profiles; mixed loadout profiles
+Imperium - Adeptus Astartes - Deathwatch,Fortis Kill Team,unit,a077-e1c9-f8f0-d38,Imperium - Deathwatch.cat,180,10,10,20,15,5,both,many imported weapon profiles; many ranged profiles; mixed loadout profiles
+Imperium - Adeptus Astartes - Space Marines,Devastator Squad,unit,3f4c-1e67-66dc-ffa5,Imperium - Space Marines.cat,120,5,10,20,15,5,both,many imported weapon profiles; many ranged profiles; mixed loadout profiles
+Imperium - Adeptus Astartes - Space Marines,Venerable Battle-Brother [Crucible],model,3fe2-9d72-8251-adb4,Imperium - Space Marines.cat,0,1,1,20,15,5,both,many imported weapon profiles; many ranged profiles; mixed loadout profiles
+Imperium - Adeptus Astartes - Deathwatch,Decimus Kill Team,unit,b169-ff89-b05e-3884,Imperium - Deathwatch.cat,100,1,1,19,14,5,both,many imported weapon profiles; many ranged profiles; mixed loadout profiles
+Imperium - Agents of the Imperium,Aquila Kill Team,unit,b040-ce24-7e1a-c903,Imperium - Agents of the Imperium.cat,100,1,1,19,14,5,both,many imported weapon profiles; many ranged profiles; mixed loadout profiles
+Library - Astartes Heresy Legends,Relic Contemptor Dreadnought [Legends],model,783a-1c02-b377-b169,Library - Astartes Heresy Legends.cat,0,1,1,19,16,3,both,many imported weapon profiles; many ranged profiles; mixed loadout profiles
+Aeldari - Aeldari Library,Archtormentor [Crucible],model,62f8-6a75-5ffb-e83b,Aeldari - Aeldari Library.cat,0,1,1,18,8,10,both,many imported weapon profiles; many melee profiles; mixed loadout profiles
+Aeldari - Aeldari Library,Flesh Crafter [Crucible],model,b5a1-7e2b-7a1d-bbda,Aeldari - Aeldari Library.cat,0,1,1,18,8,10,both,many imported weapon profiles; many melee profiles; mixed loadout profiles
+Imperium - Adeptus Astartes - Space Marines,Scout Bike Squad [Legends],unit,699f-a59e-baa6-ba8b,Imperium - Space Marines.cat,75,4,7,18,13,5,both,many imported weapon profiles; many ranged profiles; mixed loadout profiles
+Imperium - Adeptus Astartes - Space Marines,Scout Biker Sergeant,model,ee98-d09b-4f48-5ae4,Imperium - Space Marines.cat,,1,1,18,13,5,both,many imported weapon profiles; many ranged profiles; mixed loadout profiles
+Imperium - Astra Militarum - Library,Catachan Command Squad,unit,7d22-9fb6-a7e0-c21b,Imperium - Astra Militarum - Library.cat,65,4,4,18,14,4,both,many imported weapon profiles; many ranged profiles; mixed loadout profiles
+Imperium - Astra Militarum - Library,Leman Russ Commander,model,5430-18e-d7b0-1d54,Imperium - Astra Militarum - Library.cat,15,1,1,18,17,1,both,many imported weapon profiles; many ranged profiles; mixed loadout profiles
+Imperium - Adeptus Astartes - Space Marines,Company Veterans on Bikes [Legends],unit,a40-ff3f-c1ea-fea7,Imperium - Space Marines.cat,110,3,6,17,13,4,both,many imported weapon profiles; many ranged profiles; mixed loadout profiles
+Imperium - Agents of the Imperium,Sisters of Battle Squad,unit,73fc-a193-7da1-d9c4,Imperium - Agents of the Imperium.cat,100,10,10,17,14,3,both,many imported weapon profiles; many ranged profiles; mixed loadout profiles
+Imperium - Astra Militarum - Library,Krieg Command Squad,unit,fbcd-274b-0196-b4f6,Imperium - Astra Militarum - Library.cat,65,6,6,17,12,5,both,many imported weapon profiles; many ranged profiles; mixed loadout profiles
+Imperium - Adeptus Astartes - Space Marines,Assault Squad [Legends],unit,ca4e-47d5-a704-8e5a,Imperium - Space Marines.cat,95,6,11,16,10,6,both,many imported weapon profiles; many ranged profiles; mixed loadout profiles
+Imperium - Adeptus Astartes - Space Marines,Assault Squad with Jump Packs [Legends],unit,bfe7-b726-9158-d5ad,Imperium - Space Marines.cat,115,6,11,16,10,6,both,many imported weapon profiles; many ranged profiles; mixed loadout profiles
+Imperium - Adeptus Astartes - Space Marines,Techmarine on Bike [Legends],model,33e2-3ddf-7063-df9e,Imperium - Space Marines.cat,25,1,1,16,10,6,both,many imported weapon profiles; many ranged profiles; mixed loadout profiles
+Imperium - Adeptus Astartes - Space Marines,Venerable Dreadnought [Legends],model,60cb-cc1-c820-86f5,Imperium - Space Marines.cat,0,1,1,16,13,3,both,many imported weapon profiles; many ranged profiles; mixed loadout profiles
+Imperium - Adeptus Custodes,Guardian of the Throne [Crucible],model,de0b-37e9-b9f5-d3a6,Imperium - Adeptus Custodes.cat,0,1,1,16,8,8,both,many imported weapon profiles; mixed loadout profiles
+Imperium - Adeptus Custodes,Kataphraktoi Exemplar [Crucible],model,c11a-f70a-2877-ed27,Imperium - Adeptus Custodes.cat,0,1,1,16,8,8,both,many imported weapon profiles; mixed loadout profiles
+Imperium - Adeptus Custodes,Null Maiden [Crucible],model,e58d-17d4-71f8-4137,Imperium - Adeptus Custodes.cat,0,1,1,16,8,8,both,many imported weapon profiles; mixed loadout profiles
+Library - Astartes Heresy Legends,Kratos [Legends],model,78aa-3f99-5fb7-7f83,Library - Astartes Heresy Legends.cat,0,1,1,16,15,1,both,many imported weapon profiles; many ranged profiles; mixed loadout profiles
+Imperium - Adeptus Astartes - Black Templars,Sword Brother,model,40e4-11f1-529f-441d,Imperium - Black Templars.cat,,1,1,15,9,6,both,many imported weapon profiles; mixed loadout profiles
+Imperium - Adeptus Astartes - Space Marines,Biker Sergeant,model,bee8-ef2e-b14e-cacc,Imperium - Space Marines.cat,,1,1,15,10,5,both,many imported weapon profiles; many ranged profiles; mixed loadout profiles
+Imperium - Adeptus Astartes - Space Marines,Captain on Bike [Legends],model,faf9-bf62-8eb5-a3cb,Imperium - Space Marines.cat,0,1,1,15,9,6,both,many imported weapon profiles; mixed loadout profiles
+Imperium - Adeptus Astartes - Space Marines,Tactical Marine w/Heavy or Special Weapon,model,2e9d-b9a6-73ab-7ab3,Imperium - Space Marines.cat,,1,1,15,14,1,both,many imported weapon profiles; many ranged profiles; mixed loadout profiles
+Imperium - Adeptus Astartes - Space Wolves,Wolf Scout Pack Leader,model,188d-ad33-d9e7-31b0,Imperium - Space Wolves.cat,,1,1,15,9,6,both,many imported weapon profiles; mixed loadout profiles
+Imperium - Astra Militarum - Library,Cadian Command Squad,unit,4d28-f2a7-67c1-eb2e,Imperium - Astra Militarum - Library.cat,65,5,5,15,11,4,both,many imported weapon profiles; many ranged profiles; mixed loadout profiles
+Library - Astartes Heresy Legends,Fellblade [Legends],model,585d-722b-4304-2f63,Library - Astartes Heresy Legends.cat,0,1,1,15,14,1,both,many imported weapon profiles; many ranged profiles; mixed loadout profiles
+Chaos - Chaos Knights Library,Knight Despoiler,model,0119-8c04-435e-c782,Chaos - Chaos Knights Library.cat,30,1,1,14,9,5,both,many imported weapon profiles; mixed loadout profiles
+Chaos - Death Guard,Plague Marines,unit,8467-b3a2-2597-de0d,Chaos - Death Guard.cat,95,5,10,14,10,4,both,many imported weapon profiles; many ranged profiles; mixed loadout profiles
+Imperium - Adeptus Astartes - Blood Angels,Death Company Marines with Bolt Rifles,unit,4aab-3ca5-0435-ed5e,Imperium - Blood Angels.cat,85,5,10,14,8,6,both,many imported weapon profiles; mixed loadout profiles
+Imperium - Adeptus Astartes - Blood Angels,Sanguinary Priest on Bike [Legends],model,3621-b460-722-8954,Imperium - Blood Angels.cat,25,1,1,14,10,4,both,many imported weapon profiles; many ranged profiles; mixed loadout profiles
+Imperium - Adeptus Astartes - Space Marines,Veteran Bikers,model,ee5a-c8d2-c70e-914b,Imperium - Space Marines.cat,,1,1,14,10,4,both,many imported weapon profiles; many ranged profiles; mixed loadout profiles
+Imperium - Astra Militarum - Library,Cadian Veteran Guardsman w/ Chainsword,model,e27a-8715-6403-beb2,Imperium - Astra Militarum - Library.cat,,1,1,14,10,4,both,many imported weapon profiles; many ranged profiles; mixed loadout profiles
+Imperium - Astra Militarum - Library,Militarum Tempestus Command Squad,unit,497-36ad-8ecb-f7c7,Imperium - Astra Militarum - Library.cat,85,4,4,14,12,2,both,many imported weapon profiles; many ranged profiles; mixed loadout profiles
+Imperium - Astra Militarum - Library,Tempestus Aquilons,unit,aa9f-f137-1638-0369,Imperium - Astra Militarum - Library.cat,100,9,9,14,11,3,both,many imported weapon profiles; many ranged profiles; mixed loadout profiles
+Imperium - Grey Knights,Grey Knights Dreadnought [Legends],model,28d0-5a52-501a-441d,Imperium - Grey Knights.cat,0,1,1,14,11,3,both,many imported weapon profiles; many ranged profiles; mixed loadout profiles
+Chaos - Chaos Space Marines,Traitor Guardsmen Squad,unit,8dc5-4dcb-d77f-7d23,Chaos - Chaos Space Marines.cat,70,10,10,13,10,3,both,many imported weapon profiles; many ranged profiles; mixed loadout profiles
+Chaos - Death Guard,Helbrute,model,2a2b-643e-860e-b524,Chaos - Death Guard.cat,115,1,1,13,9,4,both,many imported weapon profiles; mixed loadout profiles
+Imperium - Adeptus Astartes - Blood Angels,Death Company Intercessors,unit,bb83-db85-6ce1-9a61,Imperium - Blood Angels.cat,75,5,10,13,8,5,both,many imported weapon profiles; mixed loadout profiles
+Imperium - Adeptus Astartes - Dark Angels,Deathwing Command Squad [Legends],unit,48fb-ebd6-dd17-729b,Imperium - Dark Angels.cat,200,6,11,13,7,6,both,many imported weapon profiles; mixed loadout profiles
+Imperium - Adeptus Astartes - Deathwatch,Kill Team Cassius [Legends],unit,4042-67ce-8d45-ed33,Imperium - Deathwatch.cat,220,11,11,13,7,6,both,many imported weapon profiles; mixed loadout profiles
+Imperium - Adeptus Astartes - Space Marines,Tactical Marine Sergeant,model,a3e6-65a5-763f-4ac,Imperium - Space Marines.cat,,1,1,13,7,6,both,many imported weapon profiles; mixed loadout profiles
+Imperium - Adeptus Astartes - Space Wolves,Long Fang Pack Leader,model,d6ce-de6c-673b-3aa5,Imperium - Space Wolves.cat,,1,1,13,9,4,both,many imported weapon profiles; mixed loadout profiles
+Imperium - Agents of the Imperium,Fortis Kill Team [Legends],unit,edce-f61c-8029-897f,Imperium - Agents of the Imperium.cat,100,10,20,13,10,3,both,many imported weapon profiles; many ranged profiles; mixed loadout profiles
+Imperium - Agents of the Imperium,Indomitor Kill Team [Legends],unit,c538-aaf0-5788-5c07,Imperium - Agents of the Imperium.cat,120,10,20,13,11,2,both,many imported weapon profiles; many ranged profiles; mixed loadout profiles
+Imperium - Agents of the Imperium,Kill Team Cassius [Legends],unit,88af-6e47-7162-b1be,Imperium - Agents of the Imperium.cat,220,11,11,13,7,6,both,many imported weapon profiles; mixed loadout profiles
+Imperium - Astra Militarum - Library,Death Korps Grenadier Squad [Legends],unit,8a25-2a0c-87d2-3ea6,Imperium - Astra Militarum - Library.cat,110,12,12,13,11,2,both,many imported weapon profiles; many ranged profiles; mixed loadout profiles
+Library - Titans,Warlord Titan,model,eafa-cd47-1c2f-61ee,Library - Titans.cat,3500,1,1,13,10,3,both,many imported weapon profiles; many ranged profiles; mixed loadout profiles
+Unaligned Forces,Primaris Redoubt [Legends],model,f39-fc54-f95a-8395,Unaligned Forces.cat,220,1,1,13,13,0,ranged_only,many imported weapon profiles; many ranged profiles
+Xenos - Genestealer Cults,Neophyte Hybrids,unit,b5d2-8681-6bba-f05b,Genestealer Cults.cat,65,9,19,13,10,3,both,many imported weapon profiles; many ranged profiles; mixed loadout profiles
+Chaos - Chaos Space Marines,Defiler,model,29f9-fc47-787e-d9d3,Chaos - Chaos Space Marines.cat,0,1,1,12,9,3,both,many imported weapon profiles; mixed loadout profiles
+Chaos - Chaos Space Marines,Helbrute,model,9ff2-45e0-fe97-65f8,Chaos - Chaos Space Marines.cat,0,1,1,12,8,4,both,many imported weapon profiles; mixed loadout profiles
+Chaos - Chaos Space Marines,Sorcerer on Palanquin of Nurgle [Legends],model,c8b4-e13c-1a3a-7b55,Chaos - Chaos Space Marines.cat,0,1,1,12,7,5,both,many imported weapon profiles; mixed loadout profiles
+Chaos - Chaos Space Marines,Sorcerer on Steed of Slaanesh [Legends],model,13b0-de3a-650c-d352,Chaos - Chaos Space Marines.cat,0,1,1,12,7,5,both,many imported weapon profiles; mixed loadout profiles
+Chaos - Death Guard,Defiler,model,bc88-0833-743e-0146,Chaos - Death Guard.cat,0,1,1,12,9,3,both,many imported weapon profiles; mixed loadout profiles
+Chaos - Death Guard,Sorcerer on Palanquin of Nurgle [Legends],model,474-6b31-df19-2b49,Chaos - Death Guard.cat,20,1,1,12,7,5,both,many imported weapon profiles; mixed loadout profiles
+Chaos - Emperor's Children,Defiler,model,b541-3292-a5cc-dbeb,Chaos - Emperor's Children.cat,0,1,1,12,9,3,both,many imported weapon profiles; mixed loadout profiles
+Chaos - Thousand Sons,Defiler,model,f158-2979-c38b-65b5,Chaos - Thousand Sons.cat,0,1,1,12,9,3,both,many imported weapon profiles; mixed loadout profiles
+Chaos - Thousand Sons,Helbrute,model,5b9d-e3c1-3d55-8276,Chaos - Thousand Sons.cat,0,1,1,12,9,3,both,many imported weapon profiles; mixed loadout profiles
+Chaos - World Eaters,Defiler,model,ea51-5575-9e74-9346,Chaos - World Eaters.cat,0,1,1,12,9,3,both,many imported weapon profiles; mixed loadout profiles
+Chaos - World Eaters,Helbrute,model,273a-db24-3f7c-b977,Chaos - World Eaters.cat,0,1,1,12,9,3,both,many imported weapon profiles; mixed loadout profiles
+Imperium - Adeptus Astartes - Black Templars,Initiate w/Heavy,model,91ac-edc7-b6b0-a0cb,Imperium - Black Templars.cat,,1,1,12,10,2,both,many imported weapon profiles; many ranged profiles; mixed loadout profiles
+Imperium - Adeptus Astartes - Deathwatch,Deathwatch Terminator Squad,unit,390e-706b-a059-378b,Imperium - Deathwatch.cat,190,6,11,12,7,5,both,many imported weapon profiles; mixed loadout profiles
+Imperium - Adeptus Astartes - Deathwatch,Kill Team Sergeant,model,4962-be6c-d809-e206,Imperium - Deathwatch.cat,,1,1,12,7,5,both,many imported weapon profiles; mixed loadout profiles
+Imperium - Adeptus Astartes - Space Marines,Ancient on Bike [Legends],model,e4c7-b10c-6896-3f0,Imperium - Space Marines.cat,25,1,1,12,8,4,both,many imported weapon profiles; mixed loadout profiles
+Imperium - Adeptus Astartes - Space Marines,Assault Sergeant,model,9bc3-4557-ad-ec14,Imperium - Space Marines.cat,,1,1,12,6,6,both,many imported weapon profiles; mixed loadout profiles
+Imperium - Adeptus Astartes - Space Marines,Assault Sergeant with Jump Pack,model,c201-cf41-47d8-7fdf,Imperium - Space Marines.cat,,1,1,12,6,6,both,many imported weapon profiles; mixed loadout profiles
+Imperium - Adeptus Astartes - Space Marines,Devastator Sergeant,model,dade-57a5-2db7-22ca,Imperium - Space Marines.cat,,1,1,12,7,5,both,many imported weapon profiles; mixed loadout profiles
+Imperium - Adeptus Astartes - Space Marines,Intercessor Sergeant,model,8ea3-b125-7273-5ffb,Imperium - Space Marines.cat,,1,1,12,7,5,both,many imported weapon profiles; mixed loadout profiles
+Imperium - Adeptus Astartes - Space Marines,Intercessor Squad,unit,8da0-4570-c3c-819f,Imperium - Space Marines.cat,80,6,11,12,7,5,both,many imported weapon profiles; mixed loadout profiles
+Imperium - Adeptus Astartes - Space Marines,Librarian with Jump Pack [Legends],model,45af-a02e-e8e2-49f,Imperium - Space Marines.cat,25,1,1,12,11,1,both,many imported weapon profiles; many ranged profiles; mixed loadout profiles
+Imperium - Adeptus Astartes - Space Marines,Veteran Biker Sergeant,model,5e06-5bfc-3c63-214e,Imperium - Space Marines.cat,,1,1,12,8,4,both,many imported weapon profiles; mixed loadout profiles
+Imperium - Adeptus Astartes - Space Wolves,Skyclaws [Legends],unit,b556-b0e1-3b4e-597a,Imperium - Space Wolves.cat,90,5,15,12,8,4,both,many imported weapon profiles; mixed loadout profiles
+Imperium - Adeptus Astartes - Space Wolves,Wolf Guard Battle Leader on Thunderwolf [Legends],model,6ec-fcf9-ebb6-7c55,Imperium - Space Wolves.cat,0,1,1,12,6,6,both,many imported weapon profiles; mixed loadout profiles
+Imperium - Adeptus Astartes - Space Wolves,Wolf Guard Pack Leader [Legends],model,5d99-8592-a934-48d9,Imperium - Space Wolves.cat,30,1,1,12,6,6,both,many imported weapon profiles; mixed loadout profiles
+Imperium - Adeptus Astartes - Space Wolves,Wolf Guard Pack Leader with Jump Pack [Legends],model,a60f-7d3a-d2f8-60cd,Imperium - Space Wolves.cat,35,1,1,12,6,6,both,many imported weapon profiles; mixed loadout profiles
+Imperium - Adeptus Astartes - Space Wolves,Wolf Lord on Thunderwolf [Legends],model,295-5df2-e140-7266,Imperium - Space Wolves.cat,25,1,1,12,6,6,both,many imported weapon profiles; mixed loadout profiles
+Imperium - Agents of the Imperium,Deathwatch Kill Team,unit,0744-61ce-619d-ffe1,Imperium - Agents of the Imperium.cat,100,5,10,12,7,5,both,many imported weapon profiles; mixed loadout profiles
+Imperium - Agents of the Imperium,Deathwatch Terminator Squad [Legends],unit,0b74-440c-ee1d-ca50,Imperium - Agents of the Imperium.cat,210,5,10,12,7,5,both,many imported weapon profiles; mixed loadout profiles
+Imperium - Agents of the Imperium,Imperial Navy Breachers,unit,24d5-9987-4d2-b42b,Imperium - Agents of the Imperium.cat,90,10,10,12,8,4,both,many imported weapon profiles; mixed loadout profiles
+Imperium - Astra Militarum - Library,Carnodon [Legends],model,173e-ddd1-354c-583b,Imperium - Astra Militarum - Library.cat,160,1,1,12,11,1,both,many imported weapon profiles; many ranged profiles; mixed loadout profiles
+Imperium - Imperial Knights - Library,Knight Preceptor,model,ebd9-7175-3f0c-72a9,Imperium - Imperial Knights - Library.cat,30,1,1,12,8,4,both,many imported weapon profiles; mixed loadout profiles
+Xenos - Orks,Big Mek on Warbike [Legends],model,8b2-ca6b-b00c-d64c,Orks.cat,10,1,1,12,7,5,both,many imported weapon profiles; mixed loadout profiles
+Aeldari - Aeldari Library,Scourges with Heavy Weapons,unit,7c93-baac-e65f-58bd,Aeldari - Aeldari Library.cat,130,4,4,11,9,2,both,mixed loadout profiles
+Aeldari - Aeldari Library,Wraithlord,model,b9e9-397e-d83a-f77a,Aeldari - Aeldari Library.cat,0,1,1,11,8,3,both,mixed loadout profiles
+Chaos - Chaos Space Marines,Chaos Lord on Juggernaut [Legends],model,dceb-1d2c-40be-e591,Chaos - Chaos Space Marines.cat,0,1,1,11,5,6,both,mixed loadout profiles
+Chaos - Chaos Space Marines,Chaos Lord on Palanquin of Nurgle [Legends],model,2af2-8812-7aa9-3db7,Chaos - Chaos Space Marines.cat,0,1,1,11,5,6,both,mixed loadout profiles
+Chaos - Chaos Space Marines,Chaos Lord on Steed of Slaanesh [Legends],model,349b-6e2d-e554-f2c6,Chaos - Chaos Space Marines.cat,0,1,1,11,5,6,both,mixed loadout profiles
+Chaos - Chaos Space Marines,Legionaries,unit,615-e6bf-cfd2-9384,Chaos - Chaos Space Marines.cat,90,5,10,11,9,2,both,mixed loadout profiles
+Chaos - Chaos Space Marines,Sorcerer on Bike [Legends],model,af6f-7c4e-ec78-858e,Chaos - Chaos Space Marines.cat,0,1,1,11,7,4,both,mixed loadout profiles
+Chaos - Chaos Space Marines,Sorcerer on Disc of Tzeentch [Legends],model,5205-d436-bedd-e3df,Chaos - Chaos Space Marines.cat,0,1,1,11,7,4,both,mixed loadout profiles
+Chaos - Death Guard,Chaos Lord on Palanquin of Nurgle [Legends],model,1d25-87a1-2d17-5d02,Chaos - Death Guard.cat,20,1,1,11,5,6,both,mixed loadout profiles
+Chaos - Thousand Sons,Sorcerer on Disc of Tzeentch [Legends],model,ef19-b2dd-72ae-4f96,Chaos - Thousand Sons.cat,0,1,1,11,7,4,both,mixed loadout profiles
+Imperium - Adepta Sororitas,Retributor Squad,unit,c49d-f150-4b3-c118,Imperium - Adepta Sororitas.cat,120,5,5,11,10,1,both,many ranged profiles; mixed loadout profiles
+Imperium - Adeptus Astartes - Black Templars,Repulsor Executioner,model,a344-192f-aae2-16e5,Imperium - Black Templars.cat,235,1,1,11,10,1,both,many ranged profiles; mixed loadout profiles
+Imperium - Adeptus Astartes - Blood Angels,Death Company Marines with Boltguns [Legends],unit,6562-9dcd-afea-d4ae,Imperium - Blood Angels.cat,125,5,10,11,6,5,both,mixed loadout profiles
+Imperium - Adeptus Astartes - Blood Angels,Death Company Marines with Boltguns and Jump Packs [Legends],unit,bcfe-f4fb-5c44-652d,Imperium - Blood Angels.cat,140,5,10,11,6,5,both,mixed loadout profiles
+Imperium - Adeptus Astartes - Deathwatch,Spectrus Kill Team,unit,2544-5189-7806-30f3,Imperium - Deathwatch.cat,180,5,10,11,8,3,both,mixed loadout profiles
+Imperium - Adeptus Astartes - Deathwatch,Talonstrike Kill Team,unit,c679-f252-32b1-ebcc,Imperium - Deathwatch.cat,275,10,10,11,7,4,both,mixed loadout profiles
+Imperium - Adeptus Astartes - Space Marines,Chaplain with Jump Pack,model,23f1-2df2-7085-cf41,Imperium - Space Marines.cat,25,1,1,11,9,2,both,mixed loadout profiles
+Imperium - Adeptus Astartes - Space Marines,Deimos Predator [Legends],model,534d-4e94-5a8a-75ae,Imperium - Space Marines.cat,0,1,1,11,10,1,both,many ranged profiles; mixed loadout profiles
+Imperium - Adeptus Astartes - Space Marines,Dreadnought,model,d204-13c6-dab1-ecdc,Imperium - Space Marines.cat,135,1,1,11,9,2,both,mixed loadout profiles
+Imperium - Adeptus Astartes - Space Marines,Librarian on Bike [Legends],model,1039-4a94-c791-9e1d,Imperium - Space Marines.cat,0,1,1,11,10,1,both,many ranged profiles; mixed loadout profiles
+Imperium - Adeptus Astartes - Space Marines,Mortis Dreadnought [Legends],model,525c-7e0-b0de-8a6f,Imperium - Space Marines.cat,0,1,1,11,10,1,both,many ranged profiles; mixed loadout profiles
+Imperium - Adeptus Astartes - Space Marines,Stormraven Gunship,model,469b-3370-30f3-473a,Imperium - Space Marines.cat,280,1,1,11,10,1,both,many ranged profiles; mixed loadout profiles
+Imperium - Adeptus Astartes - Space Wolves,Wolf Guard Pack Leader in Terminator Armour [Legends],model,a341-f355-7305-58bb,Imperium - Space Wolves.cat,40,1,1,11,6,5,both,mixed loadout profiles
+Imperium - Adeptus Astartes - Space Wolves,Wolf Scouts,unit,ee6b-3815-3a1a-6458,Imperium - Space Wolves.cat,105,3,3,11,7,4,both,mixed loadout profiles
+Imperium - Agents of the Imperium,Spectrus Kill Team [Legends],unit,f527-0a42-15b4-1924,Imperium - Agents of the Imperium.cat,90,5,10,11,8,3,both,mixed loadout profiles
+Imperium - Astra Militarum - Library,Armoured Sentinel,model,9a8d-8c1-315a-4948,Imperium - Astra Militarum - Library.cat,65,1,1,11,9,2,both,mixed loadout profiles
+Imperium - Astra Militarum - Library,Armoured Sentinels,unit,7e34-20cf-1149-74a1,Imperium - Astra Militarum - Library.cat,65,1,2,11,9,2,both,mixed loadout profiles
+Imperium - Astra Militarum - Library,Scout Sentinel,model,e7ef-c8cc-3f5f-955a,Imperium - Astra Militarum - Library.cat,55,1,1,11,9,2,both,mixed loadout profiles
+Imperium - Astra Militarum - Library,Scout Sentinels,unit,4424-a6ec-6d9e-a936,Imperium - Astra Militarum - Library.cat,55,1,2,11,9,2,both,mixed loadout profiles
+Imperium - Grey Knights,Grand Master in Nemesis Dreadknight,model,3625-f9f1-122b-bf9d,Imperium - Grey Knights.cat,20,1,1,11,5,6,both,mixed loadout profiles
+Imperium - Grey Knights,Stormraven Gunship,model,2efe-459b-9562-e7a9,Imperium - Grey Knights.cat,0,1,1,11,10,1,both,many ranged profiles; mixed loadout profiles
+Imperium - Imperial Knights - Library,Knight Warden,model,c609-c87e-f9dd-5006,Imperium - Imperial Knights - Library.cat,30,1,1,11,7,4,both,mixed loadout profiles
+Library - Astartes Heresy Legends,Land Raider Achilles [Legends],model,3006-ffe-2b0c-6b1b,Library - Astartes Heresy Legends.cat,0,1,1,11,10,1,both,many ranged profiles; mixed loadout profiles
+Xenos - Leagues of Votann,Hearthkyn Warriors,unit,ba4f-c3f9-6925-af0c,Leagues of Votann.cat,100,10,10,11,8,3,both,mixed loadout profiles
+Xenos - T'au Empire,Commander in Coldstar Battlesuit,model,3a73-7255-c639-e89e,T'au Empire.cat,15,1,1,11,10,1,both,many ranged profiles; mixed loadout profiles
+Xenos - T'au Empire,Pathfinder Team,unit,2598-d700-9952-e439,T'au Empire.cat,90,9,9,11,10,1,both,many ranged profiles; mixed loadout profiles
+Xenos - T'au Empire,Tiger Shark,model,1c73-43dc-bef0-a468,T'au Empire.cat,325,1,1,11,10,1,both,many ranged profiles; mixed loadout profiles
+Aeldari - Aeldari Library,Wraithseer [Legends],model,b369-a813-75ac-2dc6,Aeldari - Aeldari Library.cat,0,1,1,10,8,2,both,mixed loadout profiles
+Chaos - Chaos Space Marines,Chaos Deimos Predator [Legends],model,6add-621e-381e-4acf,Chaos - Chaos Space Marines.cat,0,1,1,10,9,1,both,mixed loadout profiles
+Chaos - Chaos Space Marines,Chaos Lord on Bike [Legends],model,2dfd-2e5f-53f2-b695,Chaos - Chaos Space Marines.cat,0,1,1,10,5,5,both,mixed loadout profiles
+Chaos - Chaos Space Marines,Chaos Lord on Disc of Tzeentch [Legends],model,7456-b122-14c3-eca9,Chaos - Chaos Space Marines.cat,0,1,1,10,5,5,both,mixed loadout profiles
+Chaos - Chaos Space Marines,Masters of the Maelstrom,unit,a998-9dce-fbab-8d32,Chaos - Chaos Space Marines.cat,115,5,5,10,5,5,both,mixed loadout profiles
+Chaos - Chaos Space Marines,Nemesis Claw,unit,f666-1f5d-0c20-06c1,Chaos - Chaos Space Marines.cat,110,5,10,10,5,5,both,mixed loadout profiles
+Chaos - Chaos Space Marines,Plague Marines,unit,9030-f62d-417-fc92,Chaos - Chaos Space Marines.cat,95,5,10,10,6,4,both,mixed loadout profiles
+Chaos - Emperor's Children,Tormentors,unit,4494-dd7d-69f7-306c,Chaos - Emperor's Children.cat,85,5,10,10,7,3,both,mixed loadout profiles
+Chaos - Thousand Sons,Chaos Lord on Disc of Tzeentch [Legends],model,dc89-ef5-e91d-b155,Chaos - Thousand Sons.cat,0,1,1,10,5,5,both,mixed loadout profiles
+Imperium - Adepta Sororitas,Sanctifiers,unit,eade-6ec7-7236-bfdb,Imperium - Adepta Sororitas.cat,110,9,11,10,6,4,both,mixed loadout profiles
+Imperium - Adeptus Astartes - Black Templars,Crusader Squad,unit,8bbe-e7fc-44b7-ed94,Imperium - Black Templars.cat,150,19,39,10,6,4,both,mixed loadout profiles
+Imperium - Adeptus Astartes - Blood Angels,Death Company Marines,unit,3825-ac3a-75ec-fa0d,Imperium - Blood Angels.cat,85,5,10,10,5,5,both,mixed loadout profiles
+Imperium - Adeptus Astartes - Dark Angels,Deathwing Terminator Squad,unit,6135-d842-8e61-889d,Imperium - Dark Angels.cat,180,6,11,10,7,3,both,mixed loadout profiles
+Imperium - Adeptus Astartes - Deathwatch,Deathwatch Terminator w/ Heavy Weapon,model,259f-d98e-e052-ec64,Imperium - Deathwatch.cat,,1,1,10,7,3,both,mixed loadout profiles
+Imperium - Adeptus Astartes - Deathwatch,Indomitor Kill Team,unit,6cb-912c-c43-210b,Imperium - Deathwatch.cat,265,13,20,10,8,2,both,mixed loadout profiles
+Imperium - Adeptus Astartes - Space Marines,Chaplain Venerable Dreadnought [Legends],model,b51-a07d-6440-e1ad,Imperium - Space Marines.cat,0,1,1,10,8,2,both,mixed loadout profiles
+Imperium - Adeptus Astartes - Space Marines,Devastator Marine w/ Heavy Weapon,model,624c-c49c-b0a5-9cd4,Imperium - Space Marines.cat,,1,1,10,9,1,both,mixed loadout profiles
+Imperium - Adeptus Astartes - Space Marines,Relic Terminator Squad [Legends],unit,9d3f-134e-1f5b-531a,Imperium - Space Marines.cat,200,6,11,10,6,4,both,mixed loadout profiles
+Imperium - Adeptus Astartes - Space Marines,Repulsor Executioner,model,9259-f166-15f2-7f79,Imperium - Space Marines.cat,230,1,1,10,9,1,both,mixed loadout profiles
+Imperium - Adeptus Astartes - Space Marines,Scout Squad,unit,1117-cda-7f74-196b,Imperium - Space Marines.cat,70,6,11,10,7,3,both,mixed loadout profiles
+Imperium - Adeptus Astartes - Space Wolves,Wolf Scout w/ special weapon,model,49-ecb-8274-59a0,Imperium - Space Wolves.cat,,1,1,10,9,1,both,mixed loadout profiles
+Imperium - Agents of the Imperium,Deathwatch Terminator w/ Heavy Weapon,model,19a3-fdf1-1d30-6ba2,Imperium - Agents of the Imperium.cat,,1,1,10,7,3,both,mixed loadout profiles
+Imperium - Agents of the Imperium,Exaction Squad,unit,ec63-524d-55a-3065,Imperium - Agents of the Imperium.cat,90,10,10,10,7,3,both,mixed loadout profiles
+Imperium - Agents of the Imperium,Inquisitorial Agents,unit,4469-7239-717e-9abd,Imperium - Agents of the Imperium.cat,50,6,12,10,7,3,both,mixed loadout profiles
+Imperium - Agents of the Imperium,Kill Team Terminator w/ Heavy Weapon,model,da66-9d97-5ad4-2e2e,Imperium - Agents of the Imperium.cat,,1,1,10,7,3,both,mixed loadout profiles
+Imperium - Agents of the Imperium,Sanctifiers,unit,4e74-3710-7a66-9d6c,Imperium - Agents of the Imperium.cat,100,9,11,10,6,4,both,mixed loadout profiles
+Imperium - Astra Militarum - Library,Arkurian Stormhammer [Legends],model,59c4-e4de-fe70-b221,Imperium - Astra Militarum - Library.cat,480,1,1,10,9,1,both,mixed loadout profiles
+Imperium - Astra Militarum - Library,Rogal Dorn Battle Tank,model,2127-efcc-1f62-7fab,Imperium - Astra Militarum - Library.cat,260,1,1,10,9,1,both,mixed loadout profiles
+Imperium - Astra Militarum - Library,Rogal Dorn Commander,model,78b6-f280-bba9-0594,Imperium - Astra Militarum - Library.cat,15,1,1,10,9,1,both,mixed loadout profiles
+Imperium - Imperial Knights - Library,Knight Crusader,model,1e27-a6de-3840-a050,Imperium - Imperial Knights - Library.cat,30,1,1,10,9,1,both,mixed loadout profiles
+Imperium - Imperial Knights - Library,Knight Errant,model,9efd-ec72-353f-4b23,Imperium - Imperial Knights - Library.cat,30,1,1,10,6,4,both,mixed loadout profiles
+Imperium - Imperial Knights - Library,Knight Paladin,model,8441-8356-5e7c-69ee,Imperium - Imperial Knights - Library.cat,30,1,1,10,6,4,both,mixed loadout profiles
+Library - Astartes Heresy Legends,Deredeo Dreadnought [Legends],model,d38d-c3a2-f753-efea,Library - Astartes Heresy Legends.cat,0,1,1,10,9,1,both,mixed loadout profiles
+Library - Astartes Heresy Legends,Falchion [Legends],model,625b-29e4-7be7-db5a,Library - Astartes Heresy Legends.cat,0,1,1,10,9,1,both,mixed loadout profiles
+Library - Astartes Heresy Legends,Leviathan Dreadnought [Legends],model,14d4-8062-f090-6719,Library - Astartes Heresy Legends.cat,0,1,1,10,7,3,both,mixed loadout profiles
+Xenos - Orks,Battlewagon,model,306a-b2ac-aaf1-9a7c,Orks.cat,160,1,1,10,6,4,both,mixed loadout profiles
+Xenos - T'au Empire,Barracuda [Legends],model,a422-6066-1c3a-f021,T'au Empire.cat,220,1,1,10,9,1,both,mixed loadout profiles
+Xenos - T'au Empire,Commander in Crisis Battlesuit [Legends],model,6de0-279f-b471-65ca,T'au Empire.cat,15,1,1,10,9,1,both,mixed loadout profiles
+Xenos - T'au Empire,Commander in Enforcer Battlesuit,model,99fa-35-ba6e-5354,T'au Empire.cat,15,1,1,10,9,1,both,mixed loadout profiles
+Xenos - T'au Empire,Crisis Battlesuits [Legends],unit,de16-2476-9749-b603,T'au Empire.cat,200,2,5,10,9,1,both,mixed loadout profiles
+Xenos - T'au Empire,Crisis Shas’ui,model,ed43-d594-193f-8b56,T'au Empire.cat,,1,1,10,9,1,both,mixed loadout profiles
+Xenos - T'au Empire,Crisis Shas’vre,model,724f-237b-2ead-756e,T'au Empire.cat,,1,1,10,9,1,both,mixed loadout profiles
+Xenos - T'au Empire,Stormsurge,model,439b-e08-4466-e162,T'au Empire.cat,360,1,1,10,9,1,both,mixed loadout profiles
+Xenos - T'au Empire,Ta'unar Supremacy Armour,model,16d6-79b5-817d-f084,T'au Empire.cat,790,1,1,10,9,1,both,mixed loadout profiles
+Xenos - Tyranids,Carnifex,model,92a2-7511-1173-a696,Tyranids.cat,90,1,1,10,6,4,both,mixed loadout profiles
+Xenos - Tyranids,Carnifexes,unit,9efd-5564-f0f5-21ea,Tyranids.cat,90,1,2,10,6,4,both,mixed loadout profiles
+Aeldari - Aeldari Library,Autarch,model,df57-7a59-75eb-ce63,Aeldari - Aeldari Library.cat,15,1,1,9,6,3,both,mixed loadout profiles
+Aeldari - Aeldari Library,Autarch Wayleaper,model,497a-263e-966a-5a15,Aeldari - Aeldari Library.cat,15,1,1,9,6,3,both,mixed loadout profiles
+Aeldari - Aeldari Library,Corsair Cloud Dancer Band [Legends],unit,790d-9fdf-b359-62ba,Aeldari - Aeldari Library.cat,105,3,7,9,7,2,both,mixed loadout profiles
+Aeldari - Aeldari Library,Falcon,model,1d83-167-486c-bac4,Aeldari - Aeldari Library.cat,0,1,1,9,8,1,both,mixed loadout profiles
+Aeldari - Aeldari Library,Kabalite Warriors,unit,d20b-783-ccf6-b29d,Aeldari - Aeldari Library.cat,115,9,9,9,7,2,both,mixed loadout profiles
+Aeldari - Aeldari Library,Talos,unit,5c5f-b70b-f6ee-a81e,Aeldari - Aeldari Library.cat,80,1,2,9,5,4,both,mixed loadout profiles
+Aeldari - Aeldari Library,Talos,model,6065-abbb-b1a0-4800,Aeldari - Aeldari Library.cat,,1,1,9,5,4,both,mixed loadout profiles
+Aeldari - Aeldari Library,Wave Serpent,model,ad88-f706-318c-e70e,Aeldari - Aeldari Library.cat,0,1,1,9,8,1,both,mixed loadout profiles
+Chaos - Chaos Knights Library,Knight Tyrant,model,87ea-c7bd-6df0-f056,Chaos - Chaos Knights Library.cat,30,1,1,9,8,1,both,mixed loadout profiles
+Chaos - Chaos Space Marines,Havocs,unit,946c-d784-c8be-f21,Chaos - Chaos Space Marines.cat,125,5,5,9,7,2,both,mixed loadout profiles
+Chaos - Chaos Space Marines,Renegade Heavy Weapons Squad [Legends],unit,9df-7c70-84d2-e095,Chaos - Chaos Space Marines.cat,75,3,3,9,8,1,both,mixed loadout profiles
+Chaos - Death Guard,Death Guard Chaos Lord [Legends],model,cfc1-1741-530c-3335,Chaos - Death Guard.cat,20,1,1,9,5,4,both,mixed loadout profiles
+Chaos - Death Guard,Death Guard Sorcerer in Terminator Armour [Legends],model,93ac-1b31-4238-d60e,Chaos - Death Guard.cat,20,1,1,9,4,5,both,mixed loadout profiles
+Chaos - Emperor's Children,Lord Exultant,model,7b4c-dfe0-6a0a-304a,Chaos - Emperor's Children.cat,25,1,1,9,4,5,both,mixed loadout profiles
+Imperium - Adepta Sororitas,Canoness,model,c338-14f9-4ee-f223,Imperium - Adepta Sororitas.cat,25,1,1,9,6,3,both,mixed loadout profiles
+Imperium - Adeptus Astartes - Black Templars,Impulsor,model,fa27-4bc1-72c9-894f,Imperium - Black Templars.cat,85,1,1,9,8,1,both,mixed loadout profiles
+Imperium - Adeptus Astartes - Black Templars,Sternguard Veteran Squad,unit,a499-86fa-4d0c-b06d,Imperium - Black Templars.cat,85,6,11,9,5,4,both,mixed loadout profiles
+Imperium - Adeptus Astartes - Blood Angels,Death Company Marines with Jump Packs,unit,65f6-18df-f6df-7e39,Imperium - Blood Angels.cat,120,5,10,9,5,4,both,mixed loadout profiles
+Imperium - Adeptus Astartes - Dark Angels,Deathwing Terminator w/ Heavy Weapon,model,5e6d-5b97-f4b5-7cd9,Imperium - Dark Angels.cat,,1,1,9,7,2,both,mixed loadout profiles
+Imperium - Adeptus Astartes - Dark Angels,Deathwing Terminator w/ Heavy Weapon,model,e071-2ee4-6341-a477,Imperium - Dark Angels.cat,,1,1,9,7,2,both,mixed loadout profiles
+Imperium - Adeptus Astartes - Space Marines,Astraeus,model,98db-fff3-b1b2-e22f,Imperium - Space Marines.cat,0,1,1,9,8,1,both,mixed loadout profiles
+Imperium - Adeptus Astartes - Space Marines,Captain,model,6c10-5b51-5bc0-8d2c,Imperium - Space Marines.cat,0,1,1,9,6,3,both,mixed loadout profiles
+Imperium - Adeptus Astartes - Space Marines,Company Ancient,model,7757-dab5-4f1f-d11e,Imperium - Space Marines.cat,,1,1,9,8,1,both,mixed loadout profiles
+Imperium - Adeptus Astartes - Space Marines,Lieutenant,model,ce15-e87e-7cff-b129,Imperium - Space Marines.cat,25,1,1,9,6,3,both,mixed loadout profiles
+Imperium - Adeptus Astartes - Space Marines,Redemptor Dreadnought,model,1d94-b3c8-9205-827e,Imperium - Space Marines.cat,205,1,1,9,8,1,both,mixed loadout profiles
+Imperium - Adeptus Astartes - Space Marines,Space Marine Bikers w/  Special Weapon,model,37e7-aeb-4798-51cc,Imperium - Space Marines.cat,,1,1,9,8,1,both,mixed loadout profiles
+Imperium - Adeptus Astartes - Space Marines,Sternguard Veteran Squad,unit,907f-11-c4d1-ec21,Imperium - Space Marines.cat,100,6,11,9,5,4,both,mixed loadout profiles
+Imperium - Adeptus Astartes - Space Wolves,Venerable Dreadnought,model,c125-1106-f06d-9682,Imperium - Space Wolves.cat,130,1,1,9,6,3,both,mixed loadout profiles
+Imperium - Agents of the Imperium,Vigilant Squad,unit,d44c-5cde-cb79-3ec3,Imperium - Agents of the Imperium.cat,85,10,10,9,7,2,both,mixed loadout profiles
+Imperium - Astra Militarum - Library,Cadian Castellan,model,2b49-4d03-aaf5-3532,Imperium - Astra Militarum - Library.cat,15,1,1,9,5,4,both,mixed loadout profiles
+Imperium - Astra Militarum - Library,Catachan Commander,model,2d9e-f95e-8a1d-81ac,Imperium - Astra Militarum - Library.cat,15,1,1,9,5,4,both,mixed loadout profiles
+Imperium - Astra Militarum - Library,Dominus Armoured Siege Bombard [Legends],model,fc41-a899-8d5a-dc01,Imperium - Astra Militarum - Library.cat,325,1,1,9,8,1,both,mixed loadout profiles
+Imperium - Astra Militarum - Library,Gaunt’s Ghosts,unit,653d-80-d715-7d55,Imperium - Astra Militarum - Library.cat,100,6,6,9,6,3,both,mixed loadout profiles
+Imperium - Astra Militarum - Library,Malcador Annihilator [Legends],model,bc69-45ff-789c-90bb,Imperium - Astra Militarum - Library.cat,270,1,1,9,8,1,both,mixed loadout profiles
+Imperium - Astra Militarum - Library,Malcador Infernus [Legends],model,5e59-657b-5c85-1d92,Imperium - Astra Militarum - Library.cat,235,1,1,9,8,1,both,mixed loadout profiles
+Imperium - Astra Militarum - Library,Stormblade [Legends],model,a93c-9d4b-8fd9-15b4,Imperium - Astra Militarum - Library.cat,415,1,1,9,8,1,both,mixed loadout profiles
+Imperium - Astra Militarum - Library,Valdor [Legends],model,3936-a532-dc5e-8498,Imperium - Astra Militarum - Library.cat,285,1,1,9,8,1,both,mixed loadout profiles
+Imperium - Imperial Knights - Library,Knight Gallant,model,eb4-4a67-11e9-3cb8,Imperium - Imperial Knights - Library.cat,30,1,1,9,5,4,both,mixed loadout profiles
+Library - Astartes Heresy Legends,Spartan [Legends],model,7b3a-9a63-6200-ec7,Library - Astartes Heresy Legends.cat,0,1,1,9,8,1,both,mixed loadout profiles
+Library - Titans,Warbringer Nemesis Titan,model,8e6f-4e09-12d5-fafd,Library - Titans.cat,2600,1,1,9,8,1,both,mixed loadout profiles
+Xenos - Orks,Boyz,unit,e3b1-1240-2476-cd86,Orks.cat,80,10,20,9,5,4,both,mixed loadout profiles
+Xenos - Orks,Deff Rolla Battle Fortress [Legends],model,8c96-c1f0-63ff-d6a9,Orks.cat,250,1,1,9,8,1,both,mixed loadout profiles
+Xenos - Orks,Kommandos,unit,303-267f-e45c-6aa9,Orks.cat,120,10,10,9,4,5,both,mixed loadout profiles
+Aeldari - Aeldari Library,Cobra [Legends],model,e2ad-60b4-9678-88aa,Aeldari - Aeldari Library.cat,0,1,1,8,7,1,both,mixed loadout profiles
+Aeldari - Aeldari Library,Guardian Defenders,unit,e78a-4442-4ed2-66bf,Aeldari - Aeldari Library.cat,100,11,11,8,7,1,both,mixed loadout profiles
+Aeldari - Aeldari Library,Hornet [Legends],model,1224-8735-46d-1919,Aeldari - Aeldari Library.cat,0,1,1,8,7,1,both,mixed loadout profiles
+Aeldari - Aeldari Library,Lynx [Legends],model,e3c5-54ef-44a5-9366,Aeldari - Aeldari Library.cat,0,1,1,8,7,1,both,mixed loadout profiles
+Aeldari - Aeldari Library,Phantom Titan,model,79b3-2cd1-d7b4-d7b1,Aeldari - Aeldari Library.cat,2100,1,1,8,5,3,both,mixed loadout profiles
+Aeldari - Aeldari Library,Razorwing Jetfighter,model,fbc4-c7d0-db5b-91c,Aeldari - Aeldari Library.cat,170,1,1,8,7,1,both,mixed loadout profiles
+Aeldari - Aeldari Library,Scorpion [Legends],model,1420-c80d-66fc-6a,Aeldari - Aeldari Library.cat,0,1,1,8,7,1,both,mixed loadout profiles
+Chaos - Chaos Space Marines,Fellgor Beastmen,unit,6bf7-888c-7aa6-6831,Chaos - Chaos Space Marines.cat,70,10,10,8,4,4,both,mixed loadout profiles
+Chaos - Chaos Space Marines,Rubric Marines,unit,f2e7-80c9-853d-2c6c,Chaos - Chaos Space Marines.cat,100,5,10,8,6,2,both,mixed loadout profiles
+Chaos - Death Guard,Blightlord Terminators,unit,5b4e-dcf1-5c6f-4d35,Chaos - Death Guard.cat,115,3,10,8,5,3,both,mixed loadout profiles
+Chaos - Thousand Sons,Rubric Marines,unit,5d3d-e13b-8b76-dad3,Chaos - Thousand Sons.cat,100,5,10,8,6,2,both,mixed loadout profiles
+Chaos - World Eaters,Chaos Terminators,unit,45f6-8429-a1d9-2a51,Chaos - World Eaters.cat,175,5,10,8,4,4,both,mixed loadout profiles
+Imperium - Adepta Sororitas,Retributor Superior,model,ef56-67fc-c2ec-1172,Imperium - Adepta Sororitas.cat,,1,1,8,7,1,both,mixed loadout profiles
+Imperium - Adeptus Astartes - Black Templars,Repulsor,model,c3e8-3cde-8b39-4b19,Imperium - Black Templars.cat,180,1,1,8,7,1,both,mixed loadout profiles
+Imperium - Adeptus Astartes - Black Templars,Sword Brethren Squad,unit,206c-6b4d-4aaa-7e79,Imperium - Black Templars.cat,105,4,10,8,4,4,both,mixed loadout profiles
+Imperium - Adeptus Astartes - Black Templars,Terminator Squad,unit,80ad-6e62-65e3-e667,Imperium - Black Templars.cat,175,6,11,8,5,3,both,mixed loadout profiles
+Imperium - Adeptus Astartes - Deathwatch,Gravis Veteran w/ infernus heavy bolter,model,550a-f5c4-d6a9-a09e,Imperium - Deathwatch.cat,,1,1,8,7,1,both,mixed loadout profiles
+Imperium - Adeptus Astartes - Space Marines,Assault Intercessor Sergeant,model,37ea-6539-b887-cd1,Imperium - Space Marines.cat,,1,1,8,4,4,both,mixed loadout profiles
+Imperium - Adeptus Astartes - Space Marines,Assault Intercessor Squad,unit,a10b-fbfe-b1fa-6f0c,Imperium - Space Marines.cat,75,6,11,8,4,4,both,mixed loadout profiles
+Imperium - Adeptus Astartes - Space Marines,Captain with Jump Pack,model,1319-45d-bb95-dfd4,Imperium - Space Marines.cat,0,1,1,8,4,4,both,mixed loadout profiles
+Imperium - Adeptus Astartes - Space Marines,Impulsor,model,bfb1-7512-e1a3-9fa2,Imperium - Space Marines.cat,80,1,1,8,7,1,both,mixed loadout profiles
+Imperium - Adeptus Astartes - Space Marines,Ironclad Dreadnought [Legends],model,64c7-8b87-1b4f-7850,Imperium - Space Marines.cat,150,1,1,8,5,3,both,mixed loadout profiles
+Imperium - Adeptus Astartes - Space Marines,Relic Terminator Sergeant,model,f0c0-da4a-2975-f30,Imperium - Space Marines.cat,,1,1,8,4,4,both,mixed loadout profiles
+Imperium - Adeptus Astartes - Space Marines,Stormhawk Interceptor,model,3d99-47aa-8cf3-883f,Imperium - Space Marines.cat,155,1,1,8,7,1,both,mixed loadout profiles
+Imperium - Adeptus Astartes - Space Marines,Terminator Squad,unit,4808-a80b-309a-7933,Imperium - Space Marines.cat,170,6,11,8,5,3,both,mixed loadout profiles
+Imperium - Adeptus Astartes - Space Marines,Vanguard Veteran Squad [Legends],unit,f1b9-b2e8-4ccf-d6cb,Imperium - Space Marines.cat,120,6,11,8,6,2,both,mixed loadout profiles
+Imperium - Adeptus Astartes - Space Wolves,Stormfang Gunship [Legends],model,3b8b-19bb-1855-98c5,Imperium - Space Wolves.cat,0,1,1,8,7,1,both,mixed loadout profiles
+Imperium - Adeptus Astartes - Space Wolves,Wolf Guard Battle Leader in Terminator Armour [Legends],model,bcab-c09a-6584-3b26,Imperium - Space Wolves.cat,25,1,1,8,2,6,both,mixed loadout profiles
+Imperium - Adeptus Astartes - Ultramarines,Wardens of Ultramar,unit,b793-b77e-9e49-d397,Imperium - Ultramarines.cat,105,6,6,8,4,4,both,mixed loadout profiles
+Imperium - Adeptus Mechanicus,Onager Dunecrawler,model,ea05-4db7-9ee6-7a87,Imperium - Adeptus Mechanicus.cat,0,1,1,8,7,1,both,mixed loadout profiles
+Imperium - Adeptus Mechanicus,Servitor Battleclade,unit,a523-606f-b05c-851e,Imperium - Adeptus Mechanicus.cat,60,9,9,8,6,2,both,mixed loadout profiles
+Imperium - Adeptus Mechanicus,Skitarii Rangers,unit,de59-f65c-181a-8509,Imperium - Adeptus Mechanicus.cat,85,10,11,8,6,2,both,mixed loadout profiles
+Imperium - Adeptus Mechanicus,Skitarii Vanguard,unit,ba33-c21-bddc-ab0,Imperium - Adeptus Mechanicus.cat,95,10,11,8,6,2,both,mixed loadout profiles
+Imperium - Agents of the Imperium,Gravis Veteran w/ infernus heavy bolter,model,77a2-7703-4d4f-f30d,Imperium - Agents of the Imperium.cat,,1,1,8,7,1,both,mixed loadout profiles
+Imperium - Agents of the Imperium,Inquisitorial Chimera,model,ede2-ae50-5f5b-cced,Imperium - Agents of the Imperium.cat,70,1,1,8,7,1,both,mixed loadout profiles
+Imperium - Agents of the Imperium,Kill Team Intercessor w/ Special Weapon,model,4c3e-06d1-9fe6-9af6,Imperium - Agents of the Imperium.cat,,1,1,8,5,3,both,mixed loadout profiles
+Imperium - Astra Militarum - Library,Baneblade,model,a6a1-1612-f982-31,Imperium - Astra Militarum - Library.cat,450,1,1,8,7,1,both,mixed loadout profiles
+Imperium - Astra Militarum - Library,Cadian Veteran Guardsman w/ Regimental standard,model,29df-a9ae-2225-34e9,Imperium - Astra Militarum - Library.cat,,1,1,8,7,1,both,mixed loadout profiles
+Imperium - Astra Militarum - Library,Chimera,model,cf23-58db-8ba4-9ec8,Imperium - Astra Militarum - Library.cat,85,1,1,8,7,1,both,mixed loadout profiles
+Imperium - Astra Militarum - Library,Hellhammer,model,8277-6399-5d74-760d,Imperium - Astra Militarum - Library.cat,420,1,1,8,7,1,both,mixed loadout profiles
+Imperium - Astra Militarum - Library,Hellhound,model,c28b-c3af-38b2-8865,Imperium - Astra Militarum - Library.cat,125,1,1,8,7,1,both,mixed loadout profiles
+Imperium - Astra Militarum - Library,Macharius [Legends],model,d7a-7abb-831b-1c67,Imperium - Astra Militarum - Library.cat,310,1,1,8,7,1,both,mixed loadout profiles
+Imperium - Astra Militarum - Library,Macharius Omega [Legends],model,4b76-f049-77b1-38bf,Imperium - Astra Militarum - Library.cat,310,1,1,8,7,1,both,mixed loadout profiles
+Imperium - Astra Militarum - Library,Macharius Vanquisher [Legends],model,731f-e022-6394-3690,Imperium - Astra Militarum - Library.cat,285,1,1,8,7,1,both,mixed loadout profiles
+Imperium - Astra Militarum - Library,Macharius Vulcan [Legends],model,e951-f9f2-3dd4-d5b8,Imperium - Astra Militarum - Library.cat,310,1,1,8,7,1,both,mixed loadout profiles
+Imperium - Astra Militarum - Library,Malcador [Legends],model,f706-c35a-a325-38bf,Imperium - Astra Militarum - Library.cat,250,1,1,8,7,1,both,mixed loadout profiles
+Imperium - Astra Militarum - Library,Malcador Defender [Legends],model,a185-ae7a-4503-8ceb,Imperium - Astra Militarum - Library.cat,310,1,1,8,7,1,both,mixed loadout profiles
+Imperium - Astra Militarum - Library,Taurox Prime,model,4b67-f814-358e-f776,Imperium - Astra Militarum - Library.cat,90,1,1,8,7,1,both,mixed loadout profiles
+Imperium - Astra Militarum - Library,Veteran Guardsman w/ Boltgun,model,ccf1-b4ab-e10f-3777,Imperium - Astra Militarum - Library.cat,,1,1,8,7,1,both,mixed loadout profiles
+Imperium - Grey Knights,Grey Knights Relic Razorback [Legends],model,54f0-4b3f-3abe-081b,Imperium - Grey Knights.cat,0,1,1,8,7,1,both,mixed loadout profiles
+Imperium - Grey Knights,Stormhawk Interceptor,model,fa-e288-2107-d22e,Imperium - Grey Knights.cat,160,1,1,8,7,1,both,mixed loadout profiles
+Imperium - Imperial Knights - Library,Knight Destrier,model,10d8-d702-f556-5d3c,Imperium - Imperial Knights - Library.cat,30,1,1,8,3,5,both,mixed loadout profiles
+Library - Astartes Heresy Legends,Land Raider Proteus [Legends],model,34c8-1025-33f7-baaf,Library - Astartes Heresy Legends.cat,0,1,1,8,7,1,both,mixed loadout profiles
+Library - Astartes Heresy Legends,Storm Eagle Gunship [Legends],model,3b7d-b14e-603-e1ad,Library - Astartes Heresy Legends.cat,0,1,1,8,7,1,both,mixed loadout profiles
+Library - Titans,Reaver Titan,model,b7e8-f3ae-be53-9ba5,Library - Titans.cat,2200,1,1,8,5,3,both,mixed loadout profiles
+Xenos - Genestealer Cults,Atalan Jackals,unit,3a81-2b84-bf4c-4f85,Genestealer Cults.cat,85,4,8,8,6,2,both,mixed loadout profiles
+Xenos - Leagues of Votann,Hekaton Land Fortress,model,a110-e538-4e85-159b,Leagues of Votann.cat,0,1,1,8,7,1,both,mixed loadout profiles
+Xenos - Orks,Nobz on Warbikes [Legends],unit,47ad-4934-ea67-a2b0,Orks.cat,125,3,3,8,2,6,both,mixed loadout profiles
+Xenos - Orks,Stompa,model,6c08-9131-14a3-a3b4,Orks.cat,800,1,1,8,6,2,both,mixed loadout profiles
+Xenos - T'au Empire,Broadside Battlesuits,unit,a594-317-b90a-a226,T'au Empire.cat,80,1,3,8,7,1,both,mixed loadout profiles
+Xenos - T'au Empire,Broadside Shas’ui,model,8a73-2cbe-9248-fe7d,T'au Empire.cat,,1,1,8,7,1,both,mixed loadout profiles
+Xenos - T'au Empire,Broadside Shas’vre,model,c7f0-6f76-8309-df6,T'au Empire.cat,,1,1,8,7,1,both,mixed loadout profiles
+Xenos - T'au Empire,Hammerhead Gunship,model,ca9-49ab-17c1-8556,T'au Empire.cat,145,1,1,8,7,1,both,mixed loadout profiles
+Xenos - T'au Empire,Kroot Farstalkers,unit,72f2-7d0b-80f9-43b7,T'au Empire.cat,85,12,12,8,5,3,both,mixed loadout profiles
+Xenos - T'au Empire,Longstrike [Legends],model,5bf-16e5-d77b-ea7d,T'au Empire.cat,140,1,1,8,7,1,both,mixed loadout profiles
+Xenos - T'au Empire,Pathfinder Shas'ui,model,2af6-b5a5-4a1e-e2be,T'au Empire.cat,,1,1,8,7,1,both,mixed loadout profiles
+Xenos - T'au Empire,Riptide Battlesuit,model,5d8f-5530-263d-651b,T'au Empire.cat,200,1,1,8,7,1,both,mixed loadout profiles

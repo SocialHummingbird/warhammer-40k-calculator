@@ -329,6 +329,7 @@ def test_data_review_payload_loads_generated_reports(tmp_path):
     (tmp_path / "audit_report.json").write_text('{"summary": {"error": 1}}', encoding="utf-8")
     (tmp_path / "import_diff.json").write_text('{"tables": {"units": {"delta": 2}}}', encoding="utf-8")
     (tmp_path / "metadata.json").write_text('{"counts": {"units": 3}}', encoding="utf-8")
+    (tmp_path / "edition_status.json").write_text('{"edition": "10e", "status": "ready"}', encoding="utf-8")
     (tmp_path / "update_report.md").write_text("# Update\n\nStatus: PASS\n", encoding="utf-8")
     (tmp_path / "profile_review.md").write_text("# Imported Profile Review\n\nWeapon profiles: 1\n", encoding="utf-8")
     (tmp_path / "weapon_profile_review.csv").write_text("unit_name,weapon_name\nBoyz,Choppa\n", encoding="utf-8")
@@ -338,11 +339,15 @@ def test_data_review_payload_loads_generated_reports(tmp_path):
     assert payload["audit_report"]["summary"]["error"] == 1
     assert payload["import_diff"]["tables"]["units"]["delta"] == 2
     assert payload["metadata"]["counts"]["units"] == 3
+    assert payload["edition_status"]["status"] == "ready"
     assert "Status: PASS" in payload["update_report"]
     assert "Imported Profile Review" in payload["profile_review"]
-    assert payload["review_files"][0]["href"].startswith("/api/review-files/")
+    assert payload["model_audit"] is None
+    assert payload["model_files"] == []
+    assert payload["review_files"][0]["href"].startswith("/api/review-files/10e/")
     assert {file["filename"] for file in payload["review_files"]} == {
         "weapon_profile_review.csv",
+        "edition_status.json",
         "profile_review.md",
         "update_report.md",
     }
@@ -355,9 +360,13 @@ def test_data_review_payload_tolerates_missing_data_dir():
         "audit_report": None,
         "import_diff": None,
         "metadata": None,
+        "edition_status": None,
         "update_report": None,
         "profile_review": None,
+        "model_audit": None,
         "review_files": [],
+        "model_files": [],
+        "edition": "10e",
     }
 
 
@@ -392,3 +401,113 @@ def test_source_info_from_metadata_summarizes_commit_and_generation():
         "rules_edition": "10e",
         "supported_rules_editions": ["10e"],
     }
+
+
+def test_discover_edition_data_dirs_lists_available_latest_folders(tmp_path):
+    latest = tmp_path / "10e" / "latest"
+    latest.mkdir(parents=True)
+    (latest / "metadata.json").write_text(
+        """
+{
+  "generated_at": "2026-04-25T12:00:00Z",
+  "rules_edition": "10e",
+  "counts": {"units": 12},
+  "source_revisions": [{"commit": "abcdef123456"}]
+}
+""".strip(),
+        encoding="utf-8",
+    )
+
+    rows = webapp._discover_edition_data_dirs(tmp_path, active_data_dir=latest)
+
+    assert rows == [
+        {
+            "edition": "10e",
+            "label": "10th Edition",
+            "path": str(latest),
+            "active": True,
+            "loaded": False,
+            "units": 12,
+            "commit": "abcdef123456",
+            "commit_short": "abcdef123456",
+            "generated_at": "2026-04-25T12:00:00Z",
+            "rules_available": True,
+            "status": "available",
+            "unavailable_reason": "",
+        }
+    ]
+
+
+def test_discover_edition_data_dirs_reports_blocked_unimplemented_ruleset(tmp_path):
+    latest = tmp_path / "11e" / "latest"
+    latest.mkdir(parents=True)
+    (latest / "metadata.json").write_text(
+        """
+{
+  "generated_at": "2026-04-25T12:00:00Z",
+  "rules_edition": "11e",
+  "counts": {"units": 3}
+}
+""".strip(),
+        encoding="utf-8",
+    )
+
+    rows = webapp._discover_edition_data_dirs(tmp_path)
+
+    assert rows[0]["edition"] == "11e"
+    assert rows[0]["label"] == "11th Edition"
+    assert rows[0]["rules_available"] is False
+    assert rows[0]["status"] == "blocked"
+    assert rows[0]["unavailable_reason"] == "Ruleset not implemented"
+
+
+def test_available_edition_rows_preserve_blocked_discovered_editions(tmp_path):
+    unit = _unit("Loaded")
+    dataset = webapp.EditionDataset(
+        edition="10e",
+        data_dir=tmp_path / "10e" / "latest",
+        source="test",
+        units={"u1": unit},
+        metadata={"rules_edition": "10e", "counts": {"units": 1}},
+    )
+    blocked = {
+        "edition": "11e",
+        "label": "11th Edition",
+        "path": str(tmp_path / "11e" / "latest"),
+        "active": False,
+        "loaded": False,
+        "units": 3,
+        "commit": "",
+        "commit_short": "",
+        "generated_at": "",
+        "rules_available": False,
+        "status": "blocked",
+        "unavailable_reason": "Ruleset not implemented",
+    }
+
+    rows = webapp._available_edition_rows({"10e": dataset}, active_edition="10e", discovered_rows=[blocked])
+
+    assert [row["edition"] for row in rows] == ["10e", "11e"]
+    loaded = next(row for row in rows if row["edition"] == "10e")
+    assert loaded["loaded"] is True
+    assert loaded["status"] == "loaded"
+    assert next(row for row in rows if row["edition"] == "11e")["status"] == "blocked"
+
+
+def test_requested_rules_edition_validates_dataset_support():
+    class State:
+        rules_edition = "10e"
+
+        def dataset_for_edition(self, edition=None):
+            if edition not in {None, "10e"}:
+                raise ValueError("not loaded")
+
+            class Dataset:
+                supported_rules_editions = ["10e"]
+
+            return Dataset()
+
+    assert webapp._requested_rules_edition(None, state=State()) == "10e"
+    assert webapp._requested_rules_edition("10e", state=State()) == "10e"
+    with pytest.raises(ValueError, match="not loaded"):
+        webapp._requested_rules_edition("11e", state=State())

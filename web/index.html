@@ -340,6 +340,10 @@
       color: var(--ink);
     }
 
+    .judgement.ml {
+      background: #f5fbf8;
+    }
+
     .loadout-warning {
       padding: 12px 16px;
       border-bottom: 1px solid var(--line);
@@ -707,6 +711,11 @@
         <option value="">All factions</option>
       </select>
 
+      <label for="edition">Edition</label>
+      <select id="edition" data-testid="edition-select">
+        <option value="10e">10th Edition</option>
+      </select>
+
       <label>Mode</label>
       <input id="mode" type="hidden" value="ranged">
       <div class="segmented" role="group" aria-label="Mode">
@@ -768,7 +777,10 @@
       unitDetails: {},
       selectedUnitIds: { attacker: null, defender: null },
       searchTimer: null,
-      openMenu: null
+      openMenu: null,
+      rulesEdition: "10e",
+      supportedRulesEditions: ["10e"],
+      availableEditions: []
     };
 
     const el = (id) => document.getElementById(id);
@@ -792,13 +804,53 @@
 
     async function loadHealth() {
       const health = await api("/api/health");
-      setStatus(health.units, health.source_info || {});
+      const sourceInfo = health.source_info || {};
+      state.availableEditions = health.available_editions || [];
+      state.mlModels = health.ml_models || {};
+      state.rulesEdition = sourceInfo.rules_edition || "10e";
+      state.supportedRulesEditions = state.availableEditions.length
+        ? state.availableEditions.filter((row) => row.rules_available && row.loaded).map((row) => row.edition)
+        : (sourceInfo.supported_rules_editions || [state.rulesEdition]);
+      renderEditionSelect();
+      setStatus(health.units, sourceInfo, false, state.mlModels);
     }
 
-    function setStatus(unitCount, sourceInfo = {}, locally = false) {
+    function renderEditionSelect() {
+      const select = el("edition");
+      const editions = state.supportedRulesEditions.length ? state.supportedRulesEditions : ["10e"];
+      select.innerHTML = editions.map((edition) => `<option value="${escapeHtml(edition)}">${editionLabel(edition)}</option>`).join("");
+      select.value = editions.includes(state.rulesEdition) ? state.rulesEdition : editions[0];
+      select.disabled = editions.length <= 1;
+      const discovered = state.availableEditions.length
+        ? state.availableEditions.map((row) => editionDiscoveryText(row)).join(" | ")
+        : "";
+      select.title = discovered || "Only the loaded edition is available for calculation.";
+    }
+
+    function editionDiscoveryText(row) {
+      const label = row.label || editionLabel(row.edition);
+      const status = row.active ? "loaded" : (row.status || (row.rules_available ? "available" : "blocked"));
+      const reason = row.unavailable_reason ? `: ${row.unavailable_reason}` : "";
+      return `${label}: ${row.units || 0} units (${status}${reason})`;
+    }
+
+    function editionLabel(edition) {
+      if (edition === "10e") return "10th Edition";
+      if (edition === "11e") return "11th Edition";
+      return String(edition).toUpperCase();
+    }
+
+    function setStatus(unitCount, sourceInfo = {}, locally = false, mlModels = {}) {
       const parts = [`${unitCount} units loaded${locally ? " locally" : ""}`];
       if (sourceInfo.rules_edition) parts.push(`${String(sourceInfo.rules_edition).toUpperCase()} rules`);
       if (sourceInfo.commit_short) parts.push(`BSData ${sourceInfo.commit_short}`);
+      const mlStatus = mlModels[sourceInfo.rules_edition || state.rulesEdition] || null;
+      if (mlStatus && mlStatus.available) {
+        const accuracy = hasNumber(mlStatus.validation_accuracy)
+          ? `${Math.round(Number(mlStatus.validation_accuracy) * 100)}%`
+          : "n/a";
+        parts.push(`ML ${accuracy}`);
+      }
       if (sourceInfo.dirty) parts.push("dirty source");
       if (sourceInfo.generated_at) parts.push(`generated ${sourceInfo.generated_at}`);
       el("status").textContent = parts.join(" | ");
@@ -806,11 +858,15 @@
       if (sourceInfo.remote_origin) titleParts.push(sourceInfo.remote_origin);
       if (sourceInfo.branch) titleParts.push(`branch ${sourceInfo.branch}`);
       if (sourceInfo.commit) titleParts.push(sourceInfo.commit);
+      if (mlStatus && mlStatus.available) {
+        titleParts.push(`ML ${mlStatus.model_type || "model"}; feature set ${mlStatus.feature_set || "custom"}; training rows ${mlStatus.training_rows || 0}`);
+      }
       el("status").title = titleParts.join(" | ");
     }
 
     async function searchUnits(query = "") {
       const params = new URLSearchParams({
+        edition: el("edition").value || state.rulesEdition,
         q: query,
         faction: el("faction").value,
         limit: "400"
@@ -830,7 +886,8 @@
     }
 
     async function loadDataReview() {
-      return api("/api/data-review");
+      const params = new URLSearchParams({ edition: el("edition").value || state.rulesEdition });
+      return api(`/api/data-review?${params}`);
     }
 
     async function loadUnitDetail(name, field = null) {
@@ -841,7 +898,10 @@
         : null;
       const key = selectedId || unitName.toLowerCase();
       if (state.unitDetails[key]) return state.unitDetails[key];
-      const query = selectedId ? `id=${encodeURIComponent(selectedId)}` : `name=${encodeURIComponent(unitName)}`;
+      const params = new URLSearchParams({ edition: el("edition").value || state.rulesEdition });
+      if (selectedId) params.set("id", selectedId);
+      else params.set("name", unitName);
+      const query = params.toString();
       const payload = await api(`/api/unit?${query}`);
       state.unitDetails[key] = payload.unit;
       return payload.unit;
@@ -1020,6 +1080,7 @@
             attacker_id: state.selectedUnitIds.attacker,
             defender: el("defender").value,
             defender_id: state.selectedUnitIds.defender,
+            edition: el("edition").value || state.rulesEdition,
             mode: el("mode").value,
             outgoing_weapon: el("outgoing-weapon").value,
             incoming_weapon: el("incoming-weapon").value,
@@ -1168,6 +1229,21 @@
       };
     }
 
+    function renderMlJudgement(payload) {
+      const judgement = payload.ml_judgement;
+      if (!judgement || !judgement.available) return "";
+      const accuracy = hasNumber(judgement.validation_accuracy)
+        ? `${Math.round(Number(judgement.validation_accuracy) * 100)}%`
+        : "n/a";
+      return `
+        <div class="judgement ml">
+          <h3>${escapeHtml(judgement.title || "ML advisory")}</h3>
+          <p>${escapeHtml(judgement.body || "")}</p>
+          <p class="small">Model: ${escapeHtml(judgement.model_type || "unknown")} | Feature set: ${escapeHtml(judgement.feature_set || "custom")} | Training rows: ${escapeHtml(judgement.training_rows || 0)} | Validation accuracy: ${escapeHtml(accuracy)}</p>
+        </div>
+      `;
+    }
+
     function renderResults(payload) {
       state.lastResult = payload;
       const outgoing = payload.outgoing;
@@ -1190,8 +1266,9 @@
         <div class="judgement">
           <h3>${escapeHtml(judgement.title)}</h3>
           <p>${escapeHtml(judgement.body)}</p>
-          <p class="small">Attacker scope: ${escapeHtml(scopeText(payload, "outgoing"))} | Return scope: ${escapeHtml(scopeText(payload, "incoming"))}</p>
+          <p class="small">Edition: ${escapeHtml(editionLabel(payload.edition || state.rulesEdition))} | Attacker scope: ${escapeHtml(scopeText(payload, "outgoing"))} | Return scope: ${escapeHtml(scopeText(payload, "incoming"))}</p>
         </div>
+        ${renderMlJudgement(payload)}
         ${renderLoadoutWarnings(payload)}
         ${renderWeaponList(outgoing, `${payload.attacker.name} attack`, `No ${payload.mode} weapons found for ${payload.attacker.name}.`)}
         ${renderWeaponList(incoming, `${payload.defender.name} return strike`, `No ${payload.mode} weapons found for ${payload.defender.name}.`)}
@@ -1215,10 +1292,13 @@
       const audit = payload.audit_report;
       const diff = payload.import_diff;
       const metadata = payload.metadata;
+      const editionStatus = payload.edition_status;
       const updateReport = payload.update_report;
       const profileReview = payload.profile_review;
+      const modelAudit = payload.model_audit;
       const reviewFiles = payload.review_files || [];
-      if (!audit && !diff && !metadata && !updateReport && !profileReview) {
+      const modelFiles = payload.model_files || [];
+      if (!audit && !diff && !metadata && !editionStatus && !updateReport && !profileReview && !modelAudit) {
         el("results").innerHTML = `<div class="empty">No generated audit or import diff files were found.</div>`;
         return;
       }
@@ -1241,12 +1321,30 @@
           ${metric("Warnings", summary.warning || 0)}
           ${metric("Info", summary.info || 0)}
           ${metric("Rows checked", audit && audit.row_counts ? Object.values(audit.row_counts).reduce((total, value) => total + Number(value || 0), 0) : 0)}
+          ${editionStatus ? metric("Edition status", escapeHtml(editionStatus.status || "unknown")) : ""}
         </div>
-        ${renderReviewFiles(reviewFiles)}
+        ${renderEditionStatus(editionStatus)}
+        ${renderReviewFiles([...reviewFiles, ...modelFiles])}
+        ${renderModelAudit(modelAudit)}
         ${renderUpdateReport(updateReport)}
         ${renderProfileReview(profileReview)}
         ${renderDiff(diff)}
         ${renderAuditSections(audit)}
+      `;
+    }
+
+    function renderEditionStatus(status) {
+      if (!status) return "";
+      const blockers = status.blockers && status.blockers.length
+        ? `<p><b>Blockers:</b> ${status.blockers.map(escapeHtml).join(", ")}</p>`
+        : `<p>No calculation blockers recorded.</p>`;
+      return `
+        <div class="review-section">
+          <h3>Edition Readiness</h3>
+          <p><b>${escapeHtml(String(status.edition || "unknown").toUpperCase())}</b> calculations are ${status.calculations_enabled ? "enabled" : "blocked"}.</p>
+          <p>Ruleset available: ${status.rules_available ? "yes" : "no"} | supported rulesets: ${escapeHtml((status.supported_rules_editions || []).join(", ") || "none")}</p>
+          ${blockers}
+        </div>
       `;
     }
 
@@ -1282,6 +1380,11 @@
     function renderUpdateReport(updateReport) {
       if (!updateReport) return "";
       return renderMarkdownReport("Update Report", updateReport);
+    }
+
+    function renderModelAudit(modelAudit) {
+      if (!modelAudit) return "";
+      return renderMarkdownReport("ML Model Audit", modelAudit);
     }
 
     function renderMarkdownReport(title, markdown) {
@@ -1423,6 +1526,19 @@
       });
     }
 
+    function setEdition(edition) {
+      state.rulesEdition = edition || "10e";
+      state.unitDetails = {};
+      state.selectedUnitIds = { attacker: null, defender: null };
+      el("attacker").value = "";
+      el("defender").value = "";
+      updateSelectedUnitInfos();
+      refreshWeaponSelectors().catch(() => {});
+      loadUnits("").catch((error) => {
+        el("error").textContent = error.message;
+      });
+    }
+
     function swapContexts() {
       const suffixes = ["target-model-count", "moved", "advanced", "half-range", "cover"];
       for (const suffix of suffixes) {
@@ -1470,6 +1586,7 @@
       document.querySelectorAll(".segment").forEach((button) => {
         button.addEventListener("click", () => setMode(button.dataset.mode));
       });
+      el("edition").addEventListener("change", (event) => setEdition(event.target.value));
       for (const id of ["attacker", "defender"]) {
         el(id).addEventListener("input", (event) => {
           state.selectedUnitIds[id] = null;
