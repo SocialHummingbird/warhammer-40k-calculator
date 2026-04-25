@@ -125,7 +125,7 @@ python train_ml_model.py --features data\ml\10e\matchup_training_rows.csv --outp
 
 By default the trainer uses `--feature-set pre_match`, which includes unit/profile inputs and same-mode weapon aggregates such as attacks, skill, strength, AP, damage, keyword count, and special rule count, while excluding calculator output metrics such as expected damage and points removed. Use `--feature-set full` only when you intentionally want a comparison model that can see those deterministic calculator outputs.
 
-Training also writes `models\10e\matchup_centroid_model.md`, a Markdown audit report with model type, feature set, label source, class balance, validation confusion matrix, feature columns, and a warning when calculator output metrics are used as features. The Data Review view includes this report and download links for the model audit/JSON alongside the database audit files. To audit an existing model without retraining:
+Training also stores feature CSV provenance in the model JSON, including feature row count, byte size, and SHA-256 hash. It also writes `models\10e\matchup_centroid_model.md`, a Markdown audit report with model type, feature set, label source, saved feature hash, class balance, validation confusion matrix, feature columns, and a warning when calculator output metrics are used as features. The Data Review view includes this report and download links for the model audit/JSON alongside the database audit files. To audit an existing model without retraining:
 
 ```powershell
 python audit_ml_model.py --model models\10e\matchup_centroid_model.json --features data\ml\10e\matchup_training_rows.csv

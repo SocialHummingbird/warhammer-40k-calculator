@@ -3,9 +3,11 @@
 ## Summary
 - Model: `nearest_centroid_classifier`
 - Feature set: `pre_match`
-- Model file: `C:\Users\ap010\OneDrive\Documents\dev\Warhammer 40K Calculator\250916 0942 Warhammer 40k damage calculator\models\10e\matchup_centroid_model.json`
-- Feature file: `C:\Users\ap010\OneDrive\Documents\dev\Warhammer 40K Calculator\250916 0942 Warhammer 40k damage calculator\data\ml\10e\matchup_training_rows.csv`
-- Created at: `2026-04-25T20:11:47.981869Z`
+- Model file: `models\10e\matchup_centroid_model.json`
+- Feature file: `data\ml\10e\matchup_training_rows.csv`
+- Saved feature rows: 10000
+- Saved feature SHA-256: `bf4ec5a691fc532bace77a4df03adafecc232be936d867f67ee2f74b6f079078`
+- Created at: `2026-04-25T20:13:36.712378Z`
 - Label source: `deterministic_calculator`
 - Labels: `attacker`, `close`, `defender`
 - Training rows: 8000

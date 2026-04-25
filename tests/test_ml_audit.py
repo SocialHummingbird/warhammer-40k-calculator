@@ -7,6 +7,7 @@ def _model():
         "feature_set": "full",
         "label_source": "deterministic_calculator",
         "created_at": "2026-04-25T12:00:00Z",
+        "training_source": {"rows": 3, "sha256": "abc123", "bytes": 123, "path": "features.csv"},
         "feature_columns": ["attacker_points", "outgoing_damage", "damage_delta"],
         "label_column": "winner_label",
         "labels": ["attacker", "defender"],
@@ -33,6 +34,8 @@ def test_render_model_audit_report_flags_synthetic_labels_and_calculator_feature
 
     assert "Labels are generated from deterministic calculator outputs" in report
     assert "Feature set: `full`" in report
+    assert "Saved feature rows: 3" in report
+    assert "Saved feature SHA-256: `abc123`" in report
     assert "Feature CSV completeness: ok" in report
     assert "Calculator output metrics are included as features" in report
     assert "| `attacker` | 2 | 66.7% |" in report

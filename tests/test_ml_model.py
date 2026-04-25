@@ -6,6 +6,7 @@ from warhammer.ml.model import (
     DEFAULT_FEATURE_COLUMNS,
     PRE_MATCH_FEATURE_COLUMNS,
     evaluate_model,
+    feature_csv_provenance,
     feature_columns_for_set,
     load_model,
     missing_feature_columns,
@@ -81,6 +82,9 @@ def test_train_from_csv_writes_loadable_model(tmp_path):
     assert output.exists()
     assert loaded["model_type"] == "nearest_centroid_classifier"
     assert loaded["labels"] == model["labels"]
+    assert loaded["training_source"]["rows"] == 4
+    assert loaded["training_source"]["bytes"] == features.stat().st_size
+    assert len(loaded["training_source"]["sha256"]) == 64
 
 
 def test_feature_column_sets_expose_pre_match_columns_without_calculator_outputs():
@@ -129,3 +133,15 @@ def test_train_centroid_model_rejects_rows_missing_requested_feature_columns():
 
     with pytest.raises(ValueError, match="missing required columns"):
         train_centroid_model(rows, validation_fraction=0, feature_set="pre_match")
+
+
+def test_feature_csv_provenance_records_path_hash_and_row_count(tmp_path):
+    path = tmp_path / "features.csv"
+    path.write_text("winner_label,attacker_points\nattacker,100\n", encoding="utf-8")
+
+    provenance = feature_csv_provenance(path)
+
+    assert provenance["path"] == str(path)
+    assert provenance["bytes"] == path.stat().st_size
+    assert len(provenance["sha256"]) == 64
+    assert provenance["rows"] == 1

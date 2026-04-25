@@ -17,6 +17,7 @@
   - [x] Add same-mode weapon aggregate features to `pre_match` training rows so the model can see weapon profile shape without seeing calculator outputs.
   - [x] Surface ML model audit content and model artifact links through the Data Review screen and standalone HTML export.
   - [x] Regenerate ML features, model, and audit during `update_database.py` before rebuilding standalone HTML, with `--skip-ml` for data-only refreshes.
+  - [x] Store feature CSV provenance in trained model JSON and surface the saved feature row count/hash in the ML audit report.
   - Later replace or augment the dependency-free baseline with a stronger optional model.
 - [ ] Add multi-edition support so 10th edition and future 11th edition data can coexist without sharing incompatible rules assumptions.
   - [x] First step: introduce an explicit ruleset registry and route current calculator behavior through a `10e` ruleset while keeping current outputs unchanged.

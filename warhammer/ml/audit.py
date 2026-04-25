@@ -34,6 +34,7 @@ def render_model_audit_report(
     label_column = str(model.get("label_column") or "winner_label")
     labels = [str(label) for label in model.get("labels", [])]
     validation = model.get("validation") if isinstance(model.get("validation"), dict) else {}
+    training_source = model.get("training_source") if isinstance(model.get("training_source"), dict) else {}
     feature_columns = [str(column) for column in model.get("feature_columns", [])]
     calculator_features = [column for column in feature_columns if column in CALCULATOR_OUTPUT_FEATURES]
     missing_columns = missing_feature_columns(rows, feature_columns) if rows else []
@@ -46,6 +47,8 @@ def render_model_audit_report(
         f"- Feature set: `{model.get('feature_set', '') or 'custom'}`",
         f"- Model file: `{model_path}`" if model_path else "- Model file: not specified",
         f"- Feature file: `{feature_path}`" if feature_path else "- Feature file: not specified",
+        f"- Saved feature rows: {_int_text(training_source.get('rows'))}",
+        f"- Saved feature SHA-256: `{training_source.get('sha256') or 'unknown'}`",
         f"- Created at: `{model.get('created_at', '') or 'unknown'}`",
         f"- Label source: `{model.get('label_source', '') or 'unknown'}`",
         f"- Labels: {', '.join(f'`{label}`' for label in labels) or 'none'}",
