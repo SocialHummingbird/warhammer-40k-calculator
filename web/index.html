@@ -1,0 +1,1091 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Warhammer 40K Calculator</title>
+  <style>
+    :root {
+      --bg: #eef1f4;
+      --panel: #ffffff;
+      --ink: #171b21;
+      --muted: #5f6875;
+      --line: #d7dde4;
+      --red: #a6292e;
+      --red-dark: #7f1e25;
+      --gold: #aa7a1e;
+      --green: #24745f;
+      --steel: #486174;
+      --blue: #1f5f97;
+      --soft: #f6f8fa;
+      --shadow: 0 10px 28px rgba(23, 27, 33, .10);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--ink);
+      font: 15px/1.45 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    header {
+      border-bottom: 1px solid var(--line);
+      background: #20262e;
+      color: #fff;
+    }
+
+    .topbar {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 18px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 22px;
+      font-weight: 750;
+      letter-spacing: 0;
+    }
+
+    .status {
+      color: #ccd6e1;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    main {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 20px;
+      display: grid;
+      grid-template-columns: minmax(280px, 360px) minmax(0, 1fr);
+      gap: 18px;
+    }
+
+    section,
+    aside {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    aside {
+      padding: 16px;
+      align-self: start;
+    }
+
+    .results {
+      padding: 0;
+      overflow: hidden;
+    }
+
+    h2 {
+      margin: 0 0 14px;
+      font-size: 16px;
+      letter-spacing: 0;
+    }
+
+    label {
+      display: block;
+      margin: 12px 0 6px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    input,
+    select {
+      width: 100%;
+      min-height: 38px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fff;
+      color: var(--ink);
+      padding: 8px 10px;
+      font: inherit;
+    }
+
+    .unit-combo {
+      position: relative;
+    }
+
+    .combo-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 42px;
+      gap: 6px;
+    }
+
+    .combo-toggle {
+      min-height: 38px;
+      padding: 0;
+      border: 1px solid var(--line);
+      background: var(--soft);
+      color: var(--ink);
+    }
+
+    .combo-menu {
+      position: absolute;
+      z-index: 20;
+      left: 0;
+      right: 0;
+      top: calc(100% + 4px);
+      max-height: 280px;
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fff;
+      box-shadow: var(--shadow);
+      display: none;
+    }
+
+    .combo-menu.open {
+      display: block;
+    }
+
+    .combo-option {
+      width: 100%;
+      min-height: 38px;
+      padding: 8px 10px;
+      border: 0;
+      border-bottom: 1px solid var(--line);
+      border-radius: 0;
+      background: #fff;
+      color: var(--ink);
+      text-align: left;
+      font-weight: 600;
+    }
+
+    .combo-option:last-child {
+      border-bottom: 0;
+    }
+
+    .combo-option:hover,
+    .combo-option:focus-visible {
+      background: #eef5fb;
+    }
+
+    .combo-option span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    input:focus,
+    select:focus,
+    button:focus-visible {
+      outline: 2px solid rgba(31, 95, 151, .32);
+      outline-offset: 2px;
+    }
+
+    .segmented {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px;
+      padding: 4px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--soft);
+    }
+
+    .segment {
+      min-height: 34px;
+      border-radius: 6px;
+      background: transparent;
+      color: var(--muted);
+      padding: 8px 10px;
+    }
+
+    .segment.active {
+      background: var(--blue);
+      color: #fff;
+    }
+
+    .switches {
+      display: grid;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .context-title {
+      margin-top: 16px;
+      color: var(--ink);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .check {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--ink);
+      font-size: 14px;
+      text-transform: none;
+      font-weight: 500;
+      margin: 0;
+    }
+
+    .check input {
+      width: 18px;
+      min-height: 18px;
+      accent-color: var(--red);
+    }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 6px;
+      background: var(--red);
+      color: #fff;
+      padding: 10px 14px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      min-height: 40px;
+    }
+
+    button.secondary {
+      background: #e4e9ef;
+      color: var(--ink);
+    }
+
+    button.tertiary {
+      background: #eef3f7;
+      color: var(--blue);
+      border: 1px solid var(--line);
+    }
+
+    button:disabled {
+      opacity: .55;
+      cursor: wait;
+    }
+
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      border-bottom: 1px solid var(--line);
+      background: #fff;
+    }
+
+    .metric {
+      padding: 14px;
+      border-right: 1px solid var(--line);
+    }
+
+    .metric:last-child { border-right: 0; }
+
+    .metric b {
+      display: block;
+      font-size: 22px;
+      line-height: 1.1;
+      margin-bottom: 4px;
+    }
+
+    .metric span {
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    .duel {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .judgement {
+      padding: 16px;
+      border-bottom: 1px solid var(--line);
+      background: #f7f9fb;
+    }
+
+    .judgement h3 {
+      margin: 0 0 6px;
+      font-size: 15px;
+      letter-spacing: 0;
+    }
+
+    .judgement p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .judgement strong {
+      color: var(--ink);
+    }
+
+    .review-head {
+      padding: 16px;
+      border-bottom: 1px solid var(--line);
+      background: #fff;
+    }
+
+    .review-head h2 {
+      margin-bottom: 6px;
+    }
+
+    .review-meta {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .review-section {
+      padding: 16px;
+      border-top: 1px solid var(--line);
+    }
+
+    .review-section:first-of-type {
+      border-top: 0;
+    }
+
+    .review-section h3 {
+      margin: 0 0 10px;
+      font-size: 15px;
+      letter-spacing: 0;
+    }
+
+    .issue-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .issue {
+      border: 1px solid var(--line);
+      border-left: 4px solid var(--steel);
+      border-radius: 6px;
+      padding: 10px;
+      background: #fff;
+    }
+
+    .issue.error { border-left-color: var(--red); }
+    .issue.warning { border-left-color: var(--gold); }
+    .issue.info { border-left-color: var(--steel); }
+
+    .issue-title {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 6px;
+      font-weight: 800;
+    }
+
+    .issue-title span {
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+    }
+
+    .issue-samples {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .diff-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .diff-row {
+      display: contents;
+    }
+
+    .diff-row > div {
+      padding: 9px 10px;
+      border-bottom: 1px solid var(--line);
+      border-right: 1px solid var(--line);
+      background: #fff;
+      font-size: 13px;
+    }
+
+    .diff-row > div:last-child {
+      border-right: 0;
+    }
+
+    .diff-row:last-child > div {
+      border-bottom: 0;
+    }
+
+    .diff-head > div {
+      background: var(--soft);
+      color: var(--muted);
+      font-weight: 800;
+      text-transform: uppercase;
+      font-size: 12px;
+    }
+
+    .unit-pane {
+      padding: 16px;
+      border-right: 1px solid var(--line);
+    }
+
+    .unit-pane:last-child { border-right: 0; }
+
+    .unit-name {
+      font-weight: 800;
+      font-size: 18px;
+      margin-bottom: 6px;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 10px;
+    }
+
+    .chip {
+      border-radius: 4px;
+      background: #e8eef4;
+      color: #26313d;
+      padding: 3px 6px;
+      font-size: 12px;
+    }
+
+    .weapon-list {
+      padding: 16px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .result-band {
+      padding: 14px 16px 0;
+      border-top: 1px solid var(--line);
+      font-weight: 800;
+      color: var(--ink);
+    }
+
+    .result-band:first-of-type {
+      border-top: 0;
+    }
+
+    .weapon {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      overflow: hidden;
+    }
+
+    .weapon-head {
+      display: grid;
+      grid-template-columns: minmax(160px, 1.4fr) repeat(4, minmax(80px, .7fr));
+      gap: 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .weapon-head div {
+      padding: 10px;
+      border-right: 1px solid var(--line);
+    }
+
+    .weapon-head div:last-child { border-right: 0; }
+
+    .weapon-title {
+      font-weight: 800;
+    }
+
+    .small {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .bars {
+      padding: 10px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .bar {
+      display: grid;
+      grid-template-columns: 88px minmax(0, 1fr) 56px;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .track {
+      height: 8px;
+      background: #e6ebf0;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .fill {
+      height: 100%;
+      background: var(--green);
+    }
+
+    .fill.wound { background: var(--gold); }
+    .fill.save { background: var(--steel); }
+
+    .notes {
+      color: var(--muted);
+      font-size: 12px;
+      padding: 0 10px 10px;
+    }
+
+    .empty {
+      padding: 44px 18px;
+      text-align: center;
+      color: var(--muted);
+    }
+
+    .error {
+      margin-top: 12px;
+      color: var(--red);
+      font-weight: 700;
+    }
+
+    @media (max-width: 840px) {
+      main { grid-template-columns: 1fr; }
+      .summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .duel { grid-template-columns: 1fr; }
+      .unit-pane { border-right: 0; border-bottom: 1px solid var(--line); }
+      .unit-pane:last-child { border-bottom: 0; }
+      .weapon-head { grid-template-columns: 1fr 1fr; }
+      .diff-grid { grid-template-columns: 1fr; }
+      .diff-row { display: block; }
+      .diff-head { display: none; }
+      .diff-row > div { border-right: 0; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="topbar">
+      <h1>Warhammer 40K Damage Calculator</h1>
+      <div class="status" id="status" aria-live="polite">Loading data...</div>
+    </div>
+  </header>
+
+  <main>
+    <aside>
+      <h2>Matchup</h2>
+      <label for="attacker">Attacker</label>
+      <div class="unit-combo" data-field="attacker">
+        <div class="combo-row">
+          <input id="attacker" data-testid="attacker-input" autocomplete="off" aria-autocomplete="list" aria-expanded="false">
+          <button class="combo-toggle" type="button" data-target="attacker" aria-label="Open attacker menu">▼</button>
+        </div>
+        <div class="combo-menu" id="attacker-menu" role="listbox"></div>
+      </div>
+
+      <label for="defender">Defender</label>
+      <div class="unit-combo" data-field="defender">
+        <div class="combo-row">
+          <input id="defender" data-testid="defender-input" autocomplete="off" aria-autocomplete="list" aria-expanded="false">
+          <button class="combo-toggle" type="button" data-target="defender" aria-label="Open defender menu">▼</button>
+        </div>
+        <div class="combo-menu" id="defender-menu" role="listbox"></div>
+      </div>
+
+      <label for="faction">Faction filter</label>
+      <select id="faction" data-testid="faction-select">
+        <option value="">All factions</option>
+      </select>
+
+      <label>Mode</label>
+      <input id="mode" type="hidden" value="ranged">
+      <div class="segmented" role="group" aria-label="Mode">
+        <button class="segment active" type="button" data-mode="ranged" data-testid="mode-ranged" aria-pressed="true">Ranged</button>
+        <button class="segment" type="button" data-mode="melee" data-testid="mode-melee" aria-pressed="false">Melee</button>
+      </div>
+
+      <div class="context-title">Attacker Attack</div>
+      <label for="attacker-target-model-count">Target models</label>
+      <input id="attacker-target-model-count" type="number" min="1" step="1" placeholder="Auto">
+      <div class="switches">
+        <label class="check"><input id="attacker-moved" type="checkbox"> Attacker moved</label>
+        <label class="check"><input id="attacker-advanced" type="checkbox"> Attacker advanced</label>
+        <label class="check"><input id="attacker-half-range" type="checkbox"> Target within half range</label>
+        <label class="check"><input id="attacker-cover" type="checkbox"> Target in cover</label>
+      </div>
+
+      <div class="context-title">Return Strike</div>
+      <label for="return-target-model-count">Target models</label>
+      <input id="return-target-model-count" type="number" min="1" step="1" placeholder="Auto">
+      <div class="switches">
+        <label class="check"><input id="return-moved" type="checkbox"> Attacker moved</label>
+        <label class="check"><input id="return-advanced" type="checkbox"> Attacker advanced</label>
+        <label class="check"><input id="return-half-range" type="checkbox"> Target within half range</label>
+        <label class="check"><input id="return-cover" type="checkbox"> Target in cover</label>
+      </div>
+
+      <div class="actions">
+        <button id="calculate" type="button" data-testid="calculate-button">Calculate</button>
+        <button id="swap" class="secondary" type="button" data-testid="swap-button">Swap</button>
+        <button id="data-review" class="tertiary" type="button" data-testid="data-review-button">Data Review</button>
+      </div>
+      <div class="error" id="error" aria-live="assertive"></div>
+    </aside>
+
+    <section class="results" id="results">
+      <div class="empty">Choose two units and calculate a matchup.</div>
+    </section>
+  </main>
+
+  <script>
+    const state = {
+      units: [],
+      factions: [],
+      searchTimer: null,
+      openMenu: null
+    };
+
+    const el = (id) => document.getElementById(id);
+    const fmt = (value) => Number(value || 0).toFixed(2);
+    const pct = (value) => `${Math.round(Number(value || 0) * 100)}%`;
+    const escapeHtml = (value) => String(value ?? "").replace(/[&<>"']/g, (char) => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      "\"": "&quot;",
+      "'": "&#39;"
+    }[char]));
+
+    async function api(path, options) {
+      const response = await fetch(path, options);
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.error || "Request failed");
+      return payload;
+    }
+
+    async function loadHealth() {
+      const health = await api("/api/health");
+      el("status").textContent = `${health.units} units loaded`;
+    }
+
+    async function searchUnits(query = "") {
+      const params = new URLSearchParams({
+        q: query,
+        faction: el("faction").value,
+        limit: "400"
+      });
+      const payload = await api(`/api/units?${params}`);
+      if (payload.factions) {
+        state.factions = payload.factions;
+        renderFactions();
+      }
+      return payload.units;
+    }
+
+    async function loadUnits(query = "") {
+      state.units = await searchUnits(query);
+      if (state.openMenu) renderDropdown(state.openMenu, state.units);
+      return state.units;
+    }
+
+    async function loadDataReview() {
+      return api("/api/data-review");
+    }
+
+    function renderFactions() {
+      const select = el("faction");
+      const current = select.value;
+      select.innerHTML = `<option value="">All factions</option>`;
+      for (const faction of state.factions) {
+        const option = document.createElement("option");
+        option.value = faction;
+        option.textContent = faction;
+        select.appendChild(option);
+      }
+      select.value = state.factions.includes(current) ? current : "";
+    }
+
+    function queueUnitSearch(value = "") {
+      window.clearTimeout(state.searchTimer);
+      state.searchTimer = window.setTimeout(() => {
+        loadUnits(value).catch((error) => {
+          el("error").textContent = error.message;
+        });
+      }, 120);
+    }
+
+    function optionSubtitle(unit) {
+      const parts = [];
+      if (unit.faction) parts.push(unit.faction);
+      if (unit.points) parts.push(`${unit.points} pts`);
+      parts.push(`T${unit.toughness} W${unit.wounds} Sv ${unit.save}`);
+      return parts.join(" | ");
+    }
+
+    function closeDropdown(field = state.openMenu) {
+      if (!field) return;
+      el(`${field}-menu`).classList.remove("open");
+      el(field).setAttribute("aria-expanded", "false");
+      if (state.openMenu === field) state.openMenu = null;
+    }
+
+    function renderDropdown(field, units) {
+      const menu = el(`${field}-menu`);
+      const rows = units.slice(0, 80);
+      if (!rows.length) {
+        menu.innerHTML = `<button class="combo-option" type="button" disabled>No matching units</button>`;
+        return;
+      }
+      menu.innerHTML = rows.map((unit) => `
+        <button class="combo-option" type="button" role="option" data-unit="${escapeHtml(unit.name)}">
+          ${escapeHtml(unit.name)}
+          <span>${escapeHtml(optionSubtitle(unit))}</span>
+        </button>
+      `).join("");
+      menu.querySelectorAll(".combo-option").forEach((button) => {
+        button.addEventListener("mousedown", (event) => {
+          event.preventDefault();
+          el(field).value = button.dataset.unit;
+          closeDropdown(field);
+        });
+      });
+    }
+
+    async function openDropdown(field) {
+      if (state.openMenu && state.openMenu !== field) closeDropdown(state.openMenu);
+      state.openMenu = field;
+      el(field).setAttribute("aria-expanded", "true");
+      const units = await searchUnits(el(field).value);
+      state.units = units;
+      renderDropdown(field, units);
+      el(`${field}-menu`).classList.add("open");
+    }
+
+    function contextPayload(prefix = "") {
+      const targetModelCount = el(`${prefix}target-model-count`).value.trim();
+      return {
+        attacker_moved: el(`${prefix}moved`).checked,
+        attacker_advanced: el(`${prefix}advanced`).checked,
+        target_within_half_range: el(`${prefix}half-range`).checked,
+        target_in_cover: el(`${prefix}cover`).checked,
+        target_model_count: targetModelCount ? Number(targetModelCount) : null
+      };
+    }
+
+    async function calculate() {
+      el("error").textContent = "";
+      if (!el("attacker").value.trim() || !el("defender").value.trim()) {
+        el("error").textContent = "Choose both units.";
+        return;
+      }
+      const button = el("calculate");
+      button.disabled = true;
+      try {
+        const payload = await api("/api/calculate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            attacker: el("attacker").value,
+            defender: el("defender").value,
+            mode: el("mode").value,
+            outgoing_context: contextPayload("attacker-"),
+            incoming_context: contextPayload("return-")
+          })
+        });
+        renderResults(payload);
+      } catch (error) {
+        el("error").textContent = error.message;
+      } finally {
+        button.disabled = false;
+      }
+    }
+
+    function renderUnit(unit, label) {
+      const keywords = (unit.keywords || []).slice(0, 8).map((keyword) => `<span class="chip">${escapeHtml(keyword)}</span>`).join("");
+      const modelRange = unit.models_min && unit.models_max && unit.models_min !== unit.models_max
+        ? `${unit.models_min}-${unit.models_max}`
+        : (unit.models_min || unit.models_max || "unknown");
+      return `
+        <div class="unit-pane">
+          <div class="small">${escapeHtml(label)}</div>
+          <div class="unit-name">${escapeHtml(unit.name)}</div>
+          <div class="small">${escapeHtml(unit.faction || "No faction")} | T${unit.toughness} W${unit.wounds} Sv ${escapeHtml(unit.save)} | ${unit.points || 0} pts | Models ${modelRange}</div>
+          <div class="chips">${keywords}</div>
+        </div>
+      `;
+    }
+
+    function metric(label, value) {
+      return `<div class="metric"><b>${value}</b><span>${label}</span></div>`;
+    }
+
+    function renderBar(label, value, cls = "") {
+      const width = Math.max(0, Math.min(100, Number(value || 0) * 100));
+      return `
+        <div class="bar">
+          <span>${label}</span>
+          <div class="track"><div class="fill ${cls}" style="width:${width}%"></div></div>
+          <span>${pct(value)}</span>
+        </div>
+      `;
+    }
+
+    function renderWeapon(row) {
+      const notes = row.notes && row.notes.length ? row.notes.map(escapeHtml).join(", ") : "No special notes";
+      return `
+        <article class="weapon">
+          <div class="weapon-head">
+            <div>
+              <div class="weapon-title">${escapeHtml(row.weapon.name)}</div>
+              <div class="small">${escapeHtml(row.weapon.type)} | A${escapeHtml(row.weapon.attacks)} | ${escapeHtml(row.weapon.skill)} | S${escapeHtml(row.weapon.strength)} | AP${row.weapon.ap} | D${escapeHtml(row.weapon.damage)}</div>
+            </div>
+            <div><div class="small">Damage</div><b>${fmt(row.expected_damage)}</b></div>
+            <div><div class="small">Models</div><b>${fmt(row.expected_models_destroyed)}</b></div>
+            <div><div class="small">Hits</div><b>${fmt(row.hits)}</b></div>
+            <div><div class="small">Unsaved</div><b>${fmt(row.unsaved_wounds)}</b></div>
+          </div>
+          <div class="bars">
+            ${renderBar("Hit", row.hit_probability)}
+            ${renderBar("Wound", row.wound_probability, "wound")}
+            ${renderBar("Fail save", row.failed_save_probability, "save")}
+          </div>
+          <div class="notes">${notes}</div>
+        </article>
+      `;
+    }
+
+    function renderWeaponList(result, label, fallback) {
+      const weapons = result.weapons.length
+        ? result.weapons.map(renderWeapon).join("")
+        : `<div class="empty">${escapeHtml(fallback)}</div>`;
+      return `
+        <div class="result-band">${escapeHtml(label)}</div>
+        <div class="weapon-list">${weapons}</div>
+      `;
+    }
+
+    function matchupJudgement(payload) {
+      const outgoing = payload.outgoing.total_damage || 0;
+      const incoming = payload.incoming.total_damage || 0;
+      const attacker = payload.attacker;
+      const defender = payload.defender;
+      const delta = outgoing - incoming;
+      const total = Math.max(outgoing + incoming, 0.01);
+      const edge = Math.abs(delta) / total;
+      const winner = delta >= 0 ? attacker.name : defender.name;
+      let confidence = "narrow";
+      if (edge >= 0.45) confidence = "decisive";
+      else if (edge >= 0.22) confidence = "clear";
+      const loserDamage = delta >= 0 ? incoming : outgoing;
+      const winnerDamage = delta >= 0 ? outgoing : incoming;
+      const reason = `${winner} is projected to deal ${fmt(winnerDamage)} damage while taking ${fmt(loserDamage)} in the return strike.`;
+      const efficiency = attacker.points && defender.points
+        ? ` Points context: ${attacker.name} is ${attacker.points} pts and ${defender.name} is ${defender.points} pts.`
+        : "";
+      return {
+        title: edge < 0.08 ? "AI judgement: too close to call" : `AI judgement: ${winner} favored (${confidence})`,
+        body: edge < 0.08
+          ? `The exchange is nearly even: ${attacker.name} deals ${fmt(outgoing)} expected damage and ${defender.name} returns ${fmt(incoming)}.${efficiency}`
+          : `${reason}${efficiency}`
+      };
+    }
+
+    function renderResults(payload) {
+      const outgoing = payload.outgoing;
+      const incoming = payload.incoming;
+      const judgement = matchupJudgement(payload);
+
+      el("results").innerHTML = `
+        <div class="summary">
+          ${metric("Outgoing damage", fmt(outgoing.total_damage))}
+          ${metric("Outgoing models", fmt(outgoing.expected_models_destroyed))}
+          ${metric("Return damage", fmt(incoming.total_damage))}
+          ${metric("Return models", fmt(incoming.expected_models_destroyed))}
+        </div>
+        <div class="duel">
+          ${renderUnit(payload.attacker, "Attacker")}
+          ${renderUnit(payload.defender, "Defender")}
+        </div>
+        <div class="judgement">
+          <h3>${escapeHtml(judgement.title)}</h3>
+          <p>${escapeHtml(judgement.body)}</p>
+        </div>
+        ${renderWeaponList(outgoing, `${payload.attacker.name} attack`, `No ${payload.mode} weapons found for ${payload.attacker.name}.`)}
+        ${renderWeaponList(incoming, `${payload.defender.name} return strike`, `No ${payload.mode} weapons found for ${payload.defender.name}.`)}
+      `;
+    }
+
+    async function showDataReview() {
+      el("error").textContent = "";
+      const button = el("data-review");
+      button.disabled = true;
+      try {
+        renderDataReview(await loadDataReview());
+      } catch (error) {
+        el("error").textContent = error.message;
+      } finally {
+        button.disabled = false;
+      }
+    }
+
+    function renderDataReview(payload) {
+      const audit = payload.audit_report;
+      const diff = payload.import_diff;
+      const metadata = payload.metadata;
+      if (!audit && !diff && !metadata) {
+        el("results").innerHTML = `<div class="empty">No generated audit or import diff files were found.</div>`;
+        return;
+      }
+
+      const source = metadata && metadata.source_revisions && metadata.source_revisions[0]
+        ? metadata.source_revisions[0]
+        : null;
+      const generatedAt = metadata && metadata.generated_at ? metadata.generated_at : (audit && audit.generated_at ? audit.generated_at : "unknown");
+      const commit = source && source.commit ? source.commit.slice(0, 12) : "unknown";
+      const remote = source && source.remote_origin ? source.remote_origin : "unknown source";
+      const summary = audit && audit.summary ? audit.summary : { error: 0, warning: 0, info: 0, total: 0 };
+
+      el("results").innerHTML = `
+        <div class="review-head">
+          <h2>Data Review</h2>
+          <div class="review-meta">${escapeHtml(remote)} | ${escapeHtml(commit)} | generated ${escapeHtml(generatedAt)}</div>
+        </div>
+        <div class="summary">
+          ${metric("Audit errors", summary.error || 0)}
+          ${metric("Warnings", summary.warning || 0)}
+          ${metric("Info", summary.info || 0)}
+          ${metric("Rows checked", audit && audit.row_counts ? Object.values(audit.row_counts).reduce((total, value) => total + Number(value || 0), 0) : 0)}
+        </div>
+        ${renderDiff(diff)}
+        ${renderAuditSections(audit)}
+      `;
+    }
+
+    function renderDiff(diff) {
+      if (!diff || !diff.tables) return `<div class="review-section"><h3>Import Diff</h3><div class="empty">No import diff available.</div></div>`;
+      const rows = Object.entries(diff.tables).map(([name, row]) => `
+        <div class="diff-row">
+          <div><b>${escapeHtml(name)}</b></div>
+          <div>${row.before_count ?? 0}</div>
+          <div>${row.after_count ?? 0}</div>
+          <div>${Number(row.delta || 0) >= 0 ? "+" : ""}${row.delta ?? 0}</div>
+          <div>${row.changed_count ?? 0}</div>
+        </div>
+      `).join("");
+      return `
+        <div class="review-section">
+          <h3>Import Diff</h3>
+          <div class="diff-grid">
+            <div class="diff-row diff-head"><div>Table</div><div>Before</div><div>After</div><div>Delta</div><div>Changed</div></div>
+            ${rows}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderAuditSections(audit) {
+      if (!audit || !audit.sections) return `<div class="review-section"><h3>Audit Findings</h3><div class="empty">No audit report available.</div></div>`;
+      return Object.entries(audit.sections).map(([name, section]) => {
+        const issues = section.issues || [];
+        const body = issues.length
+          ? `<div class="issue-list">${issues.map(renderIssue).join("")}</div>`
+          : `<div class="empty">No issues in this section.</div>`;
+        return `<div class="review-section"><h3>${escapeHtml(name.replace("_", " "))}</h3>${body}</div>`;
+      }).join("");
+    }
+
+    function renderIssue(issue) {
+      const samples = (issue.samples || []).slice(0, 8).map((sample) => `<li>${escapeHtml(sample)}</li>`).join("");
+      return `
+        <div class="issue ${escapeHtml(issue.severity || "info")}">
+          <div class="issue-title">${escapeHtml(issue.label || issue.key || "Issue")}<span>${escapeHtml(issue.severity || "info")}</span></div>
+          <ul class="issue-samples">${samples}</ul>
+        </div>
+      `;
+    }
+
+    function setMode(mode) {
+      el("mode").value = mode;
+      document.querySelectorAll(".segment").forEach((button) => {
+        const active = button.dataset.mode === mode;
+        button.classList.toggle("active", active);
+        button.setAttribute("aria-pressed", active ? "true" : "false");
+      });
+    }
+
+    function swapContexts() {
+      const suffixes = ["target-model-count", "moved", "advanced", "half-range", "cover"];
+      for (const suffix of suffixes) {
+        const left = el(`attacker-${suffix}`);
+        const right = el(`return-${suffix}`);
+        if (left.type === "checkbox") {
+          const checked = left.checked;
+          left.checked = right.checked;
+          right.checked = checked;
+        } else {
+          const value = left.value;
+          left.value = right.value;
+          right.value = value;
+        }
+      }
+    }
+
+    function wireEvents() {
+      el("calculate").addEventListener("click", calculate);
+      el("data-review").addEventListener("click", showDataReview);
+      el("swap").addEventListener("click", () => {
+        const attacker = el("attacker").value;
+        el("attacker").value = el("defender").value;
+        el("defender").value = attacker;
+        swapContexts();
+      });
+      el("faction").addEventListener("change", () => loadUnits("").catch((error) => {
+        el("error").textContent = error.message;
+      }));
+      document.querySelectorAll(".combo-toggle").forEach((button) => {
+        button.addEventListener("click", () => openDropdown(button.dataset.target).catch((error) => {
+          el("error").textContent = error.message;
+        }));
+      });
+      document.addEventListener("click", (event) => {
+        if (state.openMenu && !event.target.closest(".unit-combo")) closeDropdown();
+      });
+      document.querySelectorAll(".segment").forEach((button) => {
+        button.addEventListener("click", () => setMode(button.dataset.mode));
+      });
+      for (const id of ["attacker", "defender"]) {
+        el(id).addEventListener("input", (event) => {
+          const value = event.target.value;
+          if (value.length === 0 || value.length >= 2) {
+            state.openMenu = id;
+            el(`${id}-menu`).classList.add("open");
+            el(id).setAttribute("aria-expanded", "true");
+            queueUnitSearch(value);
+          }
+        });
+        el(id).addEventListener("focus", () => openDropdown(id).catch((error) => {
+          el("error").textContent = error.message;
+        }));
+        el(id).addEventListener("keydown", (event) => {
+          if (event.key === "Enter") calculate();
+          if (event.key === "Escape") closeDropdown(id);
+        });
+      }
+    }
+
+    wireEvents();
+    Promise.all([loadHealth(), loadUnits()]).catch((error) => {
+      el("status").textContent = "Data failed to load";
+      el("error").textContent = error.message;
+    });
+  </script>
+</body>
+</html>

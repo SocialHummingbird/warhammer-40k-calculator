@@ -1,0 +1,28 @@
+{
+  "generated_at": "2026-04-25T13:27:26.676514Z",
+  "counts": {
+    "units": 2078,
+    "weapons": 10646,
+    "abilities": 3151,
+    "keywords": 1409,
+    "unit_keywords": 9538
+  },
+  "github_repo": null,
+  "github_ref": "main",
+  "github_subdir": null,
+  "sources": [
+    "C:\\Users\\ap010\\OneDrive\\Documents\\dev\\Warhammer 40K Calculator\\250916 0942 Warhammer 40k damage calculator\\data\\wh40k-10e"
+  ],
+  "source_revisions": [
+    {
+      "path": "C:\\Users\\ap010\\OneDrive\\Documents\\dev\\Warhammer 40K Calculator\\250916 0942 Warhammer 40k damage calculator\\data\\wh40k-10e",
+      "resolved_path": "C:\\Users\\ap010\\OneDrive\\Documents\\dev\\Warhammer 40K Calculator\\250916 0942 Warhammer 40k damage calculator\\data\\wh40k-10e",
+      "type": "git",
+      "git_root": "C:/Users/ap010/OneDrive/Documents/dev/Warhammer 40K Calculator/250916 0942 Warhammer 40k damage calculator/data/wh40k-10e",
+      "commit": "32b4525d9f69f062f3458d517c6cf82512ef6fef",
+      "branch": "main",
+      "remote_origin": "https://github.com/BSData/wh40k-10e.git",
+      "dirty": false
+    }
+  ]
+}

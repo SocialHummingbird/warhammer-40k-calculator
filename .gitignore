@@ -1,0 +1,17 @@
+# Local credentials
+credentials/
+*.key
+
+# Python/runtime output
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+*.log
+
+# Editor settings
+.vscode/
+
+# Local source-data checkouts and accidental temp folders
+data/wh40k-10e/
+data/latest`/

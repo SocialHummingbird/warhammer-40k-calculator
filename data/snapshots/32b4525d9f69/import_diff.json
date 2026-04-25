@@ -1,0 +1,99 @@
+{
+  "generated_at": "2026-04-25T13:27:27.042038Z",
+  "source_before": {
+    "path": "C:\\Users\\ap010\\OneDrive\\Documents\\dev\\Warhammer 40K Calculator\\250916 0942 Warhammer 40k damage calculator\\data\\wh40k-10e",
+    "remote_origin": "https://github.com/BSData/wh40k-10e.git",
+    "branch": "main",
+    "commit": "32b4525d9f69f062f3458d517c6cf82512ef6fef",
+    "commit_date": "2026-04-21 17:44:59 +0100",
+    "commit_subject": "Fixes #7066",
+    "dirty": false
+  },
+  "source_after": {
+    "path": "C:\\Users\\ap010\\OneDrive\\Documents\\dev\\Warhammer 40K Calculator\\250916 0942 Warhammer 40k damage calculator\\data\\wh40k-10e",
+    "remote_origin": "https://github.com/BSData/wh40k-10e.git",
+    "branch": "main",
+    "commit": "32b4525d9f69f062f3458d517c6cf82512ef6fef",
+    "commit_date": "2026-04-21 17:44:59 +0100",
+    "commit_subject": "Fixes #7066",
+    "dirty": false
+  },
+  "tables": {
+    "units": {
+      "before_count": 2078,
+      "after_count": 2078,
+      "delta": 0,
+      "added_count": 0,
+      "removed_count": 0,
+      "changed_count": 222,
+      "added_samples": [],
+      "removed_samples": [],
+      "changed_samples": [
+        "0744-61ce-619d-ffe1",
+        "09d3-6357-7888-00d9",
+        "0b74-440c-ee1d-ca50",
+        "1117-cda-7f74-196b",
+        "1267-78f1-7774-859",
+        "129d-2da5-66f3-f4ec",
+        "1502-bae3-93b4-c89a",
+        "1529-793d-481b-82bf",
+        "15c0-9294-7eb8-f3a7",
+        "1669-d311-eff9-243b",
+        "1703-3edd-5eb3-fcef",
+        "1de9-b138-28a1-9c4b",
+        "203d-c50f-a438-4982",
+        "206c-6b4d-4aaa-7e79",
+        "2078-97ce-8793-3382",
+        "212d-f302-aaaf-5c12",
+        "2183-5b38-1726-2a11",
+        "2311-9feb-9d0a-8154",
+        "240f-70a4-7ba7-a538",
+        "24c4-fa24-67ff-eef"
+      ]
+    },
+    "weapons": {
+      "before_count": 10646,
+      "after_count": 10646,
+      "delta": 0,
+      "added_count": 0,
+      "removed_count": 0,
+      "changed_count": 0,
+      "added_samples": [],
+      "removed_samples": [],
+      "changed_samples": []
+    },
+    "abilities": {
+      "before_count": 3151,
+      "after_count": 3151,
+      "delta": 0,
+      "added_count": 0,
+      "removed_count": 0,
+      "changed_count": 0,
+      "added_samples": [],
+      "removed_samples": [],
+      "changed_samples": []
+    },
+    "keywords": {
+      "before_count": 1409,
+      "after_count": 1409,
+      "delta": 0,
+      "added_count": 0,
+      "removed_count": 0,
+      "changed_count": 0,
+      "added_samples": [],
+      "removed_samples": [],
+      "changed_samples": []
+    },
+    "unit_keywords": {
+      "before_count": 9538,
+      "after_count": 9538,
+      "delta": 0,
+      "added_count": 0,
+      "removed_count": 0,
+      "changed_count": 0,
+      "added_samples": [],
+      "removed_samples": [],
+      "changed_samples": []
+    }
+  }
+}

@@ -13,10 +13,15 @@ class UnitRow:
     save: Optional[str]
     invulnerable_save: Optional[str]
     wounds: Optional[int]
-    leadership: Optional[str]
-    objective_control: Optional[int]
+    move: Optional[str] = None
+    leadership: Optional[str] = None
+    objective_control: Optional[int] = None
+    points: Optional[int] = None
+    models_min: Optional[int] = None
+    models_max: Optional[int] = None
     feel_no_pain: Optional[str] = None
     damage_cap: Optional[str] = None
+    selection_type: Optional[str] = None
 
     def asdict(self) -> Dict[str, Optional[str]]:
         return {k: v for k, v in asdict(self).items()}
@@ -34,6 +39,8 @@ class WeaponRow:
     ap: str
     damage: str
     keywords: str
+    hit_modifier: str = ""
+    wound_modifier: str = ""
     reroll_hits: str = ""
     reroll_wounds: str = ""
     lethal_hits: str = ""

@@ -1,0 +1,81 @@
+{
+  "generated_at": "2026-04-25T13:27:27.306052Z",
+  "csv_dir": "C:\\Users\\ap010\\OneDrive\\Documents\\dev\\Warhammer 40K Calculator\\250916 0942 Warhammer 40k damage calculator\\data\\latest",
+  "row_counts": {
+    "units": 2078,
+    "weapons": 10646,
+    "abilities": 3151,
+    "keywords": 1409,
+    "unit_keywords": 9538
+  },
+  "summary": {
+    "error": 0,
+    "warning": 21,
+    "info": 0,
+    "total": 21
+  },
+  "sections": {
+    "units": {
+      "issue_count": 21,
+      "issues": [
+        {
+          "key": "missing_points",
+          "label": "missing points",
+          "severity": "warning",
+          "samples": [
+            "Lokhust Heavy Destroyers (x1)"
+          ],
+          "sample_count": 1
+        },
+        {
+          "key": "missing_models_max",
+          "label": "missing models max",
+          "severity": "warning",
+          "samples": [
+            "Khorne Berzerkers (x2)",
+            "Wyches (x1)",
+            "Ynnari Wyches (x1)",
+            "Scourges with Shardcarbines (x1)",
+            "Hybrid Metamorphs (x1)",
+            "Purifier Squad (x1)",
+            "Astartes Servitors [Legends] (x1)",
+            "Tyrannic War Veterans [Legends] (x1)",
+            "Tankbustas (x1)",
+            "Breaka Boyz (x1)"
+          ],
+          "sample_count": 10
+        },
+        {
+          "key": "duplicate_names",
+          "label": "duplicate names",
+          "severity": "warning",
+          "samples": [
+            "Ancient",
+            "Antor Delassio",
+            "Apothecary",
+            "Aspiring Sorcerer",
+            "Attack Bike",
+            "Beasts of Nurgle",
+            "Bloodcrushers",
+            "Bloodletters",
+            "Bloodthirster",
+            "Blue Horror"
+          ],
+          "sample_count": 10
+        }
+      ]
+    },
+    "weapons": {
+      "issue_count": 0,
+      "issues": []
+    },
+    "abilities": {
+      "issue_count": 0,
+      "issues": []
+    },
+    "unit_keywords": {
+      "issue_count": 0,
+      "issues": []
+    }
+  }
+}
