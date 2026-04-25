@@ -1,10 +1,11 @@
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from typing import Dict, List, Literal, Optional, Set, Tuple
 
 from .dice import quantity_distribution
 from .profiles import UnitProfile, WeaponProfile
+from .rules import Ruleset, get_ruleset
 
 
 @dataclass
@@ -112,11 +113,15 @@ def evaluate_unit(
     defender: UnitProfile,
     mode: EngagementMode,
     context: Optional[EngagementContext] = None,
+    *,
+    edition: str = "10e",
+    ruleset: Optional[Ruleset] = None,
 ) -> UnitResult:
     context = context or EngagementContext()
+    active_ruleset = ruleset or get_ruleset(edition)
     relevant_weapons = [weapon for weapon in attacker.weapons if weapon.type == mode]
     weapon_results = [
-        _resolve_weapon(attacker=attacker, defender=defender, weapon=weapon, context=context)
+        _resolve_weapon(attacker=attacker, defender=defender, weapon=weapon, context=context, ruleset=active_ruleset)
         for weapon in relevant_weapons
     ]
     return UnitResult(unit=attacker, weapons=weapon_results, target_wounds=defender.wounds)
@@ -128,10 +133,54 @@ def evaluate_weapon(
     weapon: WeaponProfile,
     *,
     context: Optional[EngagementContext] = None,
+    edition: str = "10e",
+    ruleset: Optional[Ruleset] = None,
 ) -> WeaponResult:
     """Evaluate a single weapon profile against a defender."""
 
-    return _resolve_weapon(attacker=attacker, defender=defender, weapon=weapon, context=context or EngagementContext())
+    return _resolve_weapon(
+        attacker=attacker,
+        defender=defender,
+        weapon=weapon,
+        context=context or EngagementContext(),
+        ruleset=ruleset or get_ruleset(edition),
+    )
+
+
+def scale_weapon_result(result: WeaponResult, multiplier: int) -> WeaponResult:
+    """Scale expected counts for repeated identical weapon profiles."""
+
+    multiplier = max(1, int(multiplier))
+    return replace(
+        result,
+        attacks=result.attacks * multiplier,
+        hits=result.hits * multiplier,
+        critical_hits=result.critical_hits * multiplier,
+        extra_hits=result.extra_hits * multiplier,
+        auto_wounds=result.auto_wounds * multiplier,
+        devastating_wounds=result.devastating_wounds * multiplier,
+        wounds=result.wounds * multiplier,
+        unsaved_wounds_before_fnp=result.unsaved_wounds_before_fnp * multiplier,
+        unsaved_wounds=result.unsaved_wounds * multiplier,
+        expected_damage=result.expected_damage * multiplier,
+        models_destroyed=(
+            result.models_destroyed * multiplier
+            if result.models_destroyed is not None
+            else None
+        ),
+    )
+
+
+def scale_unit_result(result: UnitResult, multiplier: int) -> UnitResult:
+    """Scale all weapon results in a unit result by the same repeat count."""
+
+    multiplier = max(1, int(multiplier))
+    if multiplier == 1:
+        return result
+    return replace(
+        result,
+        weapons=[scale_weapon_result(weapon_result, multiplier) for weapon_result in result.weapons],
+    )
 
 
 
@@ -182,6 +231,7 @@ def _resolve_weapon(
     defender: UnitProfile,
     weapon: WeaponProfile,
     context: EngagementContext,
+    ruleset: Ruleset,
 ) -> WeaponResult:
     defender_keywords = {keyword.lower() for keyword in defender.keywords}
     applied_modifiers = _collect_ability_modifiers(attacker, defender_keywords, weapon)
@@ -197,8 +247,8 @@ def _resolve_weapon(
     if advance_blocked:
         ability_notes = _build_ability_notes(weapon)
         ability_notes.append("Cannot fire after advancing (weapon lacks Assault)")
-        wound_roll_label = _wound_roll_label_for_weapon(weapon, defender.toughness)
-        save_target, save_label = _effective_save(defender, weapon)
+        wound_roll_label = _wound_roll_label_for_weapon(weapon, defender.toughness, ruleset=ruleset)
+        save_target, save_label = ruleset.effective_save(defender, weapon)
         return WeaponResult(
             weapon=weapon,
             attacks=0.0,
@@ -288,8 +338,8 @@ def _resolve_weapon(
 
     uncapped_hit_modifier = combined_hit_modifier
     uncapped_wound_modifier = combined_wound_modifier
-    combined_hit_modifier = _cap_roll_modifier(combined_hit_modifier)
-    combined_wound_modifier = _cap_roll_modifier(combined_wound_modifier)
+    combined_hit_modifier = ruleset.cap_roll_modifier(combined_hit_modifier)
+    combined_wound_modifier = ruleset.cap_roll_modifier(combined_wound_modifier)
     if combined_hit_modifier != uncapped_hit_modifier:
         context_notes.append(f"Hit modifier capped at {combined_hit_modifier:+d}")
     if combined_wound_modifier != uncapped_wound_modifier:
@@ -308,8 +358,8 @@ def _resolve_weapon(
         hits = attacks
         critical_hits = 0.0
     else:
-        hit_probability = _probability_success_with_reroll(hit_target, combined_hit_reroll)
-        crit_hit_probability = _critical_probability(hit_target, combined_hit_reroll)
+        hit_probability = ruleset.probability_success_with_reroll(hit_target, combined_hit_reroll)
+        crit_hit_probability = ruleset.critical_probability(hit_target, combined_hit_reroll)
         hits = attacks * hit_probability
         critical_hits = attacks * crit_hit_probability
 
@@ -336,6 +386,7 @@ def _resolve_weapon(
         wound_modifier=combined_wound_modifier,
         wound_reroll=combined_wound_reroll,
         anti_threshold=anti_threshold,
+        ruleset=ruleset,
     )
 
     wounds_from_roll = hits_requiring_wound * wound_probability
@@ -357,18 +408,18 @@ def _resolve_weapon(
         else:
             context_notes.append("Target in Cover (+1 Save)")
 
-    save_target, save_label = _effective_save(defender, weapon, cover_bonus=cover_bonus)
+    save_target, save_label = ruleset.effective_save(defender, weapon, cover_bonus=cover_bonus)
     if save_target >= 7:
         save_success_probability = 0.0
     else:
-        save_success_probability = _probability_success_on(save_target)
+        save_success_probability = ruleset.probability_success_on(save_target)
     failed_save_probability = 1 - save_success_probability
 
     wounds_subject_to_save = auto_wounds + normal_wounds_from_roll
     unsaved_via_saves = wounds_subject_to_save * failed_save_probability
     unsaved_wounds_before_fnp = unsaved_via_saves + devastating_wounds
 
-    fnp_prob = _feel_no_pain_success_probability(defender)
+    fnp_prob = ruleset.feel_no_pain_success_probability(defender)
     unsaved_wounds = unsaved_wounds_before_fnp * (1 - fnp_prob)
 
     melta_bonus_applied = 0.0
@@ -387,13 +438,13 @@ def _resolve_weapon(
     if melta_bonus_applied:
         context_notes.append(f"Melta active (+{melta_bonus_applied:g} damage)")
 
-    damage_per_wound, capped_damage_per_wound = _modified_damage_averages(
+    damage_per_wound, capped_damage_per_wound = ruleset.modified_damage_averages(
         weapon=weapon,
         defender=defender,
         melta_bonus=melta_bonus_applied,
     )
     expected_damage = unsaved_wounds * damage_per_wound
-    models_destroyed = _expected_models_destroyed_from_damage(
+    models_destroyed = ruleset.expected_models_destroyed_from_damage(
         unsaved_wounds=unsaved_wounds,
         capped_damage_per_wound=capped_damage_per_wound,
         target_wounds=defender.wounds,
@@ -435,15 +486,7 @@ def _resolve_weapon(
 
 
 def _required_wound_roll(strength: float, toughness: int) -> int:
-    if strength >= toughness * 2:
-        return 2
-    if strength > toughness:
-        return 3
-    if strength == toughness:
-        return 4
-    if strength * 2 <= toughness:
-        return 6
-    return 5
+    return get_ruleset("10e").required_wound_roll(strength, toughness)
 
 
 def _wound_probabilities_for_weapon(
@@ -453,13 +496,14 @@ def _wound_probabilities_for_weapon(
     wound_modifier: int,
     wound_reroll: str,
     anti_threshold: Optional[int],
+    ruleset: Ruleset,
 ) -> Tuple[float, float, str]:
     wound_probability = 0.0
     crit_wound_probability = 0.0
     roll_labels: List[int] = []
 
     for strength, strength_probability in quantity_distribution(weapon.strength_label or weapon.strength):
-        wound_roll = _required_wound_roll(strength, defender_toughness)
+        wound_roll = ruleset.required_wound_roll(strength, defender_toughness)
         roll_labels.append(wound_roll)
         wound_target = max(2, min(6, wound_roll - wound_modifier))
 
@@ -470,7 +514,7 @@ def _wound_probabilities_for_weapon(
                 return True
             return roll >= wound_target
 
-        wound_roll_probs = _final_roll_distribution(wound_reroll, _wound_success)
+        wound_roll_probs = ruleset.final_roll_distribution(wound_reroll, _wound_success)
         wound_probability += strength_probability * sum(
             prob for value, prob in enumerate(wound_roll_probs) if _wound_success(value)
         )
@@ -483,9 +527,9 @@ def _wound_probabilities_for_weapon(
     return wound_probability, crit_wound_probability, _format_wound_roll_label(roll_labels)
 
 
-def _wound_roll_label_for_weapon(weapon: WeaponProfile, defender_toughness: int) -> str:
+def _wound_roll_label_for_weapon(weapon: WeaponProfile, defender_toughness: int, *, ruleset: Ruleset) -> str:
     rolls = [
-        _required_wound_roll(strength, defender_toughness)
+        ruleset.required_wound_roll(strength, defender_toughness)
         for strength, _probability in quantity_distribution(weapon.strength_label or weapon.strength)
     ]
     return _format_wound_roll_label(rolls)
@@ -501,7 +545,7 @@ def _format_wound_roll_label(rolls: List[int]) -> str:
 
 
 def _cap_roll_modifier(value: int) -> int:
-    return max(-1, min(1, value))
+    return get_ruleset("10e").cap_roll_modifier(value)
 
 
 def _expected_models_destroyed_from_damage(
@@ -510,9 +554,11 @@ def _expected_models_destroyed_from_damage(
     capped_damage_per_wound: float,
     target_wounds: Optional[int],
 ) -> Optional[float]:
-    if target_wounds is None or target_wounds <= 0:
-        return None
-    return unsaved_wounds * (max(capped_damage_per_wound, 0.0) / target_wounds)
+    return get_ruleset("10e").expected_models_destroyed_from_damage(
+        unsaved_wounds=unsaved_wounds,
+        capped_damage_per_wound=capped_damage_per_wound,
+        target_wounds=target_wounds,
+    )
 
 
 def _modified_damage_averages(
@@ -521,84 +567,35 @@ def _modified_damage_averages(
     defender: UnitProfile,
     melta_bonus: float,
 ) -> Tuple[float, float]:
-    total_damage = 0.0
-    capped_damage = 0.0
-    cap = float(defender.damage_cap) if defender.damage_cap is not None else None
-    target_wounds = float(defender.wounds) if defender.wounds and defender.wounds > 0 else None
-
-    for damage, probability in quantity_distribution(weapon.damage.label):
-        modified = max(damage + melta_bonus - float(defender.damage_reduction or 0.0), 0.0)
-        if cap is not None:
-            modified = min(modified, cap)
-        total_damage += modified * probability
-        capped_damage += (min(modified, target_wounds) if target_wounds is not None else modified) * probability
-
-    return total_damage, capped_damage
+    return get_ruleset("10e").modified_damage_averages(
+        weapon=weapon,
+        defender=defender,
+        melta_bonus=melta_bonus,
+    )
 
 
 def _effective_save(defender: UnitProfile, weapon: WeaponProfile, *, cover_bonus: int = 0) -> Tuple[int, str]:
-    ap_value = weapon.ap
-    if ap_value > 0:
-        ap_value = -ap_value
-
-    modified = defender.save - ap_value
-    if cover_bonus:
-        modified = max(2, modified - cover_bonus)
-    modified = max(2, min(7, modified))
-
-    invul = defender.invulnerable_save
-    invul_label = defender.invulnerable_label
-    if invul is not None and invul < modified:
-        return invul, invul_label or f"{invul}+"
-    return modified, f"{modified}+"
+    return get_ruleset("10e").effective_save(defender, weapon, cover_bonus=cover_bonus)
 
 
 def _probability_success_on(target: int) -> float:
-    if target >= 7:
-        return 0.0
-    target = max(2, min(6, target))
-    return (7 - target) / 6
+    return get_ruleset("10e").probability_success_on(target)
 
 
 def _probability_success_with_reroll(target: int, reroll: str) -> float:
-    base = _probability_success_on(target)
-    if reroll == "all":
-        return base + (1 - base) * base
-    if reroll == "ones":
-        return base + (1 / 6) * base
-    return base
+    return get_ruleset("10e").probability_success_with_reroll(target, reroll)
 
 
 def _final_roll_distribution(reroll: str, success_check) -> List[float]:
-    probabilities = [0.0] * 7
-    for initial in range(1, 7):
-        first_prob = 1 / 6
-        if reroll == "all" and not success_check(initial):
-            for rerolled in range(1, 7):
-                probabilities[rerolled] += first_prob * (1 / 6)
-        elif reroll == "ones" and initial == 1:
-            for rerolled in range(1, 7):
-                probabilities[rerolled] += first_prob * (1 / 6)
-        else:
-            probabilities[initial] += first_prob
-    return probabilities
+    return get_ruleset("10e").final_roll_distribution(reroll, success_check)
 
 
 def _critical_probability(target: int, reroll: str) -> float:
-    base = 1 / 6
-    if reroll == "all":
-        failure_prob = 1 - _probability_success_on(target)
-        return base + failure_prob * (1 / 6)
-    if reroll == "ones":
-        return base + (1 / 6) * (1 / 6)
-    return base
+    return get_ruleset("10e").critical_probability(target, reroll)
 
 
 def _feel_no_pain_success_probability(defender: UnitProfile) -> float:
-    if defender.feel_no_pain is None:
-        return 0.0
-    target = max(2, min(6, defender.feel_no_pain))
-    return (7 - target) / 6
+    return get_ruleset("10e").feel_no_pain_success_probability(defender)
 
 
 def _build_ability_notes(weapon: WeaponProfile) -> List[str]:

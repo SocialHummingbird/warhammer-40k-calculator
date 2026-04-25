@@ -6,8 +6,8 @@ def test_load_units_includes_leadership_and_objective_control(tmp_path):
     data_dir = tmp_path
 
     units_csv = (
-        "unit_id,faction,name,toughness,save,invulnerable_save,wounds,leadership,objective_control,points,models_min,models_max,feel_no_pain,damage_cap,selection_type\n"
-        "u1,Test,Fictional Unit,4,3+,,2,6,2,100,1,1,,,\n"
+        "unit_id,faction,name,toughness,save,invulnerable_save,wounds,leadership,objective_control,points,models_min,models_max,feel_no_pain,damage_cap,selection_type,source_file\n"
+        "u1,Test,Fictional Unit,4,3+,,2,6,2,100,1,1,,,,Test.cat\n"
     )
     (data_dir / 'units.csv').write_text(units_csv, encoding='utf-8')
     (data_dir / 'weapons.csv').write_text(
@@ -23,6 +23,7 @@ def test_load_units_includes_leadership_and_objective_control(tmp_path):
 
     assert unit.leadership == 6
     assert unit.objective_control == 2
+    assert unit.source_file == "Test.cat"
 
 
 def test_importer_does_not_attach_child_upgrade_abilities_to_unit(tmp_path):
@@ -72,6 +73,8 @@ def test_importer_does_not_attach_child_upgrade_abilities_to_unit(tmp_path):
 
     assert [unit.name for unit in units] == ["Line Unit"]
     assert [ability.name for ability in abilities] == ["Unit Rule"]
+    assert units[0].source_file == "test.cat"
+    assert abilities[0].source_file == "test.cat"
 
 
 def test_importer_does_not_attach_crusade_weapon_modifications_to_units(tmp_path):
@@ -187,6 +190,243 @@ def test_importer_distinguishes_same_named_abilities_with_different_profiles(tmp
     assert len({ability.ability_id for ability in abilities}) == 2
 
 
+def test_importer_skips_crusade_variant_unit_carriers(tmp_path):
+    catalogue = tmp_path / "test.cat"
+    catalogue.write_text(
+        """<?xml version="1.0" encoding="UTF-8"?>
+<catalogue name="Test Faction">
+  <selectionEntries>
+    <selectionEntry type="unit" import="true" name="Line Unit" id="unit-1">
+      <profiles>
+        <profile name="Line Unit" typeName="Unit">
+          <characteristics>
+            <characteristic name="T">4</characteristic>
+            <characteristic name="SV">3+</characteristic>
+            <characteristic name="W">2</characteristic>
+          </characteristics>
+        </profile>
+      </profiles>
+    </selectionEntry>
+    <selectionEntry type="unit" import="true" name="Line Unit" id="unit-crusade">
+      <comment>Crusade variant</comment>
+      <profiles>
+        <profile name="Line Unit" typeName="Unit">
+          <characteristics>
+            <characteristic name="T">4</characteristic>
+            <characteristic name="SV">3+</characteristic>
+            <characteristic name="W">2</characteristic>
+          </characteristics>
+        </profile>
+      </profiles>
+    </selectionEntry>
+  </selectionEntries>
+</catalogue>
+""",
+        encoding="utf-8",
+    )
+
+    units, weapons, abilities, keywords, unit_keywords = import_catalogues([catalogue])
+
+    assert [unit.unit_id for unit in units] == ["unit-1"]
+
+
+def test_importer_uses_model_cost_when_unit_has_no_direct_points(tmp_path):
+    catalogue = tmp_path / "test.cat"
+    catalogue.write_text(
+        """<?xml version="1.0" encoding="UTF-8"?>
+<catalogue name="Test Faction">
+  <selectionEntries>
+    <selectionEntry type="unit" import="true" name="Heavy Destroyers" id="unit-1">
+      <profiles>
+        <profile name="Heavy Destroyers" typeName="Unit">
+          <characteristics>
+            <characteristic name="T">6</characteristic>
+            <characteristic name="SV">3+</characteristic>
+            <characteristic name="W">4</characteristic>
+          </characteristics>
+        </profile>
+      </profiles>
+      <selectionEntryGroups>
+        <selectionEntryGroup name="1-3 Heavy Destroyers" id="group-1">
+          <selectionEntries>
+            <selectionEntry type="model" import="true" name="Destroyer w/ gun" id="model-1">
+              <constraints>
+                <constraint type="max" value="3" field="selections" scope="parent"/>
+              </constraints>
+              <costs>
+                <cost name="pts" value="55"/>
+                <cost name="Crusade Points" value="0"/>
+              </costs>
+            </selectionEntry>
+          </selectionEntries>
+          <constraints>
+            <constraint type="min" value="1" field="selections" scope="parent"/>
+            <constraint type="max" value="3" field="selections" scope="parent"/>
+          </constraints>
+        </selectionEntryGroup>
+      </selectionEntryGroups>
+    </selectionEntry>
+  </selectionEntries>
+</catalogue>
+""",
+        encoding="utf-8",
+    )
+
+    units, weapons, abilities, keywords, unit_keywords = import_catalogues([catalogue])
+
+    assert units[0].points == 55
+
+
+def test_importer_uses_group_size_for_nested_alternative_models(tmp_path):
+    catalogue = tmp_path / "test.cat"
+    catalogue.write_text(
+        """<?xml version="1.0" encoding="UTF-8"?>
+<catalogue name="Test Faction">
+  <selectionEntries>
+    <selectionEntry type="unit" import="true" name="Heavy Destroyers" id="unit-1">
+      <profiles>
+        <profile name="Heavy Destroyers" typeName="Unit">
+          <characteristics>
+            <characteristic name="T">6</characteristic>
+            <characteristic name="SV">3+</characteristic>
+            <characteristic name="W">4</characteristic>
+          </characteristics>
+        </profile>
+      </profiles>
+      <selectionEntryGroups>
+        <selectionEntryGroup name="1-3 Heavy Destroyers" id="group-1">
+          <selectionEntries>
+            <selectionEntry type="model" import="true" name="Destroyer w/ enmitic exterminator" id="model-1">
+              <constraints>
+                <constraint type="max" value="3" field="selections" scope="parent"/>
+              </constraints>
+            </selectionEntry>
+            <selectionEntry type="model" import="true" name="Destroyer w/ gauss destructor" id="model-2">
+              <constraints>
+                <constraint type="max" value="3" field="selections" scope="parent"/>
+              </constraints>
+            </selectionEntry>
+          </selectionEntries>
+          <constraints>
+            <constraint type="min" value="1" field="selections" scope="parent"/>
+            <constraint type="max" value="3" field="selections" scope="parent"/>
+          </constraints>
+        </selectionEntryGroup>
+      </selectionEntryGroups>
+    </selectionEntry>
+  </selectionEntries>
+</catalogue>
+""",
+        encoding="utf-8",
+    )
+
+    units, weapons, abilities, keywords, unit_keywords = import_catalogues([catalogue])
+
+    assert units[0].models_min == 1
+    assert units[0].models_max == 3
+
+
+def test_importer_falls_back_to_nested_model_size_when_group_has_no_bounds(tmp_path):
+    catalogue = tmp_path / "test.cat"
+    catalogue.write_text(
+        """<?xml version="1.0" encoding="UTF-8"?>
+<catalogue name="Test Faction">
+  <selectionEntries>
+    <selectionEntry type="unit" import="true" name="Swarm Unit" id="unit-1">
+      <profiles>
+        <profile name="Swarm Unit" typeName="Unit">
+          <characteristics>
+            <characteristic name="T">3</characteristic>
+            <characteristic name="SV">6+</characteristic>
+            <characteristic name="W">1</characteristic>
+          </characteristics>
+        </profile>
+      </profiles>
+      <selectionEntryGroups>
+        <selectionEntryGroup name="Models" id="group-1">
+          <selectionEntries>
+            <selectionEntry type="model" import="true" name="Swarm Model" id="model-1">
+              <constraints>
+                <constraint type="min" value="10" field="selections" scope="parent"/>
+                <constraint type="max" value="20" field="selections" scope="parent"/>
+              </constraints>
+            </selectionEntry>
+          </selectionEntries>
+        </selectionEntryGroup>
+      </selectionEntryGroups>
+    </selectionEntry>
+  </selectionEntries>
+</catalogue>
+""",
+        encoding="utf-8",
+    )
+
+    units, weapons, abilities, keywords, unit_keywords = import_catalogues([catalogue])
+
+    assert units[0].models_min == 10
+    assert units[0].models_max == 20
+
+
+def test_importer_adds_required_nested_leader_model_without_optional_group_max(tmp_path):
+    catalogue = tmp_path / "test.cat"
+    catalogue.write_text(
+        """<?xml version="1.0" encoding="UTF-8"?>
+<catalogue name="Test Faction">
+  <selectionEntries>
+    <selectionEntry type="unit" import="true" name="Mob Unit" id="unit-1">
+      <profiles>
+        <profile name="Mob Unit" typeName="Unit">
+          <characteristics>
+            <characteristic name="T">5</characteristic>
+            <characteristic name="SV">5+</characteristic>
+            <characteristic name="W">1</characteristic>
+          </characteristics>
+        </profile>
+      </profiles>
+      <selectionEntryGroups>
+        <selectionEntryGroup name="9-19 Troopers" id="group-1">
+          <selectionEntries>
+            <selectionEntry type="model" import="true" name="Trooper" id="model-1"/>
+          </selectionEntries>
+          <constraints>
+            <constraint type="min" value="9" field="selections" scope="parent"/>
+            <constraint type="max" value="19" field="selections" scope="parent"/>
+          </constraints>
+          <selectionEntryGroups>
+            <selectionEntryGroup name="Special Weapons" id="specials">
+              <selectionEntries>
+                <selectionEntry type="model" import="true" name="Trooper w/ special weapon" id="special-1"/>
+              </selectionEntries>
+              <constraints>
+                <constraint type="max" value="1" field="selections" scope="parent"/>
+              </constraints>
+            </selectionEntryGroup>
+          </selectionEntryGroups>
+        </selectionEntryGroup>
+        <selectionEntryGroup name="Boss Nob" id="leader-group">
+          <selectionEntries>
+            <selectionEntry type="model" import="true" name="Boss Nob" id="leader-1">
+              <constraints>
+                <constraint type="min" value="1" field="selections" scope="parent"/>
+                <constraint type="max" value="1" field="selections" scope="parent"/>
+              </constraints>
+            </selectionEntry>
+          </selectionEntries>
+        </selectionEntryGroup>
+      </selectionEntryGroups>
+    </selectionEntry>
+  </selectionEntries>
+</catalogue>
+""",
+        encoding="utf-8",
+    )
+
+    units, weapons, abilities, keywords, unit_keywords = import_catalogues([catalogue])
+
+    assert units[0].models_min == 10
+    assert units[0].models_max == 20
+
+
 def test_importer_normalises_model_carriers_to_single_model_and_blank_keywords_to_dash(tmp_path):
     catalogue = tmp_path / "test.cat"
     catalogue.write_text(
@@ -227,7 +467,9 @@ def test_importer_normalises_model_carriers_to_single_model_and_blank_keywords_t
     assert units[0].selection_type == "model"
     assert units[0].models_min == 1
     assert units[0].models_max == 1
+    assert units[0].source_file == "test.cat"
     assert weapons[0].keywords == "-"
+    assert weapons[0].source_file == "test.cat"
 
 
 def test_importer_sums_required_leader_model_with_model_group_size(tmp_path):

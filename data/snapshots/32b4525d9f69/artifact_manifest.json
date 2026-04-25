@@ -1,0 +1,91 @@
+{
+  "generated_at": "2026-04-25T18:17:03.291883Z",
+  "source": {
+    "path": "C:\\Users\\ap010\\OneDrive\\Documents\\dev\\Warhammer 40K Calculator\\250916 0942 Warhammer 40k damage calculator\\data\\wh40k-10e",
+    "remote_origin": "https://github.com/BSData/wh40k-10e.git",
+    "branch": "main",
+    "commit": "32b4525d9f69f062f3458d517c6cf82512ef6fef",
+    "commit_date": "2026-04-21 17:44:59 +0100",
+    "commit_subject": "Fixes #7066",
+    "dirty": false
+  },
+  "artifact_count": 19,
+  "artifacts": {
+    "units.csv": {
+      "bytes": 280414,
+      "sha256": "45a56b74e7f7a9ef65daf9b5aeb1c493e57093ecb8066a28dfa264ace0755367"
+    },
+    "weapons.csv": {
+      "bytes": 1580676,
+      "sha256": "1ed5492ebd01453b5d2038d12a4a02873c7d8bb449bf11c2f5c7b4fba050ecc0"
+    },
+    "abilities.csv": {
+      "bytes": 951331,
+      "sha256": "44d66d3ec3ccb270d6551826599ddfd5935350c2215592ea6401984a170f2a98"
+    },
+    "keywords.csv": {
+      "bytes": 47566,
+      "sha256": "1378f4a3f085edd1d01e46f1d251484d7b9e9a97fbc72d273ff397654197e4df"
+    },
+    "unit_keywords.csv": {
+      "bytes": 318625,
+      "sha256": "6e48ab642adbbe71f775562879f95b3d90a26333976ccf19f89354621960355f"
+    },
+    "metadata.json": {
+      "bytes": 1196,
+      "sha256": "58c3b5ee1a34012767740502fef98b921291423031b409327bb07d4564aa2ac4"
+    },
+    "audit_report.json": {
+      "bytes": 812,
+      "sha256": "cad14650c73d120f7248a2bb628283743cafdee176c49dba5d732dbaa0869ad6"
+    },
+    "schema_review.csv": {
+      "bytes": 1307,
+      "sha256": "3b4e52ef4c23363ea47cc5eb88428123c454440c2d3089f1bea2131a0cb93317"
+    },
+    "import_diff.json": {
+      "bytes": 2279,
+      "sha256": "550501c9f73a441e3e44ee9825308d84b713f4ccacd9811b4e91bd04f50cf21d"
+    },
+    "update_report.md": {
+      "bytes": 2360,
+      "sha256": "89ad1b15d277922e86c117e3088108b0d8dfe00e7404541cfe155cf97b7cc74a"
+    },
+    "weapon_profile_review.csv": {
+      "bytes": 2611451,
+      "sha256": "5fbb6236fc22dcf72560a8eacb76d0255fd8bbb23cd78f5f8c186b9dec6272bf"
+    },
+    "suspicious_weapon_review.csv": {
+      "bytes": 15890,
+      "sha256": "3fb8c89fc0b28d7359456d9d18750acca518b6ddf1d392c01c7fda047c980708"
+    },
+    "ability_profile_review.csv": {
+      "bytes": 1186697,
+      "sha256": "bc2ee6975d5509beb7fb8864b1b2ee39bb9cf3966d755d1e48ad6548f8e79cd3"
+    },
+    "ability_modifier_review.csv": {
+      "bytes": 82224,
+      "sha256": "cab9c1efff0b3c212837bf7be92f0b5ff51408c234f113f0534e32f80d23a0c0"
+    },
+    "unit_variant_review.csv": {
+      "bytes": 44418,
+      "sha256": "fc4715f8457ab243f3e7b2f1d9e716994c0a82e7e7572707951224a98b0e9c92"
+    },
+    "unit_weapon_coverage_review.csv": {
+      "bytes": 260365,
+      "sha256": "618142abcd61d4f5b6d05283ff0922e895e16172fcc09a410c52fd569c135a9a"
+    },
+    "loadout_review.csv": {
+      "bytes": 61491,
+      "sha256": "961187955f47a6f7289b1803c7095640b1b9e007a9597a23c208143390759710"
+    },
+    "source_catalogue_review.csv": {
+      "bytes": 7283,
+      "sha256": "c7341ec244dec6b751f10209c232698a815449ff71041f37fffae5a5fba7b033"
+    },
+    "profile_review.md": {
+      "bytes": 6891,
+      "sha256": "db93fd9f1e24f677c412a0ad527e251940aca295514237c51022569d3bc89a9e"
+    }
+  }
+}

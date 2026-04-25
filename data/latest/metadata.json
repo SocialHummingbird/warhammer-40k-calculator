@@ -1,11 +1,15 @@
 {
-  "generated_at": "2026-04-25T13:28:53.506018Z",
+  "generated_at": "2026-04-25T18:17:02.096450Z",
+  "rules_edition": "10e",
+  "supported_rules_editions": [
+    "10e"
+  ],
   "counts": {
-    "units": 2078,
-    "weapons": 10646,
-    "abilities": 3151,
-    "keywords": 1409,
-    "unit_keywords": 9538
+    "units": 2093,
+    "weapons": 10808,
+    "abilities": 3173,
+    "keywords": 1425,
+    "unit_keywords": 9644
   },
   "github_repo": null,
   "github_ref": "main",

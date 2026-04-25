@@ -53,17 +53,23 @@ def _build_selection_group_lookup(root: ET.Element) -> Dict[str, ET.Element]:
     return groups
 
 
+def _direct_comment_text(element: ET.Element) -> str:
+    return " ".join((comment.text or "") for comment in element.findall("comment")).casefold()
+
+
+def _is_crusade_variant_unit(element: ET.Element) -> bool:
+    return "crusade variant" in _direct_comment_text(element)
+
+
 def _is_crusade_or_optional_modifier_node(element: ET.Element) -> bool:
     name = (element.get("name") or "").strip().lower()
-    if name in {"weapon modifications", "crusade relics"}:
+    if name in {"crusade", "weapon modifications", "crusade relics"}:
         return True
     if "crusade relic" in name:
         return True
-    if "crusade content" in " ".join((comment.text or "") for comment in element.findall("comment")).lower():
+    comment_text = _direct_comment_text(element)
+    if "crusade content" in comment_text or "crusade variant" in comment_text:
         return True
-    for cost in element.findall(".//costs/cost"):
-        if "crusade" in (cost.get("name") or "").casefold():
-            return True
     for category in element.findall("categoryLinks/categoryLink"):
         category_name = (category.get("name") or "").casefold()
         if "enhancement / crusade relic" in category_name:
@@ -160,19 +166,22 @@ def import_catalogues(paths: Sequence[Path]) -> CatalogueRows:
     materialised correctly (e.g., Primarchs referenced from supplements).
     """
     # Discover all catalogue files
-    all_files: List[Path] = []
+    all_files: List[tuple[Path, str]] = []
     for path in paths:
         if not path.exists():
             continue
         if path.is_dir():
-            all_files.extend(sorted(path.rglob("*.cat")))
-            all_files.extend(sorted(path.rglob("*.gst")))
+            for file_path in sorted(path.rglob("*.cat")):
+                all_files.append((file_path, file_path.relative_to(path).as_posix()))
+            for file_path in sorted(path.rglob("*.gst")):
+                all_files.append((file_path, file_path.relative_to(path).as_posix()))
         else:
-            all_files.append(path)
+            all_files.append((path, path.name))
     # Parse roots and filter out non-40K systems (e.g., Adeptus Titanicus)
     roots: List[ET.Element] = []
     factions: Dict[ET.Element, str] = {}
-    for file_path in all_files:
+    source_files: Dict[ET.Element, str] = {}
+    for file_path, source_file in all_files:
         try:
             tree = ET.parse(file_path)
         except ET.ParseError:
@@ -184,16 +193,20 @@ def import_catalogues(paths: Sequence[Path]) -> CatalogueRows:
         # but still contain 40K-style Unit profiles referenced cross-catalogue.
         roots.append(root)
         factions[root] = name
+        source_files[root] = source_file
 
     # Build global lookups across all included catalogues
     global_entry_lookup: Dict[str, ET.Element] = {}
     global_group_lookup: Dict[str, ET.Element] = {}
+    entry_source_files: Dict[ET.Element, str] = {}
     for root in roots:
+        source_file = source_files.get(root, "")
         local_entries = _build_selection_entry_lookup(root)
         for entry_id, entry in local_entries.items():
             existing = global_entry_lookup.get(entry_id)
             if existing is None or _profile_count(entry) > _profile_count(existing):
                 global_entry_lookup[entry_id] = entry
+                entry_source_files[entry] = source_file
         local_groups = _build_selection_group_lookup(root)
         for group_id, group in local_groups.items():
             # Last one wins; group IDs are expected to be unique per repo
@@ -210,10 +223,13 @@ def import_catalogues(paths: Sequence[Path]) -> CatalogueRows:
     # Extract from each root but resolve related entries against global lookups
     for root in roots:
         faction = factions[root]
+        unit_source_file = source_files.get(root, "")
         for selection in root.findall(".//selectionEntry"):
             sel_type = (selection.get("type") or "").strip().lower()
             # Consider both 'unit' and 'model' carriers; some Primarchs are 'model'
             if sel_type not in {"unit", "model"}:
+                continue
+            if sel_type == "unit" and _is_crusade_variant_unit(selection):
                 continue
 
             unit_id = selection.get("id") or _slugify(selection.get("name", "unit"))
@@ -259,6 +275,7 @@ def import_catalogues(paths: Sequence[Path]) -> CatalogueRows:
                     feel_no_pain=_clean_stat(stats.get("Feel No Pain")) or _clean_stat(stats.get("FNP")) or None,
                     damage_cap=_clean_stat(stats.get("Damage Cap")) or None,
                     selection_type=sel_type,
+                    source_file=unit_source_file,
                 )
             )
 
@@ -282,12 +299,23 @@ def import_catalogues(paths: Sequence[Path]) -> CatalogueRows:
                         weapon_key = (entry_id, type_name, profile.get("name") or "")
                         if weapon_key in weapon_seen:
                             continue
-                        weapon_row = _weapon_from_profile(profile, unit_id)
+                        weapon_row = _weapon_from_profile(
+                            profile,
+                            unit_id,
+                            source_file=entry_source_files.get(entry, unit_source_file),
+                        )
                         if weapon_row:
                             weapons.append(weapon_row)
                             weapon_seen.add(weapon_key)
 
-            abilities.extend(_ability_rows_from_entry(selection, source_type="unit", source_id=unit_id))
+            abilities.extend(
+                _ability_rows_from_entry(
+                    selection,
+                    source_type="unit",
+                    source_id=unit_id,
+                    source_file=unit_source_file,
+                )
+            )
 
     keywords = list(keyword_rows.values())
     keywords.sort(key=lambda row: row.keyword)
@@ -314,6 +342,7 @@ def _parse_catalogue(path: Path) -> CatalogueRows:
     root = tree.getroot()
     _strip_namespace(root)
     faction = root.get("name", path.stem)
+    source_file = path.name
 
     entry_lookup = _build_selection_entry_lookup(root)
     group_lookup = _build_selection_group_lookup(root)
@@ -327,6 +356,8 @@ def _parse_catalogue(path: Path) -> CatalogueRows:
 
     for selection in root.findall(".//selectionEntry"):
         if selection.get("type") != "unit":
+            continue
+        if _is_crusade_variant_unit(selection):
             continue
 
         unit_id = selection.get("id") or _slugify(selection.get("name", "unit"))
@@ -361,6 +392,8 @@ def _parse_catalogue(path: Path) -> CatalogueRows:
                 points=_extract_points(candidate_entries),
                 feel_no_pain=_clean_stat(stats.get("Feel No Pain")) or _clean_stat(stats.get("FNP")) or None,
                 damage_cap=_clean_stat(stats.get("Damage Cap")) or None,
+                selection_type="unit",
+                source_file=source_file,
             )
         )
 
@@ -384,12 +417,12 @@ def _parse_catalogue(path: Path) -> CatalogueRows:
                     weapon_key = (entry_id, type_name, profile.get("name") or "")
                     if weapon_key in weapon_seen:
                         continue
-                    weapon_row = _weapon_from_profile(profile, unit_id)
+                    weapon_row = _weapon_from_profile(profile, unit_id, source_file=source_file)
                     if weapon_row:
                         weapons.append(weapon_row)
                         weapon_seen.add(weapon_key)
 
-        abilities.extend(_ability_rows_from_entry(selection, source_type="unit", source_id=unit_id))
+        abilities.extend(_ability_rows_from_entry(selection, source_type="unit", source_id=unit_id, source_file=source_file))
 
     units.sort(key=lambda row: (row.faction, row.name))
     weapons.sort(key=lambda row: (row.unit_id, row.name))
@@ -414,7 +447,7 @@ def _parse_catalogue(path: Path) -> CatalogueRows:
     return units, list(unique_weapons.values()), abilities, keywords, unique_unit_keywords
 
 
-def _weapon_from_profile(profile: ET.Element, unit_id: str) -> Optional[WeaponRow]:
+def _weapon_from_profile(profile: ET.Element, unit_id: str, *, source_file: str = "") -> Optional[WeaponRow]:
     name = profile.get("name")
     characteristics = _extract_characteristics([profile])
 
@@ -463,10 +496,17 @@ def _weapon_from_profile(profile: ET.Element, unit_id: str) -> Optional[WeaponRo
         lethal_hits=characteristics.get("Lethal Hits", ""),
         sustained_hits=characteristics.get("Sustained Hits", ""),
         devastating_wounds=characteristics.get("Devastating Wounds", ""),
+        source_file=source_file,
     )
 
 
-def _ability_from_profile(profile: ET.Element, *, source_type: str, source_id: str) -> Optional[AbilityRow]:
+def _ability_from_profile(
+    profile: ET.Element,
+    *,
+    source_type: str,
+    source_id: str,
+    source_file: str = "",
+) -> Optional[AbilityRow]:
     name = profile.get("name")
     if not name:
         return None
@@ -482,10 +522,17 @@ def _ability_from_profile(profile: ET.Element, *, source_type: str, source_id: s
         source_id=source_id,
         name=name,
         text=text.strip(),
+        source_file=source_file,
     )
 
 
-def _ability_rows_from_entry(entry: ET.Element, *, source_type: str, source_id: str) -> List[AbilityRow]:
+def _ability_rows_from_entry(
+    entry: ET.Element,
+    *,
+    source_type: str,
+    source_id: str,
+    source_file: str = "",
+) -> List[AbilityRow]:
     rows: List[AbilityRow] = []
     seen: set[tuple[str, str]] = set()
     ability_profile_types = {"ability", "abilities"}
@@ -493,7 +540,12 @@ def _ability_rows_from_entry(entry: ET.Element, *, source_type: str, source_id: 
         type_name = (profile.get("typeName") or "").strip().lower()
         if type_name not in ability_profile_types:
             continue
-        ability_row = _ability_from_profile(profile, source_type=source_type, source_id=source_id)
+        ability_row = _ability_from_profile(
+            profile,
+            source_type=source_type,
+            source_id=source_id,
+            source_file=source_file,
+        )
         if not ability_row:
             continue
         ability_key = (ability_row.name, ability_row.text)
@@ -555,10 +607,10 @@ def _extract_unit_size(selection: ET.Element, related_entries: Sequence[ET.Eleme
         max_v = min(maxs) if maxs else None
         return min_v, max_v
 
-    # Pass 1: sum constraints across child models. Prefer direct children, then any descendant.
+    # Pass 1: sum constraints across direct child models.
+    # Nested model choices are usually alternatives inside a constrained group and
+    # are handled by Pass 2; summing them here would double-count loadout choices.
     model_children = selection.findall("./selectionEntries/selectionEntry[@type='model']")
-    if not model_children:
-        model_children = selection.findall(".//selectionEntry[@type='model']")
 
     total_min = 0
     total_max = 0
@@ -600,10 +652,10 @@ def _extract_unit_size(selection: ET.Element, related_entries: Sequence[ET.Eleme
             if g_min is not None and g_min > 0:
                 total_min += g_min
                 have_any = True
-            if g_max is not None and g_max > 0:
-                total_max += g_max
-            else:
-                all_have_max = False
+                if g_max is not None and g_max > 0:
+                    total_max += g_max
+                else:
+                    all_have_max = False
         min_v = total_min if have_any and total_min > 0 else None
         max_v = total_max if have_any and all_have_max and total_max > 0 else None
         return min_v, max_v
@@ -624,6 +676,34 @@ def _extract_unit_size(selection: ET.Element, related_entries: Sequence[ET.Eleme
                 max_models = gmax
             else:
                 max_models = max(max_models, gmax)
+
+    # Pass 2b: if constrained groups did not provide a complete answer, fall
+    # back to nested model constraints. Do this only for missing bounds so
+    # alternative loadout models inside an already constrained group do not
+    # inflate sizes (e.g. two 0-3 alternatives in a 1-3 model group).
+    if min_models is None or max_models is None:
+        nested_models = [
+            model
+            for model in selection.findall(".//selectionEntry[@type='model']")
+            if model not in model_children
+        ]
+        nested_min = 0
+        nested_max = 0
+        have_nested = False
+        all_nested_have_max = True
+        for model in nested_models:
+            mn, mx = parse_min_max_from_node(model)
+            if mn is not None:
+                nested_min += mn
+                have_nested = True
+            if mx is not None:
+                nested_max += mx
+            else:
+                all_nested_have_max = False
+        if min_models is None and have_nested and nested_min > 0:
+            min_models = nested_min
+        if max_models is None and have_nested and all_nested_have_max and nested_max > 0:
+            max_models = nested_max
 
     # Pass 3: fall back to unit-level constraints in the subtree (non-group)
     if min_models is None or max_models is None:
@@ -675,8 +755,8 @@ def _extract_unit_size(selection: ET.Element, related_entries: Sequence[ET.Eleme
     for node in selection.findall(".//selectionEntry"):
         name = (node.get("name") or "").strip().lower()
         ntype = (node.get("type") or "").strip().lower()
-        # Count only leader-like upgrades; direct model entries were already counted above.
-        if ntype != "upgrade":
+        # Count only leader-like upgrades/models; direct model entries were already counted above.
+        if ntype not in {"upgrade", "model"} or node in model_children:
             continue
         if not any(k in name for k in leader_keywords):
             continue
@@ -701,6 +781,8 @@ def _extract_unit_size(selection: ET.Element, related_entries: Sequence[ET.Eleme
 
 
 def _extract_points(entries: Sequence[ET.Element]) -> Optional[int]:
+    fallback_model_points: List[int] = []
+
     for entry in entries:
         for cost in entry.findall("costs/cost"):
             name = (cost.get("name") or "").strip().lower()
@@ -714,8 +796,17 @@ def _extract_points(entries: Sequence[ET.Element]) -> Optional[int]:
             except ValueError:
                 continue
             if abs(numeric - round(numeric)) <= 1e-6:
-                return int(round(numeric))
-            return int(numeric)
+                points = int(round(numeric))
+            else:
+                points = int(numeric)
+            if (entry.get("type") or "").strip().lower() == "model":
+                fallback_model_points.append(points)
+                continue
+            return points
+
+    positive_model_points = [points for points in fallback_model_points if points > 0]
+    if positive_model_points:
+        return min(positive_model_points)
     return None
 def _collect_keywords(selection: ET.Element) -> List[str]:
     keywords: List[str] = []

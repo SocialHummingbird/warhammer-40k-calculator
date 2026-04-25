@@ -22,6 +22,7 @@ class UnitRow:
     feel_no_pain: Optional[str] = None
     damage_cap: Optional[str] = None
     selection_type: Optional[str] = None
+    source_file: str = ""
 
     def asdict(self) -> Dict[str, Optional[str]]:
         return {k: v for k, v in asdict(self).items()}
@@ -46,6 +47,7 @@ class WeaponRow:
     lethal_hits: str = ""
     sustained_hits: str = ""
     devastating_wounds: str = ""
+    source_file: str = ""
 
     def asdict(self) -> Dict[str, str]:
         return {k: v for k, v in asdict(self).items()}
@@ -58,6 +60,7 @@ class AbilityRow:
     source_id: str
     name: str
     text: str
+    source_file: str = ""
 
     def asdict(self) -> Dict[str, str]:
         return {k: v for k, v in asdict(self).items()}

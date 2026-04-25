@@ -349,6 +349,7 @@ class WeaponProfile:
     melta: Optional[int] = None
     rapid_fire: Optional[int] = None
     anti_rules: List[Tuple[str, int]] = field(default_factory=list)
+    source_file: str = ""
 
     @classmethod
     def from_dict(cls, data: Dict) -> "WeaponProfile":
@@ -412,6 +413,7 @@ class WeaponProfile:
             melta=keyword_flags["melta"],
             rapid_fire=keyword_flags["rapid_fire"],
             anti_rules=keyword_flags["anti_rules"],
+            source_file=str(data.get("source_file") or ""),
         )
 
     def anti_threshold_for(self, defender_keywords: set[str]) -> Optional[int]:
@@ -426,12 +428,13 @@ class WeaponProfile:
 class AbilityProfile:
     name: str
     text: str = ""
+    source_file: str = ""
 
     @classmethod
     def from_dict(cls, data: Dict) -> "AbilityProfile":
         if "name" not in data:
             raise ValueError("Ability requires a 'name'")
-        return cls(name=data["name"], text=data.get("text", ""))
+        return cls(name=data["name"], text=data.get("text", ""), source_file=str(data.get("source_file") or ""))
 
 
 @dataclass
@@ -441,6 +444,7 @@ class UnitProfile:
     save: int
     save_label: str
     wounds: int
+    unit_id: Optional[str] = None
     move: Optional[float] = None
     invulnerable_save: Optional[int] = None
     invulnerable_label: Optional[str] = None
@@ -454,6 +458,7 @@ class UnitProfile:
     selection_type: Optional[str] = None
     leadership: Optional[int] = None
     objective_control: Optional[int] = None
+    source_file: str = ""
     weapons: List[WeaponProfile] = field(default_factory=list)
     abilities: List[AbilityProfile] = field(default_factory=list)
     ability_modifiers: List[AbilityModifier] = field(default_factory=list)
@@ -492,6 +497,7 @@ class UnitProfile:
             save=save_value,
             save_label=save_label,
             wounds=int(data.get("wounds", 1)),
+            unit_id=(str(data.get("unit_id") or data.get("id")) if data.get("unit_id") or data.get("id") else None),
             move=_parse_optional_float(data.get("move")),
             invulnerable_save=invul_value,
             invulnerable_label=invul_label,
@@ -505,6 +511,7 @@ class UnitProfile:
             selection_type=(str(data.get("selection_type")).lower() if data.get("selection_type") else None),
             leadership=_parse_optional_int(data.get("leadership")),
             objective_control=_parse_optional_int(data.get("objective_control")),
+            source_file=str(data.get("source_file") or ""),
             weapons=weapons,
             abilities=abilities,
             ability_modifiers=ability_modifiers,

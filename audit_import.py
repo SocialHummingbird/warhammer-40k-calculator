@@ -14,6 +14,13 @@ import sys
 from typing import Dict, Iterable, List, Optional, Sequence, Set, Tuple
 
 from warhammer.dice import QuantityParseError, parse_quantity
+from warhammer.importers.schema import (
+    ABILITY_HEADERS,
+    KEYWORD_HEADERS,
+    UNIT_HEADERS,
+    UNIT_KEYWORD_HEADERS,
+    WEAPON_HEADERS,
+)
 
 
 IssueMap = Dict[str, List[str]]
@@ -22,13 +29,16 @@ _PLACEHOLDERS = {"", "*", "d*", "-", "--", "—", "n/a", "na", "none", "null"}
 _INT_PATTERN = re.compile(r"^[+-]?\d+$")
 
 _ERROR_ISSUES = {
+    "missing_required_columns",
     "missing_unit_ids",
+    "missing_unit_source_file",
     "duplicate_unit_ids",
     "invalid_toughness",
     "invalid_wounds",
     "invalid_save",
     "invalid_invulnerable_save",
     "duplicate_weapon_ids",
+    "missing_weapon_source_file",
     "orphaned_weapons",
     "missing_weapon_names",
     "placeholder_attacks",
@@ -42,10 +52,39 @@ _ERROR_ISSUES = {
     "invalid_skill",
     "invalid_weapon_type",
     "duplicate_ability_ids",
+    "missing_ability_source_file",
     "orphaned_unit_abilities",
     "orphaned_unit_keywords",
     "orphaned_keyword_ids",
 }
+
+_REQUIRED_CSV_HEADERS = {
+    "units": UNIT_HEADERS,
+    "weapons": WEAPON_HEADERS,
+    "abilities": ABILITY_HEADERS,
+    "keywords": KEYWORD_HEADERS,
+    "unit_keywords": UNIT_KEYWORD_HEADERS,
+}
+
+_CSV_FILENAMES = {
+    "units": "units.csv",
+    "weapons": "weapons.csv",
+    "abilities": "abilities.csv",
+    "keywords": "keywords.csv",
+    "unit_keywords": "unit_keywords.csv",
+}
+
+SCHEMA_REVIEW_HEADERS = [
+    "table",
+    "file",
+    "status",
+    "required_count",
+    "actual_count",
+    "missing_columns",
+    "extra_columns",
+    "required_columns",
+    "actual_columns",
+]
 
 _WARNING_ISSUES = {
     "missing_points",
@@ -66,9 +105,14 @@ def _safe_print(message: str) -> None:
 
 
 def _load_csv(path: Path) -> List[Dict[str, str]]:
+    rows, _headers = _load_csv_with_headers(path)
+    return rows
+
+
+def _load_csv_with_headers(path: Path) -> tuple[List[Dict[str, str]], List[str]]:
     with path.open(newline="", encoding="utf-8") as handle:
         reader = csv.DictReader(handle)
-        return list(reader)
+        return list(reader), list(reader.fieldnames or [])
 
 
 def _top(entries: Iterable[str], limit: int = 10) -> List[str]:
@@ -152,6 +196,10 @@ def audit_units(rows: List[Dict[str, str]]) -> IssueMap:
     if duplicates:
         issues["duplicate_unit_ids"] = sorted(duplicates)[:10]
 
+    missing_source = [_row_label(row) for row in rows if not _normalise(row.get("source_file"))]
+    if missing_source:
+        issues["missing_unit_source_file"] = _sample(missing_source)
+
     unit_rows = [row for row in rows if (row.get("selection_type") or "").strip().lower() == "unit"]
 
     missing_points = [row["name"] for row in unit_rows if not (row.get("points") or "").strip()]
@@ -168,7 +216,7 @@ def audit_units(rows: List[Dict[str, str]]) -> IssueMap:
 
     duplicate_names = [
         f"{(row.get('faction') or '<no faction>').strip()} :: {row['name'].strip()}"
-        for row in rows
+        for row in unit_rows
         if row.get("name")
     ]
     duplicates = [name for name, count in Counter(duplicate_names).items() if count > 1]
@@ -199,6 +247,52 @@ def audit_units(rows: List[Dict[str, str]]) -> IssueMap:
     return issues
 
 
+def audit_schema(headers_by_table: Dict[str, List[str]]) -> IssueMap:
+    issues: IssueMap = defaultdict(list)
+    for table, required_headers in _REQUIRED_CSV_HEADERS.items():
+        actual = set(headers_by_table.get(table, []))
+        missing = [header for header in required_headers if header not in actual]
+        if missing:
+            issues["missing_required_columns"].append(f"{table}.csv missing: {', '.join(missing)}")
+    return issues
+
+
+def build_schema_review_rows(csv_dir: Path) -> List[Dict[str, str]]:
+    csv_dir = Path(csv_dir)
+    rows: List[Dict[str, str]] = []
+    for table, required_headers in _REQUIRED_CSV_HEADERS.items():
+        filename = _CSV_FILENAMES[table]
+        _rows, actual_headers = _load_optional_csv_with_headers(csv_dir, filename)
+        required = list(required_headers)
+        missing = [header for header in required if header not in actual_headers]
+        extra = [header for header in actual_headers if header not in required]
+        rows.append(
+            {
+                "table": table,
+                "file": filename,
+                "status": "pass" if not missing else "fail",
+                "required_count": str(len(required)),
+                "actual_count": str(len(actual_headers)),
+                "missing_columns": "; ".join(missing),
+                "extra_columns": "; ".join(extra),
+                "required_columns": "; ".join(required),
+                "actual_columns": "; ".join(actual_headers),
+            }
+        )
+    return rows
+
+
+def write_schema_review(csv_dir: Path, filename: str = "schema_review.csv") -> int:
+    rows = build_schema_review_rows(csv_dir)
+    path = Path(csv_dir) / filename
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.DictWriter(handle, fieldnames=SCHEMA_REVIEW_HEADERS)
+        writer.writeheader()
+        writer.writerows(rows)
+    return len(rows)
+
+
 def audit_weapons(rows: List[Dict[str, str]], unit_ids: Optional[Set[str]] = None) -> IssueMap:
     issues: IssueMap = defaultdict(list)
 
@@ -210,6 +304,10 @@ def audit_weapons(rows: List[Dict[str, str]], unit_ids: Optional[Set[str]] = Non
     duplicates = [weapon_id for weapon_id, count in Counter(duplicate_ids).items() if count > 1]
     if duplicates:
         issues["duplicate_weapon_ids"] = duplicates[:10]
+
+    missing_source = [_row_label(row, id_field="weapon_id") for row in rows if not _normalise(row.get("source_file"))]
+    if missing_source:
+        issues["missing_weapon_source_file"] = _sample(missing_source)
 
     duplicate_profile_keys = [
         f"{unit_id}:{name}:{weapon_type}"
@@ -312,6 +410,10 @@ def audit_abilities(rows: List[Dict[str, str]], unit_ids: Optional[Set[str]] = N
     if duplicates:
         issues["duplicate_ability_ids"] = duplicates[:10]
 
+    missing_source = [_row_label(row, id_field="ability_id") for row in rows if not _normalise(row.get("source_file"))]
+    if missing_source:
+        issues["missing_ability_source_file"] = _sample(missing_source)
+
     if unit_ids is not None:
         orphaned = [
             _row_label(row, id_field="ability_id")
@@ -374,26 +476,40 @@ def _print_section(title: str, issues: IssueMap, clean_message: str) -> None:
 
 
 def _load_optional_csv(csv_dir: Path, filename: str) -> List[Dict[str, str]]:
+    rows, _headers = _load_optional_csv_with_headers(csv_dir, filename)
+    return rows
+
+
+def _load_optional_csv_with_headers(csv_dir: Path, filename: str) -> tuple[List[Dict[str, str]], List[str]]:
     path = csv_dir / filename
     if not path.exists():
-        return []
-    return _load_csv(path)
+        return [], []
+    return _load_csv_with_headers(path)
 
 
 def build_audit_report(csv_dir: Path) -> dict[str, object]:
     """Build a structured audit report for importer CSV outputs."""
 
     csv_dir = Path(csv_dir)
-    units = _load_csv(csv_dir / "units.csv")
-    weapons = _load_csv(csv_dir / "weapons.csv")
-    abilities = _load_optional_csv(csv_dir, "abilities.csv")
-    keywords = _load_optional_csv(csv_dir, "keywords.csv")
-    unit_keywords = _load_optional_csv(csv_dir, "unit_keywords.csv")
+    units, unit_headers = _load_csv_with_headers(csv_dir / "units.csv")
+    weapons, weapon_headers = _load_csv_with_headers(csv_dir / "weapons.csv")
+    abilities, ability_headers = _load_optional_csv_with_headers(csv_dir, "abilities.csv")
+    keywords, keyword_headers = _load_optional_csv_with_headers(csv_dir, "keywords.csv")
+    unit_keywords, unit_keyword_headers = _load_optional_csv_with_headers(csv_dir, "unit_keywords.csv")
 
     unit_ids = {_normalise(row.get("unit_id")) for row in units if _normalise(row.get("unit_id"))}
     keyword_ids = {_normalise(row.get("keyword_id")) for row in keywords if _normalise(row.get("keyword_id"))}
 
     raw_sections = {
+        "schema": audit_schema(
+            {
+                "units": unit_headers,
+                "weapons": weapon_headers,
+                "abilities": ability_headers,
+                "keywords": keyword_headers,
+                "unit_keywords": unit_keyword_headers,
+            }
+        ),
         "units": audit_units(units),
         "weapons": audit_weapons(weapons, unit_ids=unit_ids),
         "abilities": audit_abilities(abilities, unit_ids=unit_ids),
@@ -489,6 +605,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     )
 
     for title, section_name, clean_message in (
+        ("Schema", "schema", "All CSV schemas contain the required columns."),
         ("Units", "units", "All units passed the profile checks."),
         ("Weapons", "weapons", "All weapons passed the profile checks."),
         ("Abilities", "abilities", "All abilities passed the profile checks."),

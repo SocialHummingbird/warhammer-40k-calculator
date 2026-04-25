@@ -1,6 +1,6 @@
 import pytest
 
-from warhammer.calculator import EngagementContext, evaluate_weapon
+from warhammer.calculator import EngagementContext, evaluate_weapon, scale_weapon_result
 from warhammer.profiles import UnitProfile
 
 
@@ -67,6 +67,20 @@ def test_ability_hit_modifier_applies_vs_keyword():
     non_infantry = _simple_target(keywords=["VEHICLE"], toughness=7, save="3+", wounds=10)
     result_no_bonus = evaluate_weapon(attacker, non_infantry, weapon)
     assert pytest.approx(result_no_bonus.hit_probability, rel=1e-6) == pytest.approx(2 / 3)
+
+
+def test_scale_weapon_result_scales_counts_but_not_probabilities():
+    attacker = _build_unit(_weapon_dict(attacks="2", damage="2"))
+    defender = _simple_target(wounds=1)
+    result = evaluate_weapon(attacker, defender, attacker.weapons[0])
+
+    scaled = scale_weapon_result(result, 3)
+
+    assert scaled.attacks == pytest.approx(result.attacks * 3)
+    assert scaled.expected_damage == pytest.approx(result.expected_damage * 3)
+    assert scaled.expected_models_destroyed == pytest.approx(result.expected_models_destroyed * 3)
+    assert scaled.hit_probability == result.hit_probability
+    assert scaled.wound_probability == result.wound_probability
 
 
 def test_ability_reroll_ones_melee_only():

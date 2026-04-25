@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-25T13:28:53.866402Z",
+  "generated_at": "2026-04-25T18:17:02.462013Z",
   "source_before": {
     "path": "C:\\Users\\ap010\\OneDrive\\Documents\\dev\\Warhammer 40K Calculator\\250916 0942 Warhammer 40k damage calculator\\data\\wh40k-10e",
     "remote_origin": "https://github.com/BSData/wh40k-10e.git",
@@ -20,40 +20,19 @@
   },
   "tables": {
     "units": {
-      "before_count": 2078,
-      "after_count": 2078,
+      "before_count": 2093,
+      "after_count": 2093,
       "delta": 0,
       "added_count": 0,
       "removed_count": 0,
-      "changed_count": 60,
+      "changed_count": 0,
       "added_samples": [],
       "removed_samples": [],
-      "changed_samples": [
-        "0744-61ce-619d-ffe1",
-        "1529-793d-481b-82bf",
-        "1669-d311-eff9-243b",
-        "1de9-b138-28a1-9c4b",
-        "203d-c50f-a438-4982",
-        "2311-9feb-9d0a-8154",
-        "240f-70a4-7ba7-a538",
-        "2598-d700-9952-e439",
-        "2659-7a1b-3ce6-8e4b",
-        "2c3a-9752-2516-69ab",
-        "2da2-ad08-6057-5a1c",
-        "303-267f-e45c-6aa9",
-        "36fd-7c3f-b728-c5d4",
-        "3832-4208-11e9-ca22",
-        "3a81-2b84-bf4c-4f85",
-        "3f4c-1e67-66dc-ffa5",
-        "433-faed-ea62-c531",
-        "4681-2af4-acf9-2bce",
-        "497-36ad-8ecb-f7c7",
-        "4adf-8249-c6b2-dd4f"
-      ]
+      "changed_samples": []
     },
     "weapons": {
-      "before_count": 10646,
-      "after_count": 10646,
+      "before_count": 10808,
+      "after_count": 10808,
       "delta": 0,
       "added_count": 0,
       "removed_count": 0,
@@ -63,8 +42,8 @@
       "changed_samples": []
     },
     "abilities": {
-      "before_count": 3151,
-      "after_count": 3151,
+      "before_count": 3173,
+      "after_count": 3173,
       "delta": 0,
       "added_count": 0,
       "removed_count": 0,
@@ -74,8 +53,8 @@
       "changed_samples": []
     },
     "keywords": {
-      "before_count": 1409,
-      "after_count": 1409,
+      "before_count": 1425,
+      "after_count": 1425,
       "delta": 0,
       "added_count": 0,
       "removed_count": 0,
@@ -85,8 +64,8 @@
       "changed_samples": []
     },
     "unit_keywords": {
-      "before_count": 9538,
-      "after_count": 9538,
+      "before_count": 9644,
+      "after_count": 9644,
       "delta": 0,
       "added_count": 0,
       "removed_count": 0,

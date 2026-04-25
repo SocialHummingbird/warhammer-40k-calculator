@@ -1,5 +1,11 @@
 # Changelog
 
+## Planned Work
+- [ ] Add multi-edition support so 10th edition and future 11th edition data can coexist without sharing incompatible rules assumptions.
+  - [x] First step: introduce an explicit ruleset registry and route current calculator behavior through a `10e` ruleset while keeping current outputs unchanged.
+  - [x] Add edition metadata to generated data artifacts and display the active rules edition in the UI status.
+  - Later add separate 11th-edition importer/data snapshots once an upstream data source and rules mapping are available.
+
 ## 2025-10-02
 - Ability parsing now recognises abilities that grant the [Assault] keyword, keeping those modifiers so ranged weapons fire after advancing when granted by enhancements.
 - Combat resolution respects ability-granted Assault, skipping the advance shooting block, applying the correct hit penalties, and annotating the output notes accordingly.

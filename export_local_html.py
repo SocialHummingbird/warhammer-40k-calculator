@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Any
 
 from warhammer.dice import quantity_distribution
-from warhammer.datasheet import load_units_from_csv
+from warhammer.importers.csv_loader import load_units_from_directory
 from warhammer.profiles import UnitProfile, WeaponProfile
 
 
@@ -48,11 +48,13 @@ def _weapon_payload(weapon: WeaponProfile) -> dict[str, Any]:
         "melta": weapon.melta,
         "rapidFire": weapon.rapid_fire,
         "antiRules": weapon.anti_rules,
+        "sourceFile": weapon.source_file,
     }
 
 
 def _unit_payload(unit: UnitProfile) -> dict[str, Any]:
     return {
+        "id": unit.unit_id,
         "name": unit.name,
         "faction": unit.faction,
         "toughness": unit.toughness,
@@ -68,6 +70,7 @@ def _unit_payload(unit: UnitProfile) -> dict[str, Any]:
         "points": unit.points,
         "modelsMin": unit.models_min,
         "modelsMax": unit.models_max,
+        "sourceFile": unit.source_file,
         "keywords": unit.keywords,
         "canAdvanceAndShoot": unit.can_advance_and_shoot,
         "weapons": [_weapon_payload(weapon) for weapon in unit.weapons],
@@ -91,12 +94,18 @@ def _local_script(data: dict[str, Any]) -> str:
       auditReport: LOCAL_DATA.auditReport || null,
       importDiff: LOCAL_DATA.importDiff || null,
       metadata: LOCAL_DATA.metadata || null,
+      updateReport: LOCAL_DATA.updateReport || null,
+      profileReview: LOCAL_DATA.profileReview || null,
+      reviewFiles: LOCAL_DATA.reviewFiles || [],
+      unitDetails: {{}},
+      selectedUnitIds: {{ attacker: null, defender: null }},
       searchTimer: null,
       openMenu: null
     }};
 
     const el = (id) => document.getElementById(id);
-    const fmt = (value) => Number(value || 0).toFixed(2);
+    const hasNumber = (value) => value !== null && value !== undefined && value !== "" && Number.isFinite(Number(value));
+    const fmt = (value) => hasNumber(value) ? Number(value).toFixed(2) : "n/a";
     const pct = (value) => `${{Math.round(Number(value || 0) * 100)}}%`;
     const escapeHtml = (value) => String(value ?? "").replace(/[&<>"']/g, (char) => ({{
       "&": "&amp;",
@@ -108,6 +117,7 @@ def _local_script(data: dict[str, Any]) -> str:
 
     function unitSummary(unit) {{
       return {{
+        id: unit.id,
         name: unit.name,
         faction: unit.faction,
         toughness: unit.toughness,
@@ -116,6 +126,7 @@ def _local_script(data: dict[str, Any]) -> str:
         points: unit.points,
         models_min: unit.modelsMin,
         models_max: unit.modelsMax,
+        source_file: unit.sourceFile || "",
         keywords: unit.keywords || []
       }};
     }}
@@ -129,13 +140,44 @@ def _local_script(data: dict[str, Any]) -> str:
         strength: weapon.strength,
         ap: weapon.ap,
         damage: weapon.damage,
-        keywords: weapon.keywords || []
+        keywords: weapon.keywords || [],
+        source_file: weapon.sourceFile || ""
       }};
     }}
 
     function loadHealth() {{
-      el("status").textContent = `${{LOCAL_DATA.units.length}} units loaded locally`;
+      setStatus(LOCAL_DATA.units.length, sourceInfoFromMetadata(state.metadata), true);
       return Promise.resolve();
+    }}
+
+    function sourceInfoFromMetadata(metadata) {{
+      if (!metadata) return {{}};
+      const source = metadata.source_revisions && metadata.source_revisions.length ? metadata.source_revisions[0] : {{}};
+      const commit = source.commit || "";
+      return {{
+        commit,
+        commit_short: commit ? commit.slice(0, 12) : "",
+        branch: source.branch || metadata.github_ref || "",
+        remote_origin: source.remote_origin || metadata.github_repo || "",
+        dirty: Boolean(source.dirty),
+        generated_at: metadata.generated_at || "",
+        rules_edition: metadata.rules_edition || "10e",
+        supported_rules_editions: metadata.supported_rules_editions || ["10e"]
+      }};
+    }}
+
+    function setStatus(unitCount, sourceInfo = {{}}, locally = false) {{
+      const parts = [`${{unitCount}} units loaded${{locally ? " locally" : ""}}`];
+      if (sourceInfo.rules_edition) parts.push(`${{String(sourceInfo.rules_edition).toUpperCase()}} rules`);
+      if (sourceInfo.commit_short) parts.push(`BSData ${{sourceInfo.commit_short}}`);
+      if (sourceInfo.dirty) parts.push("dirty source");
+      if (sourceInfo.generated_at) parts.push(`generated ${{sourceInfo.generated_at}}`);
+      el("status").textContent = parts.join(" | ");
+      const titleParts = [];
+      if (sourceInfo.remote_origin) titleParts.push(sourceInfo.remote_origin);
+      if (sourceInfo.branch) titleParts.push(`branch ${{sourceInfo.branch}}`);
+      if (sourceInfo.commit) titleParts.push(sourceInfo.commit);
+      el("status").title = titleParts.join(" | ");
     }}
 
     function renderFactions() {{
@@ -175,8 +217,28 @@ def _local_script(data: dict[str, Any]) -> str:
       return Promise.resolve({{
         audit_report: state.auditReport,
         import_diff: state.importDiff,
-        metadata: state.metadata
+        metadata: state.metadata,
+        update_report: state.updateReport,
+        profile_review: state.profileReview,
+        review_files: state.reviewFiles
       }});
+    }}
+
+    function findUnit(name, unitId = null) {{
+      if (unitId) {{
+        const byId = state.units.find((candidate) => candidate.id === unitId);
+        if (byId) return byId;
+      }}
+      const key = String(name || "").toLowerCase();
+      return state.units.find((candidate) => candidate.name.toLowerCase() === key) || null;
+    }}
+
+    async function loadUnitDetail(name, field = null) {{
+      const unitName = String(name || "").trim();
+      const selectedId = field && state.selectedUnitIds[field] && el(field).value.trim() === unitName
+        ? state.selectedUnitIds[field]
+        : null;
+      return findUnit(unitName, selectedId);
     }}
 
     function queueUnitSearch(value = "") {{
@@ -196,6 +258,45 @@ def _local_script(data: dict[str, Any]) -> str:
       return parts.join(" | ");
     }}
 
+    function selectedUnit(field) {{
+      const unitName = el(field).value.trim();
+      if (!unitName) return null;
+      const selectedId = state.selectedUnitIds[field];
+      if (selectedId) {{
+        const byId = state.units.find((unit) => unit.id === selectedId);
+        if (byId) return byId;
+        const cached = state.unitDetails[selectedId];
+        if (cached) return cached;
+      }}
+      return state.units.find((unit) => unit.name === unitName) || null;
+    }}
+
+    function unitVariantLabel(unit) {{
+      if (!unit) return "";
+      const modelRange = unit.models_min && unit.models_max && unit.models_min !== unit.models_max
+        ? `${{unit.models_min}}-${{unit.models_max}}`
+        : (unit.models_min || unit.models_max || "unknown");
+      const sourceFile = unit.source_file || unit.sourceFile || "";
+      const parts = [];
+      if (unit.faction) parts.push(unit.faction);
+      if (unit.points) parts.push(`${{unit.points}} pts`);
+      parts.push(`Models ${{modelRange}}`);
+      if (sourceFile) parts.push(`Source ${{sourceFile}}`);
+      if (unit.id) parts.push(`ID ${{unit.id}}`);
+      return parts.join(" | ");
+    }}
+
+    function updateSelectedUnitInfo(field) {{
+      const target = el(`${{field}}-selected`);
+      const unit = selectedUnit(field);
+      target.textContent = unit ? unitVariantLabel(unit) : "";
+    }}
+
+    function updateSelectedUnitInfos() {{
+      updateSelectedUnitInfo("attacker");
+      updateSelectedUnitInfo("defender");
+    }}
+
     function closeDropdown(field = state.openMenu) {{
       if (!field) return;
       el(`${{field}}-menu`).classList.remove("open");
@@ -211,7 +312,7 @@ def _local_script(data: dict[str, Any]) -> str:
         return;
       }}
       menu.innerHTML = rows.map((unit) => `
-        <button class="combo-option" type="button" role="option" data-unit="${{escapeHtml(unit.name)}}">
+        <button class="combo-option" type="button" role="option" data-unit="${{escapeHtml(unit.name)}}" data-unit-id="${{escapeHtml(unit.id || "")}}">
           ${{escapeHtml(unit.name)}}
           <span>${{escapeHtml(optionSubtitle(unit))}}</span>
         </button>
@@ -220,9 +321,46 @@ def _local_script(data: dict[str, Any]) -> str:
         button.addEventListener("mousedown", (event) => {{
           event.preventDefault();
           el(field).value = button.dataset.unit;
+          state.selectedUnitIds[field] = button.dataset.unitId || null;
+          updateSelectedUnitInfo(field);
           closeDropdown(field);
+          refreshWeaponSelectors().catch((error) => {{
+            el("error").textContent = error.message;
+          }});
         }});
       }});
+    }}
+
+    async function refreshWeaponSelectors() {{
+      await Promise.all([
+        populateWeaponSelect("outgoing-weapon", "attacker", el("attacker").value, el("mode").value),
+        populateWeaponSelect("incoming-weapon", "defender", el("defender").value, el("mode").value)
+      ]);
+    }}
+
+    async function populateWeaponSelect(selectId, field, unitName, mode) {{
+      const select = el(selectId);
+      const previous = select.value;
+      select.innerHTML = `<option value="__all__">All matching weapons</option>`;
+      const unit = await loadUnitDetail(unitName, field);
+      if (!unit) {{
+        select.disabled = true;
+        return;
+      }}
+      const seen = new Set();
+      const weapons = (unit.weapons || []).filter((weapon) => {{
+        if (weapon.type !== mode || seen.has(weapon.name)) return false;
+        seen.add(weapon.name);
+        return true;
+      }});
+      for (const weapon of weapons) {{
+        const option = document.createElement("option");
+        option.value = weapon.name;
+        option.textContent = `${{weapon.name}} | A${{weapon.attacks}} ${{weapon.skillLabel || weapon.skill}} S${{weapon.strength}} AP${{weapon.ap}} D${{weapon.damage}}`;
+        select.appendChild(option);
+      }}
+      select.disabled = weapons.length === 0;
+      select.value = [...select.options].some((option) => option.value === previous) ? previous : "__all__";
     }}
 
     async function openDropdown(field) {{
@@ -245,9 +383,8 @@ def _local_script(data: dict[str, Any]) -> str:
       }};
     }}
 
-    function requireUnit(name) {{
-      const key = String(name || "").toLowerCase();
-      const unit = state.units.find((candidate) => candidate.name.toLowerCase() === key);
+    function requireUnit(name, unitId = null) {{
+      const unit = findUnit(name, unitId);
       if (!unit) throw new Error(`Unknown unit: ${{name || "(blank)"}}`);
       return unit;
     }}
@@ -263,6 +400,24 @@ def _local_script(data: dict[str, Any]) -> str:
       if (result.attacker_advanced) result.attacker_moved = true;
       if (result.target_model_count !== null && result.target_model_count <= 0) result.target_model_count = null;
       return result;
+    }}
+
+    function pointsBasisModels(unit) {{
+      if (!unit) return null;
+      if (unit.modelsMin && unit.modelsMax) return Math.max(1, Math.round((Number(unit.modelsMin) + Number(unit.modelsMax)) / 2));
+      if (unit.modelsMax) return Math.max(1, Number(unit.modelsMax));
+      if (unit.modelsMin) return Math.max(1, Number(unit.modelsMin));
+      return 1;
+    }}
+
+    function pointsPerModel(unit) {{
+      const models = pointsBasisModels(unit);
+      return unit && unit.points && models ? Number(unit.points) / models : null;
+    }}
+
+    function pointsRemoved(unit, modelsDestroyed) {{
+      const ppm = pointsPerModel(unit);
+      return ppm === null || modelsDestroyed === null || modelsDestroyed === undefined ? null : Number(modelsDestroyed || 0) * ppm;
     }}
 
     function mergeReroll(primary, extra) {{
@@ -555,16 +710,40 @@ def _local_script(data: dict[str, Any]) -> str:
       }};
     }}
 
-    function evaluateUnit(attacker, defender, mode, context) {{
-      const weapons = attacker.weapons
+    function evaluateUnit(attacker, defender, mode, context, weaponName = null, multiplier = 1) {{
+      const normalizedWeapon = String(weaponName || "").toLowerCase();
+      const repeat = Math.max(1, Number(multiplier || 1));
+      const filteredWeapons = attacker.weapons
         .filter((weapon) => weapon.type === mode)
-        .map((weapon) => evaluateWeapon(attacker, defender, weapon, context));
+        .filter((weapon) => !normalizedWeapon || normalizedWeapon === "__all__" || weapon.name.toLowerCase() === normalizedWeapon);
+      if (normalizedWeapon && normalizedWeapon !== "__all__" && !filteredWeapons.length) {{
+        throw new Error(`${{attacker.name}} has no ${{mode}} weapon named ${{weaponName}}`);
+      }}
+      const weapons = filteredWeapons
+        .map((weapon) => scaleWeaponResult(evaluateWeapon(attacker, defender, weapon, context), repeat));
       return {{
         total_damage: weapons.reduce((sum, row) => sum + row.expected_damage, 0),
         total_unsaved_wounds: weapons.reduce((sum, row) => sum + row.unsaved_wounds, 0),
         expected_models_destroyed: weapons.reduce((sum, row) => sum + (row.expected_models_destroyed || 0), 0),
+        estimated_points_removed: pointsRemoved(defender, weapons.reduce((sum, row) => sum + (row.expected_models_destroyed || 0), 0)),
+        points_per_model: pointsPerModel(defender),
         feel_no_pain_applied: weapons.some((row) => false),
-        weapons
+        weapons: weapons.map((row) => ({{
+          ...row,
+          estimated_points_removed: pointsRemoved(defender, row.expected_models_destroyed)
+        }}))
+      }};
+    }}
+
+    function scaleWeaponResult(row, multiplier) {{
+      return {{
+        ...row,
+        attacks: row.attacks * multiplier,
+        hits: row.hits * multiplier,
+        wounds: row.wounds * multiplier,
+        unsaved_wounds: row.unsaved_wounds * multiplier,
+        expected_damage: row.expected_damage * multiplier,
+        expected_models_destroyed: row.expected_models_destroyed * multiplier
       }};
     }}
 
@@ -577,8 +756,8 @@ def _local_script(data: dict[str, Any]) -> str:
       const button = el("calculate");
       button.disabled = true;
       try {{
-        const attacker = requireUnit(el("attacker").value);
-        const defender = requireUnit(el("defender").value);
+        const attacker = requireUnit(el("attacker").value, state.selectedUnitIds.attacker);
+        const defender = requireUnit(el("defender").value, state.selectedUnitIds.defender);
         const mode = el("mode").value;
         const outgoingContext = normalizeContext(contextPayload("attacker-"));
         const incomingContext = normalizeContext(contextPayload("return-"));
@@ -586,8 +765,16 @@ def _local_script(data: dict[str, Any]) -> str:
           attacker: unitSummary(attacker),
           defender: unitSummary(defender),
           mode,
-          outgoing: evaluateUnit(attacker, defender, mode, outgoingContext),
-          incoming: evaluateUnit(defender, attacker, mode, incomingContext)
+          weapon_filters: {{
+            outgoing: el("outgoing-weapon").value === "__all__" ? null : el("outgoing-weapon").value,
+            incoming: el("incoming-weapon").value === "__all__" ? null : el("incoming-weapon").value
+          }},
+          multipliers: {{
+            outgoing: Number(el("outgoing-multiplier").value || 1),
+            incoming: Number(el("incoming-multiplier").value || 1)
+          }},
+          outgoing: evaluateUnit(attacker, defender, mode, outgoingContext, el("outgoing-weapon").value, el("outgoing-multiplier").value),
+          incoming: evaluateUnit(defender, attacker, mode, incomingContext, el("incoming-weapon").value, el("incoming-multiplier").value)
         }});
       }} catch (error) {{
         el("error").textContent = error.message;
@@ -601,11 +788,13 @@ def _local_script(data: dict[str, Any]) -> str:
       const modelRange = unit.models_min && unit.models_max && unit.models_min !== unit.models_max
         ? `${{unit.models_min}}-${{unit.models_max}}`
         : (unit.models_min || unit.models_max || "unknown");
+      const sourceLine = unit.source_file ? `<div class="small">Source ${{escapeHtml(unit.source_file)}}</div>` : "";
       return `
         <div class="unit-pane">
           <div class="small">${{escapeHtml(label)}}</div>
           <div class="unit-name">${{escapeHtml(unit.name)}}</div>
           <div class="small">${{escapeHtml(unit.faction || "No faction")}} | T${{unit.toughness}} W${{unit.wounds}} Sv ${{escapeHtml(unit.save)}} | ${{unit.points || 0}} pts | Models ${{modelRange}}</div>
+          ${{sourceLine}}
           <div class="chips">${{keywords}}</div>
         </div>
       `;
@@ -628,6 +817,7 @@ def _local_script(data: dict[str, Any]) -> str:
 
     function renderWeapon(row) {{
       const notes = row.notes && row.notes.length ? row.notes.map(escapeHtml).join(", ") : "No special notes";
+      const source = row.weapon.source_file ? ` | Source ${{escapeHtml(row.weapon.source_file)}}` : "";
       return `
         <article class="weapon">
           <div class="weapon-head">
@@ -645,7 +835,7 @@ def _local_script(data: dict[str, Any]) -> str:
             ${{renderBar("Wound", row.wound_probability, "wound")}}
             ${{renderBar("Fail save", row.failed_save_probability, "save")}}
           </div>
-          <div class="notes">${{notes}}</div>
+          <div class="notes">${{notes}} | Points removed ${{fmt(row.estimated_points_removed)}}${{source}}</div>
         </article>
       `;
     }}
@@ -660,11 +850,44 @@ def _local_script(data: dict[str, Any]) -> str:
       `;
     }}
 
+    function scopeText(payload, side) {{
+      const filters = payload.weapon_filters || {{}};
+      const multipliers = payload.multipliers || {{}};
+      const weapon = filters[side] || "all matching weapons";
+      const count = Math.max(1, Number(multipliers[side] || 1));
+      return `${{weapon}} x${{count}}`;
+    }}
+
+    function loadoutWarnings(payload) {{
+      const filters = payload.weapon_filters || {{}};
+      const rows = [];
+      const outgoingCount = payload.outgoing && payload.outgoing.weapons ? payload.outgoing.weapons.length : 0;
+      const incomingCount = payload.incoming && payload.incoming.weapons ? payload.incoming.weapons.length : 0;
+      if (!filters.outgoing && outgoingCount >= 8) {{
+        rows.push(`${{payload.attacker.name}} attack includes ${{outgoingCount}} imported ${{payload.mode}} weapon profiles. Select specific weapons for a real loadout.`);
+      }}
+      if (!filters.incoming && incomingCount >= 8) {{
+        rows.push(`${{payload.defender.name}} return strike includes ${{incomingCount}} imported ${{payload.mode}} weapon profiles. Select specific weapons for a real loadout.`);
+      }}
+      return rows;
+    }}
+
+    function renderLoadoutWarnings(payload) {{
+      const warnings = loadoutWarnings(payload);
+      if (!warnings.length) return "";
+      return `<div class="loadout-warning">${{warnings.map(escapeHtml).join("<br>")}}</div>`;
+    }}
+
     function matchupJudgement(payload) {{
-      const outgoing = payload.outgoing.total_damage || 0;
-      const incoming = payload.incoming.total_damage || 0;
+      if (payload.judgement) return payload.judgement;
+      const hasPoints = hasNumber(payload.outgoing.estimated_points_removed) && hasNumber(payload.incoming.estimated_points_removed);
+      const outgoingPoints = hasPoints ? Number(payload.outgoing.estimated_points_removed) : 0;
+      const incomingPoints = hasPoints ? Number(payload.incoming.estimated_points_removed) : 0;
+      const outgoing = hasPoints ? outgoingPoints : (payload.outgoing.total_damage || 0);
+      const incoming = hasPoints ? incomingPoints : (payload.incoming.total_damage || 0);
       const attacker = payload.attacker;
       const defender = payload.defender;
+      const basisLabel = hasPoints ? "estimated points removed" : "expected damage";
       const delta = outgoing - incoming;
       const total = Math.max(outgoing + incoming, 0.01);
       const edge = Math.abs(delta) / total;
@@ -672,21 +895,27 @@ def _local_script(data: dict[str, Any]) -> str:
       let confidence = "narrow";
       if (edge >= 0.45) confidence = "decisive";
       else if (edge >= 0.22) confidence = "clear";
-      const loserDamage = delta >= 0 ? incoming : outgoing;
-      const winnerDamage = delta >= 0 ? outgoing : incoming;
-      const reason = `${{winner}} is projected to deal ${{fmt(winnerDamage)}} damage while taking ${{fmt(loserDamage)}} in the return strike.`;
+      const loserScore = delta >= 0 ? incoming : outgoing;
+      const winnerScore = delta >= 0 ? outgoing : incoming;
+      const reason = hasPoints
+        ? `${{winner}} is favored on estimated points removed, scoring ${{fmt(winnerScore)}} while giving up ${{fmt(loserScore)}} in return.`
+        : `${{winner}} is projected to deal ${{fmt(winnerScore)}} damage while taking ${{fmt(loserScore)}} in the return strike.`;
       const efficiency = attacker.points && defender.points
         ? ` Points context: ${{attacker.name}} is ${{attacker.points}} pts and ${{defender.name}} is ${{defender.points}} pts.`
+        : "";
+      const damageContext = hasPoints
+        ? ` Damage context: ${{attacker.name}} deals ${{fmt(payload.outgoing.total_damage)}} and ${{defender.name}} returns ${{fmt(payload.incoming.total_damage)}}.`
         : "";
       return {{
         title: edge < 0.08 ? "AI judgement: too close to call" : `AI judgement: ${{winner}} favored (${{confidence}})`,
         body: edge < 0.08
-          ? `The exchange is nearly even: ${{attacker.name}} deals ${{fmt(outgoing)}} expected damage and ${{defender.name}} returns ${{fmt(incoming)}}.${{efficiency}}`
-          : `${{reason}}${{efficiency}}`
+          ? `The exchange is nearly even on ${{basisLabel}}: ${{attacker.name}} scores ${{fmt(outgoing)}} and ${{defender.name}} returns ${{fmt(incoming)}}.${{hasPoints ? damageContext : efficiency}}`
+          : `${{reason}}${{hasPoints ? damageContext : efficiency}}`
       }};
     }}
 
     function renderResults(payload) {{
+      state.lastResult = payload;
       const outgoing = payload.outgoing;
       const incoming = payload.incoming;
       const judgement = matchupJudgement(payload);
@@ -694,8 +923,10 @@ def _local_script(data: dict[str, Any]) -> str:
         <div class="summary">
           ${{metric("Outgoing damage", fmt(outgoing.total_damage))}}
           ${{metric("Outgoing models", fmt(outgoing.expected_models_destroyed))}}
+          ${{metric("Outgoing points", fmt(outgoing.estimated_points_removed))}}
           ${{metric("Return damage", fmt(incoming.total_damage))}}
           ${{metric("Return models", fmt(incoming.expected_models_destroyed))}}
+          ${{metric("Return points", fmt(incoming.estimated_points_removed))}}
         </div>
         <div class="duel">
           ${{renderUnit(payload.attacker, "Attacker")}}
@@ -704,7 +935,9 @@ def _local_script(data: dict[str, Any]) -> str:
         <div class="judgement">
           <h3>${{escapeHtml(judgement.title)}}</h3>
           <p>${{escapeHtml(judgement.body)}}</p>
+          <p class="small">Attacker scope: ${{escapeHtml(scopeText(payload, "outgoing"))}} | Return scope: ${{escapeHtml(scopeText(payload, "incoming"))}}</p>
         </div>
+        ${{renderLoadoutWarnings(payload)}}
         ${{renderWeaponList(outgoing, `${{payload.attacker.name}} attack`, `No ${{payload.mode}} weapons found for ${{payload.attacker.name}}.`)}}
         ${{renderWeaponList(incoming, `${{payload.defender.name}} return strike`, `No ${{payload.mode}} weapons found for ${{payload.defender.name}}.`)}}
       `;
@@ -727,7 +960,10 @@ def _local_script(data: dict[str, Any]) -> str:
       const audit = payload.audit_report;
       const diff = payload.import_diff;
       const metadata = payload.metadata;
-      if (!audit && !diff && !metadata) {{
+      const updateReport = payload.update_report;
+      const profileReview = payload.profile_review;
+      const reviewFiles = payload.review_files || [];
+      if (!audit && !diff && !metadata && !updateReport && !profileReview) {{
         el("results").innerHTML = `<div class="empty">No generated audit or import diff files were found.</div>`;
         return;
       }}
@@ -749,9 +985,130 @@ def _local_script(data: dict[str, Any]) -> str:
           ${{metric("Info", summary.info || 0)}}
           ${{metric("Rows checked", audit && audit.row_counts ? Object.values(audit.row_counts).reduce((total, value) => total + Number(value || 0), 0) : 0)}}
         </div>
+        ${{renderReviewFiles(reviewFiles)}}
+        ${{renderUpdateReport(updateReport)}}
+        ${{renderProfileReview(profileReview)}}
         ${{renderDiff(diff)}}
         ${{renderAuditSections(audit)}}
       `;
+    }}
+
+    function renderReviewFiles(files) {{
+      if (!files || !files.length) return "";
+      const links = files.map((file) => `
+        <a class="review-link" href="${{escapeHtml(file.href)}}" download="${{escapeHtml(file.filename || "")}}">
+          ${{escapeHtml(file.label || file.filename)}}
+          <span>${{formatBytes(file.bytes)}}</span>
+        </a>
+      `).join("");
+      return `
+        <div class="review-section">
+          <h3>Review Files</h3>
+          <div class="review-links">${{links}}</div>
+        </div>
+      `;
+    }}
+
+    function formatBytes(bytes) {{
+      const value = Number(bytes || 0);
+      if (!value) return "";
+      if (value < 1024) return `${{value}} B`;
+      if (value < 1024 * 1024) return `${{Math.round(value / 1024)}} KB`;
+      return `${{(value / (1024 * 1024)).toFixed(1)}} MB`;
+    }}
+
+    function renderProfileReview(profileReview) {{
+      if (!profileReview) return "";
+      return renderMarkdownReport("Profile Review", profileReview);
+    }}
+
+    function renderUpdateReport(updateReport) {{
+      if (!updateReport) return "";
+      return renderMarkdownReport("Update Report", updateReport);
+    }}
+
+    function renderMarkdownReport(title, markdown) {{
+      return `
+        <div class="review-section">
+          <h3>${{escapeHtml(title)}}</h3>
+          <div class="report-markdown">${{markdownToHtml(markdown)}}</div>
+        </div>
+      `;
+    }}
+
+    function markdownToHtml(markdown) {{
+      const lines = String(markdown || "").split(/\\r?\\n/);
+      const chunks = [];
+      let listOpen = false;
+      const closeList = () => {{
+        if (listOpen) {{
+          chunks.push("</ul>");
+          listOpen = false;
+        }}
+      }};
+      const cells = (line) => line.trim().replace(/^\\|/, "").replace(/\\|$/, "").split("|").map((cell) => cell.trim());
+      const isDelimiter = (line) => /^\\s*\\|?\\s*:?-{{3,}}:?\\s*(\\|\\s*:?-{{3,}}:?\\s*)+\\|?\\s*$/.test(line);
+      const inline = (text) => markdownInline(text);
+
+      for (let index = 0; index < lines.length; index += 1) {{
+        const line = lines[index];
+        const trimmed = line.trim();
+        if (!trimmed) {{
+          closeList();
+          continue;
+        }}
+        if (trimmed.startsWith("|") && lines[index + 1] && isDelimiter(lines[index + 1])) {{
+          closeList();
+          const headers = cells(trimmed);
+          index += 2;
+          const rows = [];
+          while (index < lines.length && lines[index].trim().startsWith("|")) {{
+            rows.push(cells(lines[index]));
+            index += 1;
+          }}
+          index -= 1;
+          chunks.push(`
+            <table class="report-table">
+              <thead><tr>${{headers.map((cell) => `<th>${{inline(cell)}}</th>`).join("")}}</tr></thead>
+              <tbody>${{rows.map((row) => `<tr>${{row.map((cell) => `<td>${{inline(cell)}}</td>`).join("")}}</tr>`).join("")}}</tbody>
+            </table>
+          `);
+          continue;
+        }}
+        if (trimmed.startsWith("#")) {{
+          closeList();
+          const text = trimmed.replace(/^#+\\s*/, "");
+          chunks.push(`<h4>${{inline(text)}}</h4>`);
+          continue;
+        }}
+        if (trimmed.startsWith("- ")) {{
+          if (!listOpen) {{
+            chunks.push("<ul>");
+            listOpen = true;
+          }}
+          chunks.push(`<li>${{inline(trimmed.slice(2))}}</li>`);
+          continue;
+        }}
+        closeList();
+        chunks.push(`<p>${{inline(trimmed)}}</p>`);
+      }}
+      closeList();
+      return chunks.join("");
+    }}
+
+    function markdownInline(text) {{
+      const raw = String(text || "");
+      const pattern = /\\[([^\\]]+)\\]\\((https?:\\/\\/[^)\\s]+)\\)/g;
+      let html = "";
+      let lastIndex = 0;
+      raw.replace(pattern, (match, label, url, offset) => {{
+        html += escapeHtml(raw.slice(lastIndex, offset));
+        html += `<a href="${{escapeHtml(url)}}" target="_blank" rel="noreferrer">${{escapeHtml(label)}}</a>`;
+        lastIndex = offset + match.length;
+        return match;
+      }});
+      html += escapeHtml(raw.slice(lastIndex));
+      return html;
     }}
 
     function renderDiff(diff) {{
@@ -804,6 +1161,9 @@ def _local_script(data: dict[str, Any]) -> str:
         button.classList.toggle("active", active);
         button.setAttribute("aria-pressed", active ? "true" : "false");
       }});
+      refreshWeaponSelectors().catch((error) => {{
+        el("error").textContent = error.message;
+      }});
     }}
 
     function swapContexts() {{
@@ -830,7 +1190,14 @@ def _local_script(data: dict[str, Any]) -> str:
         const attacker = el("attacker").value;
         el("attacker").value = el("defender").value;
         el("defender").value = attacker;
+        const attackerId = state.selectedUnitIds.attacker;
+        state.selectedUnitIds.attacker = state.selectedUnitIds.defender;
+        state.selectedUnitIds.defender = attackerId;
+        updateSelectedUnitInfos();
         swapContexts();
+        refreshWeaponSelectors().catch((error) => {{
+          el("error").textContent = error.message;
+        }});
       }});
       el("faction").addEventListener("change", () => loadUnits("").catch((error) => {{
         el("error").textContent = error.message;
@@ -848,6 +1215,8 @@ def _local_script(data: dict[str, Any]) -> str:
       }});
       for (const id of ["attacker", "defender"]) {{
         el(id).addEventListener("input", (event) => {{
+          state.selectedUnitIds[id] = null;
+          updateSelectedUnitInfo(id);
           const value = event.target.value;
           if (value.length === 0 || value.length >= 2) {{
             state.openMenu = id;
@@ -859,6 +1228,11 @@ def _local_script(data: dict[str, Any]) -> str:
         el(id).addEventListener("focus", () => openDropdown(id).catch((error) => {{
           el("error").textContent = error.message;
         }}));
+        el(id).addEventListener("blur", () => {{
+          refreshWeaponSelectors().catch((error) => {{
+            el("error").textContent = error.message;
+          }});
+        }});
         el(id).addEventListener("keydown", (event) => {{
           if (event.key === "Enter") calculate();
           if (event.key === "Escape") closeDropdown(id);
@@ -875,13 +1249,16 @@ def _local_script(data: dict[str, Any]) -> str:
 
 
 def build_local_html(*, csv_dir: Path, template_path: Path, output_path: Path) -> None:
-    units = sorted(load_units_from_csv(csv_dir).values(), key=lambda unit: unit.name.casefold())
+    units = sorted(load_units_from_directory(csv_dir).values(), key=lambda unit: (unit.name.casefold(), unit.faction or ""))
     data = {
         "units": [_unit_payload(unit) for unit in units],
         "factions": sorted({unit.faction for unit in units if unit.faction}, key=str.casefold),
         "auditReport": _load_json(csv_dir / "audit_report.json"),
         "importDiff": _load_json(csv_dir / "import_diff.json"),
         "metadata": _load_json(csv_dir / "metadata.json"),
+        "updateReport": _load_text(csv_dir / "update_report.md"),
+        "profileReview": _load_text(csv_dir / "profile_review.md"),
+        "reviewFiles": _review_files(csv_dir),
     }
     template = template_path.read_text(encoding="utf-8")
     start = template.index("  <script>")
@@ -898,6 +1275,45 @@ def _load_json(path: Path) -> dict[str, Any] | None:
     except (OSError, json.JSONDecodeError):
         return None
     return payload if isinstance(payload, dict) else None
+
+
+def _load_text(path: Path) -> str | None:
+    if not path.exists():
+        return None
+    try:
+        return path.read_text(encoding="utf-8") or None
+    except OSError:
+        return None
+
+
+def _review_files(csv_dir: Path) -> list[dict[str, Any]]:
+    labels = {
+        "weapon_profile_review.csv": "Weapon profile review CSV",
+        "suspicious_weapon_review.csv": "Suspicious weapon review CSV",
+        "ability_profile_review.csv": "Ability profile review CSV",
+        "ability_modifier_review.csv": "Ability modifier review CSV",
+        "unit_variant_review.csv": "Duplicate unit name review CSV",
+        "unit_weapon_coverage_review.csv": "Unit weapon coverage review CSV",
+        "loadout_review.csv": "Loadout review CSV",
+        "source_catalogue_review.csv": "Source catalogue review CSV",
+        "schema_review.csv": "Schema review CSV",
+        "artifact_manifest.json": "Artifact manifest JSON",
+        "profile_review.md": "Profile review summary",
+        "update_report.md": "Update report",
+    }
+    files = []
+    for filename, label in labels.items():
+        path = csv_dir / filename
+        if path.exists():
+            files.append(
+                {
+                    "label": label,
+                    "filename": filename,
+                    "href": f"data/latest/{filename}",
+                    "bytes": path.stat().st_size,
+                }
+            )
+    return files
 
 
 def main() -> None:

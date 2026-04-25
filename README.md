@@ -1,12 +1,13 @@
 # Warhammer 40K Damage Calculator
 
 ## Overview
-This project estimates the expected damage exchange between two Warhammer 40,000 units. It reads unit and weapon profiles, resolves hit/wound/save probabilities, and reports the average unsaved wounds, damage, and models destroyed in each direction.
+This project estimates the expected damage exchange between two Warhammer 40,000 units. It reads unit and weapon profiles, resolves hit/wound/save probabilities, and reports average unsaved wounds, damage, models destroyed, estimated points removed, and a matchup judgement in each direction.
 
 Key features:
 - Deterministic calculator for ranged or melee engagements using expected values.
 - Flexible dice parser that understands fixed values and expressions such as `D6`, `2D3+3`, etc.
 - Import pipeline for BattleScribe/BSData catalogues so you can stay up to date with community data.
+- Local HTML interface with attacker/defender weapon filters, weapon count multipliers, points-removed estimates, and generated matchup judgement.
 - Reference generator that summarises all keywords and abilities found in an imported roster.
 
 ## Requirements
@@ -39,13 +40,29 @@ python main.py --attacker "Ork Boy" --defender "Space Marine Intercessor" --mode
 
 ### Standalone local HTML
 
-Open `warhammer_calculator_local.html` directly, or double-click `open_local_html.bat`. This file embeds the imported unit data, audit report, import diff, and browser-side calculator logic, so it does not need the local Python web server. Use the Data Review button to inspect the latest audit findings and update diff in the browser.
+Open `warhammer_calculator_local.html` directly, or double-click `open_local_html.bat`. This file embeds the imported unit data, audit report, update report, profile review summary, import diff, and browser-side calculator logic, so it does not need the local Python web server. Use the Data Review button to inspect the latest update summary, profile coverage, audit findings, and update diff in the browser.
+
+The web UI preserves importer unit IDs and shows each selected unit and weapon's BSData source file, so duplicate unit names from different factions or variants remain selectable and auditable instead of being collapsed into one name.
+
+To refresh the BSData checkout, rebuild all generated files, and open the standalone HTML in one step, double-click `update_and_open_local_html.bat` or run:
+
+```powershell
+.\update_and_open_local_html.ps1
+```
 
 Regenerate it after refreshing `data\latest`:
 
 ```powershell
 python export_local_html.py --csv-dir data\latest
 ```
+
+To smoke-test the generated HTML in headless Chrome or Edge and compare its calculator output against the Python calculator, including selected weapons, multipliers, and engagement context:
+
+```powershell
+python -m pytest tests\test_local_html_smoke.py
+```
+
+The smoke test skips automatically when no compatible browser or generated HTML file is available.
 
 ### Local Python server
 
@@ -57,9 +74,9 @@ python -m warhammer.webapp --csv-dir data\latest --port 8765
 
 On Windows you can also run `run_web_ui.bat` from the project folder.
 
-Then open `http://127.0.0.1:8765/`. The server loads units once at startup and serves a zero-dependency HTML interface for attacker/defender matchups, faction-filtered unit search, ranged or melee mode, and separate engagement context for the attacker attack and return strike.
+Then open `http://127.0.0.1:8765/`. The server loads units once at startup and serves a zero-dependency HTML interface for attacker/defender matchups, faction-filtered unit search, ranged or melee mode, optional per-side weapon selection and weapon count multipliers, estimated points removed, generated matchup judgement, and separate engagement context for the attacker attack and return strike.
 
-The local server also exposes the latest generated data review at `http://127.0.0.1:8765/api/data-review`, which powers the same Data Review button used by the standalone HTML.
+The local server also exposes the latest generated data review at `http://127.0.0.1:8765/api/data-review`, including `update_report.md` and `profile_review.md`, which powers the same Data Review button used by the standalone HTML.
 
 ## Importing units from BSData catalogues
 1. Retrieve the Warhammer 40,000 BSData repository (for example, by cloning `https://github.com/BSData/wh40k-10e` or letting the importer download it on demand with `python import_bsdata.py --github-repo BSData/wh40k-10e --output data\latest`).
@@ -84,7 +101,30 @@ When `data\wh40k-10e` is a local Git checkout, refresh the whole generated datab
 python update_database.py
 ```
 
-The updater fast-forwards the BSData checkout from `https://github.com/BSData/wh40k-10e.git`, regenerates `data\latest`, writes `audit_report.json` and `import_diff.json`, stores a commit-keyed snapshot under `data\snapshots`, and rebuilds `warhammer_calculator_local.html`.
+The updater fast-forwards the BSData checkout from `https://github.com/BSData/wh40k-10e.git`, regenerates `data\latest`, writes `audit_report.json`, `schema_review.csv`, `import_diff.json`, joined profile review files, and a readable `update_report.md`, stores a commit-keyed snapshot under `data\snapshots`, and rebuilds `warhammer_calculator_local.html`.
+
+Generated metadata records the active rules edition. The current supported value is `10e`; pass `--edition 10e` explicitly when scripting updates that will later coexist with additional edition snapshots.
+
+For manual data review, open:
+
+- `data\latest\weapon_profile_review.csv` for every imported weapon joined to unit name, faction, source file, points, model count, parsed averages, parse status, and raw damage throughput.
+- `data\latest\suspicious_weapon_review.csv` for zero or extreme parsed weapon damage characteristics that deserve manual review.
+- `data\latest\ability_profile_review.csv` for every imported ability joined to unit name, faction, and source file where applicable.
+- `data\latest\ability_modifier_review.csv` for derived ability effects that the calculator applies during matchup math.
+- `data\latest\unit_variant_review.csv` for duplicate-name unit rows with their unit IDs, factions, source files, points, and model counts.
+- `data\latest\unit_weapon_coverage_review.csv` for each unit's ranged/melee weapon counts and coverage category.
+- `data\latest\loadout_review.csv` for units with many imported weapon profiles where all-weapons calculations may need specific loadout selection.
+- `data\latest\source_catalogue_review.csv` for per-catalogue unit, weapon, ability, suspicious, loadout review counts, and exact upstream GitHub file URLs.
+- `data\latest\schema_review.csv` for required versus actual generated CSV columns.
+- `data\latest\artifact_manifest.json` for file sizes and SHA-256 hashes of generated artifacts.
+- `data\latest\profile_review.md` for a short summary of imported profile coverage.
+
+Verify generated artifacts against their manifest with:
+
+```powershell
+python verify_artifacts.py --data-dir data\latest
+python verify_artifacts.py --data-dir data\snapshots\32b4525d9f69
+```
 
 ## Generating keyword & ability references
 Create a Markdown cheat sheet listing every keyword and ability plus the units that use them.
@@ -265,6 +305,8 @@ python audit_import.py --csv-dir data/latest --fail-on-issues
 ```
 
 This helper only uses the exported CSVs, so it behaves just like the AI checker but without requiring an API key. The latest generation timestamp and source path are stored in `data/latest/metadata.json`.
+
+For a human-readable update summary, open `data/latest/update_report.md`. It includes the source BSData commit, audit status, row counts, and import diff counts, and it is also copied into each `data/snapshots/<commit>` folder.
 
 
 

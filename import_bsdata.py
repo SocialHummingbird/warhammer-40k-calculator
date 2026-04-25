@@ -17,6 +17,7 @@ from warhammer.importers.schema import (
     WEAPON_HEADERS,
 )
 from warhammer.importers.writers import write_csv
+from warhammer.rules import available_rulesets
 
 
 def main() -> None:
@@ -50,6 +51,8 @@ def main() -> None:
     # Write provenance metadata for reproducibility
     meta = {
         "generated_at": datetime.now(UTC).isoformat().replace("+00:00", "Z"),
+        "rules_edition": args.edition,
+        "supported_rules_editions": sorted(available_rulesets()),
         "counts": {
             "units": len(units),
             "weapons": len(weapons),
@@ -96,6 +99,12 @@ def _parse_args() -> argparse.Namespace:
         "--output",
         default="data",
         help="Directory where CSV extracts will be written (default: %(default)s)",
+    )
+    parser.add_argument(
+        "--edition",
+        default="10e",
+        choices=sorted(available_rulesets()),
+        help="Rules edition represented by the imported data (default: %(default)s)",
     )
 
     args = parser.parse_args()

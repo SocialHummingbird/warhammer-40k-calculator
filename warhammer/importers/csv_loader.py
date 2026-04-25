@@ -39,6 +39,7 @@ def load_units_from_directory(directory: Path) -> Dict[str, UnitProfile]:
             "selection_type": (row.get("selection_type") or None),
             "leadership": _to_optional_int(row.get("leadership")),
             "objective_control": _to_optional_int(row.get("objective_control")),
+            "source_file": row.get("source_file") or "",
             "weapons": [],
             "abilities": [],
             "keywords": [],
@@ -64,6 +65,7 @@ def load_units_from_directory(directory: Path) -> Dict[str, UnitProfile]:
             "lethal_hits": row.get("lethal_hits") or "",
             "sustained_hits": row.get("sustained_hits") or "0",
             "devastating_wounds": row.get("devastating_wounds") or "",
+            "source_file": row.get("source_file") or units[unit_id].get("source_file") or "",
         }
         units[unit_id]["weapons"].append(weapon_data)
 
@@ -73,7 +75,13 @@ def load_units_from_directory(directory: Path) -> Dict[str, UnitProfile]:
         unit_id = row.get("source_id")
         if unit_id not in units:
             continue
-        units[unit_id]["abilities"].append({"name": row.get("name", ""), "text": row.get("text", "")})
+        units[unit_id]["abilities"].append(
+            {
+                "name": row.get("name", ""),
+                "text": row.get("text", ""),
+                "source_file": row.get("source_file") or units[unit_id].get("source_file") or "",
+            }
+        )
 
     keyword_lookup = {row.get("keyword_id"): row.get("keyword") for row in keyword_rows if row.get("keyword_id")}
     for row in unit_keyword_rows:
@@ -103,6 +111,7 @@ def load_units_from_directory(directory: Path) -> Dict[str, UnitProfile]:
     profiles: Dict[str, UnitProfile] = {}
     for unit_id, payload in units.items():
         unit_dict = {
+            "unit_id": unit_id,
             "name": payload["name"],
             "toughness": payload["toughness"],
             "save": payload["save"],
@@ -118,6 +127,7 @@ def load_units_from_directory(directory: Path) -> Dict[str, UnitProfile]:
             "selection_type": payload.get("selection_type"),
             "leadership": payload.get("leadership"),
             "objective_control": payload.get("objective_control"),
+            "source_file": payload.get("source_file"),
             "weapons": payload["weapons"],
             "abilities": payload["abilities"],
             "keywords": payload["keywords"],

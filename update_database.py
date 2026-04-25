@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import csv
 from datetime import UTC, datetime
+import hashlib
 import json
 from pathlib import Path
 import shutil
@@ -13,7 +14,8 @@ import subprocess
 import sys
 from typing import Dict, Iterable, List, Optional, Sequence
 
-from audit_import import build_audit_report, write_audit_report
+from audit_import import build_audit_report, write_audit_report, write_schema_review
+from review_profiles import write_profile_review
 
 
 PROJECT_ROOT = Path(__file__).resolve().parent
@@ -29,7 +31,7 @@ TABLES = {
     "unit_keywords": ("unit_keywords.csv", ("unit_id", "keyword_id")),
 }
 
-ARTIFACTS = (
+DATA_ARTIFACTS = (
     "units.csv",
     "weapons.csv",
     "abilities.csv",
@@ -37,8 +39,21 @@ ARTIFACTS = (
     "unit_keywords.csv",
     "metadata.json",
     "audit_report.json",
+    "schema_review.csv",
     "import_diff.json",
+    "update_report.md",
+    "weapon_profile_review.csv",
+    "suspicious_weapon_review.csv",
+    "ability_profile_review.csv",
+    "ability_modifier_review.csv",
+    "unit_variant_review.csv",
+    "unit_weapon_coverage_review.csv",
+    "loadout_review.csv",
+    "source_catalogue_review.csv",
+    "profile_review.md",
 )
+
+ARTIFACTS = (*DATA_ARTIFACTS, "artifact_manifest.json")
 
 
 def main(argv: Optional[Sequence[str]] = None) -> int:
@@ -56,7 +71,10 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
 
     source_after = _git_metadata(repo_dir)
 
-    _run([sys.executable, "import_bsdata.py", str(repo_dir), "--output", str(csv_dir)], cwd=PROJECT_ROOT)
+    _run(
+        [sys.executable, "import_bsdata.py", str(repo_dir), "--output", str(csv_dir), "--edition", args.edition],
+        cwd=PROJECT_ROOT,
+    )
 
     after = _load_tables(csv_dir)
     diff = _build_import_diff(before, after, source_before=source_before, source_after=source_after)
@@ -64,6 +82,10 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
 
     audit_report = build_audit_report(csv_dir)
     write_audit_report(audit_report, csv_dir / "audit_report.json")
+    schema_review_rows = write_schema_review(csv_dir)
+    profile_review_counts = write_profile_review(csv_dir)
+    _write_text(csv_dir / "update_report.md", _build_update_report(diff, audit_report))
+    _write_json(csv_dir / "artifact_manifest.json", _build_artifact_manifest(csv_dir, source_after))
 
     if not args.skip_html:
         _run([sys.executable, "export_local_html.py", "--csv-dir", str(csv_dir)], cwd=PROJECT_ROOT)
@@ -72,7 +94,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     if not args.skip_snapshot:
         snapshot_path = _write_snapshot(csv_dir, args.snapshot_dir.resolve(), source_after)
 
-    _print_summary(source_before, source_after, diff, audit_report, snapshot_path)
+    _print_summary(source_before, source_after, diff, audit_report, snapshot_path, profile_review_counts, schema_review_rows)
     return 0
 
 
@@ -86,6 +108,7 @@ def _parse_args(argv: Optional[Sequence[str]]) -> argparse.Namespace:
     parser.add_argument("--skip-fetch", action="store_true", help="Do not fetch or merge the BSData checkout")
     parser.add_argument("--skip-html", action="store_true", help="Do not regenerate the standalone local HTML")
     parser.add_argument("--skip-snapshot", action="store_true", help="Do not copy generated data into data/snapshots")
+    parser.add_argument("--edition", default="10e", help="Rules edition represented by the imported data")
     return parser.parse_args(argv)
 
 
@@ -190,6 +213,157 @@ def _build_import_diff(
     }
 
 
+def _build_update_report(diff: dict[str, object], audit_report: dict[str, object]) -> str:
+    """Build a human-readable update and audit report."""
+
+    source_after = diff.get("source_after", {})
+    source_before = diff.get("source_before", {})
+    source_url = _commit_url(source_after)
+    commit = str(source_after.get("commit") or "unknown")
+    before_commit = str(source_before.get("commit") or "unknown")
+    generated_at = str(diff.get("generated_at") or audit_report.get("generated_at") or "")
+    audit_summary = audit_report.get("summary", {})
+    audit_status = "PASS" if int(audit_summary.get("total", 0) or 0) == 0 else "NEEDS REVIEW"
+
+    lines = [
+        "# Warhammer Data Update Report",
+        "",
+        f"Generated: {generated_at}",
+        f"Source: {source_after.get('remote_origin') or 'unknown'}",
+        f"Branch: {source_after.get('branch') or 'unknown'}",
+        f"Commit: {before_commit} -> {commit}",
+        f"Commit date: {source_after.get('commit_date') or 'unknown'}",
+        f"Commit subject: {source_after.get('commit_subject') or 'unknown'}",
+    ]
+    if source_url:
+        lines.append(f"Commit URL: {source_url}")
+    lines.extend(
+        [
+            "",
+            "## Audit",
+            "",
+            f"Status: {audit_status}",
+            "",
+            "| Severity | Samples |",
+            "| --- | ---: |",
+            f"| Errors | {int(audit_summary.get('error', 0) or 0)} |",
+            f"| Warnings | {int(audit_summary.get('warning', 0) or 0)} |",
+            f"| Info | {int(audit_summary.get('info', 0) or 0)} |",
+            f"| Total | {int(audit_summary.get('total', 0) or 0)} |",
+            "",
+        ]
+    )
+
+    issue_lines = _audit_issue_lines(audit_report)
+    if issue_lines:
+        lines.extend(["### Audit Issues", "", *issue_lines, ""])
+    else:
+        lines.extend(["No audit issues were reported.", ""])
+
+    row_counts = audit_report.get("row_counts", {})
+    lines.extend(
+        [
+            "## Current Row Counts",
+            "",
+            "| Table | Rows |",
+            "| --- | ---: |",
+        ]
+    )
+    for table in ("units", "weapons", "abilities", "keywords", "unit_keywords"):
+        lines.append(f"| {table} | {int(row_counts.get(table, 0) or 0)} |")
+
+    lines.extend(
+        [
+            "",
+            "## Manual Review Files",
+            "",
+            "- `profile_review.md`: summary of imported profile counts and largest factions.",
+            "- `weapon_profile_review.csv`: every imported weapon profile joined to unit name, faction, source file, points, model counts, parsed averages, and parse status.",
+            "- `suspicious_weapon_review.csv`: zero or extreme parsed weapon damage characteristics for manual review.",
+            "- `ability_profile_review.csv`: every imported ability profile joined to unit name, faction, and source file where applicable.",
+            "- `ability_modifier_review.csv`: derived ability effects that the calculator applies during matchup math.",
+            "- `unit_variant_review.csv`: duplicate-name unit rows joined to IDs, faction context, and source file.",
+            "- `unit_weapon_coverage_review.csv`: each unit's ranged/melee weapon counts and coverage category.",
+            "- `loadout_review.csv`: units with many imported weapon profiles where all-weapons calculations may need loadout selection.",
+            "- `source_catalogue_review.csv`: per-catalogue unit, weapon, ability, suspicious, loadout review counts, and exact upstream GitHub file URLs.",
+            "- `artifact_manifest.json`: file sizes and SHA-256 hashes for generated data artifacts.",
+            "- `schema_review.csv`: required versus actual importer CSV columns for schema auditing.",
+        ]
+    )
+
+    lines.extend(
+        [
+            "",
+            "## Import Diff",
+            "",
+            "| Table | Before | After | Delta | Added | Removed | Changed |",
+            "| --- | ---: | ---: | ---: | ---: | ---: | ---: |",
+        ]
+    )
+    tables = diff.get("tables", {})
+    for table in ("units", "weapons", "abilities", "keywords", "unit_keywords"):
+        table_diff = tables.get(table, {})
+        lines.append(
+            f"| {table} | {int(table_diff.get('before_count', 0) or 0)} "
+            f"| {int(table_diff.get('after_count', 0) or 0)} "
+            f"| {int(table_diff.get('delta', 0) or 0):+d} "
+            f"| {int(table_diff.get('added_count', 0) or 0)} "
+            f"| {int(table_diff.get('removed_count', 0) or 0)} "
+            f"| {int(table_diff.get('changed_count', 0) or 0)} |"
+        )
+
+    sample_lines = _diff_sample_lines(diff)
+    if sample_lines:
+        lines.extend(["", "### Diff Samples", "", *sample_lines])
+
+    lines.append("")
+    return "\n".join(lines)
+
+
+def _commit_url(source: dict[str, object]) -> str:
+    remote = str(source.get("remote_origin") or "")
+    commit = str(source.get("commit") or "")
+    if not remote or not commit:
+        return ""
+    if remote.endswith(".git"):
+        remote = remote[:-4]
+    if remote.startswith("git@github.com:"):
+        remote = "https://github.com/" + remote.split(":", 1)[1]
+    if remote.startswith("https://github.com/"):
+        return f"{remote}/commit/{commit}"
+    return ""
+
+
+def _audit_issue_lines(audit_report: dict[str, object]) -> list[str]:
+    lines: list[str] = []
+    sections = audit_report.get("sections", {})
+    for section_name in ("schema", "units", "weapons", "abilities", "unit_keywords"):
+        section = sections.get(section_name, {})
+        for issue in section.get("issues", []):
+            samples = ", ".join(str(sample) for sample in issue.get("samples", []))
+            lines.append(
+                f"- [{str(issue.get('severity', 'info')).upper()}] "
+                f"{section_name}: {issue.get('label')} - {samples}"
+            )
+    return lines
+
+
+def _diff_sample_lines(diff: dict[str, object]) -> list[str]:
+    lines: list[str] = []
+    tables = diff.get("tables", {})
+    for table in ("units", "weapons", "abilities", "keywords", "unit_keywords"):
+        table_diff = tables.get(table, {})
+        for key, label in (
+            ("added_samples", "Added"),
+            ("removed_samples", "Removed"),
+            ("changed_samples", "Changed"),
+        ):
+            samples = [str(sample) for sample in table_diff.get(key, [])]
+            if samples:
+                lines.append(f"- {table} {label.lower()}: {', '.join(samples)}")
+    return lines
+
+
 def _write_snapshot(csv_dir: Path, snapshot_dir: Path, source_after: dict[str, object]) -> Path:
     commit = str(source_after.get("commit") or "unknown")
     snapshot_name = commit[:12] if commit and commit != "unknown" else datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
@@ -202,9 +376,40 @@ def _write_snapshot(csv_dir: Path, snapshot_dir: Path, source_after: dict[str, o
     return target
 
 
+def _build_artifact_manifest(csv_dir: Path, source_after: dict[str, object]) -> dict[str, object]:
+    artifacts = {}
+    for filename in DATA_ARTIFACTS:
+        path = csv_dir / filename
+        if not path.exists():
+            continue
+        artifacts[filename] = {
+            "bytes": path.stat().st_size,
+            "sha256": _sha256(path),
+        }
+    return {
+        "generated_at": datetime.now(UTC).isoformat().replace("+00:00", "Z"),
+        "source": source_after,
+        "artifact_count": len(artifacts),
+        "artifacts": artifacts,
+    }
+
+
+def _sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
 def _write_json(path: Path, payload: object) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+
+
+def _write_text(path: Path, content: str) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(content, encoding="utf-8")
 
 
 def _print_summary(
@@ -213,6 +418,8 @@ def _print_summary(
     diff: dict[str, object],
     audit_report: dict[str, object],
     snapshot_path: Optional[Path],
+    profile_review_counts: dict[str, int],
+    schema_review_rows: int,
 ) -> None:
     print("Database update complete.")
     print(f"Source: {source_after.get('remote_origin')}")
@@ -226,6 +433,18 @@ def _print_summary(
         )
     summary = audit_report["summary"]
     print(f"Audit samples: {summary['error']} errors, {summary['warning']} warnings, {summary['info']} info")
+    print(f"Schema review: {schema_review_rows} table rows")
+    print(
+        "Profile review: "
+        f"{profile_review_counts['weapon_profiles']} weapons, "
+        f"{profile_review_counts.get('suspicious_weapon_profiles', 0)} suspicious weapon rows, "
+        f"{profile_review_counts['ability_profiles']} abilities, "
+        f"{profile_review_counts.get('ability_modifiers', 0)} ability modifier rows, "
+        f"{profile_review_counts.get('unit_name_variants', 0)} duplicate-name unit rows, "
+        f"{profile_review_counts.get('unit_weapon_coverage_rows', 0)} weapon coverage rows, "
+        f"{profile_review_counts.get('loadout_review_rows', 0)} loadout review rows, "
+        f"{profile_review_counts.get('source_catalogue_review_rows', 0)} source catalogue rows"
+    )
     if snapshot_path:
         print(f"Snapshot: {snapshot_path}")
 
