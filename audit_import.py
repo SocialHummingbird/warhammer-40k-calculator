@@ -166,7 +166,11 @@ def audit_units(rows: List[Dict[str, str]]) -> IssueMap:
     if missing_max:
         issues["missing_models_max"] = _top(missing_max)
 
-    duplicate_names = [row["name"].strip() for row in rows if row.get("name")]
+    duplicate_names = [
+        f"{(row.get('faction') or '<no faction>').strip()} :: {row['name'].strip()}"
+        for row in rows
+        if row.get("name")
+    ]
     duplicates = [name for name, count in Counter(duplicate_names).items() if count > 1]
     if duplicates:
         issues["duplicate_names"] = sorted(duplicates)[:10]

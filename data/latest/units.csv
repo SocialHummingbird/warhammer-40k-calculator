@@ -6,18 +6,18 @@ df57-7a59-75eb-ce63,Aeldari - Aeldari Library,Autarch,3,3+,,4,"7""",6+,1,85,1,1,
 554c-8b4f-1059-28a7,Aeldari - Aeldari Library,Avatar of Khaine,11,2+,,14,"10""",6+,5,280,1,1,,,model
 8732-df2f-a542-805f,Aeldari - Aeldari Library,Baharroth,3,2+,,5,"14""",6+,1,115,1,1,,,model
 90c9-aaac-5ef8-f043,Aeldari - Aeldari Library,Crimson Hunter,8,3+,,12,"20+""",6+,0,160,1,1,,,model
-6863-bf42-238a-fd0b,Aeldari - Aeldari Library,Dark Reapers,3,3+,,1,"6""",6+,1,90,9,10,,,unit
+6863-bf42-238a-fd0b,Aeldari - Aeldari Library,Dark Reapers,3,3+,,1,"6""",6+,1,90,9,19,,,unit
 c987-279a-41a9-cf8d,Aeldari - Aeldari Library,Dark Reaper,3,3+,,1,"6""",6+,1,0,1,1,,,model
 d6b7-fd85-14f8-eb54,Aeldari - Aeldari Library,Dark Reaper Exarch,3,3+,,2,"6""",6+,1,0,1,1,,,model
 5768-1f87-3a16-d901,Aeldari - Aeldari Library,Death Jester,3,6+,,4,"8""",6+,1,90,1,1,,,model
-e6c2-f3b2-6d3e-c3d3,Aeldari - Aeldari Library,Dire Avengers,3,4+,,1,"7""",6+,1,75,9,10,,,unit
+e6c2-f3b2-6d3e-c3d3,Aeldari - Aeldari Library,Dire Avengers,3,4+,,1,"7""",6+,1,75,9,19,,,unit
 b542-fa0c-e63b-53dc,Aeldari - Aeldari Library,Dire Avenger,3,4+,,1,"7""",6+,1,,1,1,,,model
 3bfb-bdff-19cf-570d,Aeldari - Aeldari Library,Dire Avenger Exarch,3,4+,,2,"7""",6+,1,,1,1,,,model
 f48e-276e-a997-c90e,Aeldari - Aeldari Library,Eldrad Ulthran,4,6+,,5,"7""",6+,1,120,1,1,,,model
 1d83-167-486c-bac4,Aeldari - Aeldari Library,Falcon,9,3+,,12,"14""",7+,3,130,1,1,,,model
 b2f5-8219-f875-917e,Aeldari - Aeldari Library,Farseer,3,6+,,4,"7""",6+,1,70,1,1,,,model
 833b-55bc-73be-8862,Aeldari - Aeldari Library,Farseer Skyrunner,4,6+,,5,"14""",6+,2,80,1,1,,,model
-5374-9e93-8af2-819e,Aeldari - Aeldari Library,Fire Dragons,3,3+,,1,"7""",6+,1,120,9,10,,,unit
+5374-9e93-8af2-819e,Aeldari - Aeldari Library,Fire Dragons,3,3+,,1,"7""",6+,1,120,9,19,,,unit
 b164-9141-3a78-fb7b,Aeldari - Aeldari Library,Fire Dragon,3,3+,,1,"7""",6+,1,,1,1,,,model
 28a8-c192-56f-8b00,Aeldari - Aeldari Library,Fire Dragon Exarch,3,3+,,2,"7""",6+,1,,1,1,,,model
 9940-a69b-682e-ccf4,Aeldari - Aeldari Library,Fire Prism,9,3+,,12,"14""",7+,3,150,1,1,,,model
@@ -26,7 +26,7 @@ e78a-4442-4ed2-66bf,Aeldari - Aeldari Library,Guardian Defenders,3,4+,,1,"7""",7
 aadc-3bf5-718f-9b32,Aeldari - Aeldari Library,Guardian Defender,3,4+,,1,"7""",7+,2,,1,1,,,model
 a0fe-e6a5-ab71-82ca,Aeldari - Aeldari Library,Heavy Weapon Platform,3,4+,,2,"7""",7+,0,0,1,1,,,model
 551b-900c-3681-8f11,Aeldari - Aeldari Library,Hemlock Wraithfighter,8,3+,,12,"20+""",6+,0,155,1,1,,,model
-7fcb-9262-474a-7cec,Aeldari - Aeldari Library,Howling Banshees,3,4+,,1,"8""",6+,1,95,9,10,,,unit
+7fcb-9262-474a-7cec,Aeldari - Aeldari Library,Howling Banshees,3,4+,,1,"8""",6+,1,95,9,19,,,unit
 11cf-b2e1-4900-d949,Aeldari - Aeldari Library,Howling Banshee,3,4+,,1,"8""",6+,1,,1,1,,,model
 7fe3-e0ce-74fa-d501,Aeldari - Aeldari Library,Howling Banshee Exarch,3,4+,,2,"8""",6+,1,,1,1,,,model
 2713-f82d-5189-d5de,Aeldari - Aeldari Library,Illic Nightspear [Legends],3,5+,,3,"7""",6+,1,70,1,1,,,model
@@ -38,7 +38,7 @@ c9ed-d190-419c-78d3,Aeldari - Aeldari Library,Karandras [Legends],3,2+,,5,"7""",
 b98b-701f-9c0c-5437,Aeldari - Aeldari Library,Rangers,3,5+,,1,"7""",7+,1,55,5,10,,,unit
 d1e-aa3a-e9b2-9bef,Aeldari - Aeldari Library,Ranger,3,5+,,1,"7""",7+,1,0,1,1,,,model
 8c34-52ba-cbd0-9ca4,Aeldari - Aeldari Library,Shadowseer,3,6+,,4,"8""",6+,1,60,1,1,,,model
-433-faed-ea62-c531,Aeldari - Aeldari Library,Shining Spears,4,3+,,2,"14""",6+,2,110,5,6,,,unit
+433-faed-ea62-c531,Aeldari - Aeldari Library,Shining Spears,4,3+,,2,"14""",6+,2,110,5,11,,,unit
 9020-3f97-8bc5-238f,Aeldari - Aeldari Library,Shining Spear,4,3+,,2,"14""",6+,2,,1,1,,,model
 d7f7-e77e-6f54-a9a,Aeldari - Aeldari Library,Shining Spear Exarch,4,3+,,3,"14""",6+,2,,1,1,,,model
 c1ff-dc11-9853-e3e3,Aeldari - Aeldari Library,Shroud Runners,4,5+,,3,"14""",7+,2,80,3,6,,,unit
@@ -50,11 +50,11 @@ e53b-7d09-eb7c-c6c7,Aeldari - Aeldari Library,Spiritseer,3,6+,,3,"7""",6+,1,65,1
 854b-f8e-28fa-8c24,Aeldari - Aeldari Library,Starweaver,6,4+,,6,"14""",6+,2,80,1,1,,,model
 5452-c4a7-59fb-f05c,Aeldari - Aeldari Library,Storm Guardians,3,4+,,2,"7""",7+,0,110,11,11,,,unit
 efed-ef67-bd12-2330,Aeldari - Aeldari Library,Serpent's Scale Platform,3,4+,,2,"7""",7+,0,,1,1,,,model
-c90f-a8e5-6afa-eb91,Aeldari - Aeldari Library,Striking Scorpions,3,3+,,1,"7""",6+,1,85,9,10,,,unit
+c90f-a8e5-6afa-eb91,Aeldari - Aeldari Library,Striking Scorpions,3,3+,,1,"7""",6+,1,85,9,19,,,unit
 7951-147c-d415-80e6,Aeldari - Aeldari Library,Striking Scorpion,3,3+,,1,"7""",6+,1,,1,1,,,model
 5da0-f588-d644-cffa,Aeldari - Aeldari Library,Striking Scorpion Exarch,3,3+,,2,"7""",6+,1,,1,1,,,model
 82ac-7d93-df55-5504,Aeldari - Aeldari Library,D-Cannon Platform,6,4+,,5,"7""",7+,1,125,1,1,,,model
-240f-70a4-7ba7-a538,Aeldari - Aeldari Library,Swooping Hawks,3,4+,,1,"14""",6+,1,95,9,10,,,unit
+240f-70a4-7ba7-a538,Aeldari - Aeldari Library,Swooping Hawks,3,4+,,1,"14""",6+,1,95,9,19,,,unit
 cab-941f-26cf-85bf,Aeldari - Aeldari Library,Swooping Hawk,3,4+,,1,"14""",6+,1,,1,1,,,model
 68d0-cc03-e07d-b83e,Aeldari - Aeldari Library,Swooping Hawk Exarch,3,4+,,2,"14""",6+,1,,1,1,,,model
 dd79-c2fe-59d6-d2,Aeldari - Aeldari Library,The Visarch,3,2+,,5,"8""",6+,1,90,1,1,,,model
@@ -65,7 +65,7 @@ e011-d99d-f0de-5289,Aeldari - Aeldari Library,Voidweaver,6,4+,,6,"14""",6+,2,125
 d61-c058-6bd1-112f,Aeldari - Aeldari Library,Warlock Conclave,3,6+,,2,"7""",6+,1,55,2,4,,,unit
 ab89-7505-ff1e-4ed,Aeldari - Aeldari Library,Warlock with Witchblade,3,6+,,2,"7""",6+,1,,1,1,,,model
 cab3-11a4-4876-f9a0,Aeldari - Aeldari Library,Warlock with Singing Spear,3,6+,,2,"7""",6+,1,,1,1,,,model
-57ec-47a8-a59a-6a46,Aeldari - Aeldari Library,Warp Spiders,3,3+,,1,"12""",6+,1,105,9,10,,,unit
+57ec-47a8-a59a-6a46,Aeldari - Aeldari Library,Warp Spiders,3,3+,,1,"12""",6+,1,105,9,19,,,unit
 88c0-fecd-682-e508,Aeldari - Aeldari Library,Warp Spider,3,3+,,1,"12""",6+,1,,1,1,,,model
 f846-9526-462e-c472,Aeldari - Aeldari Library,Warp Spider Exarch,3,3+,,2,"12""",6+,1,,1,1,,,model
 ad88-f706-318c-e70e,Aeldari - Aeldari Library,Wave Serpent,9,3+,,13,"14""",7+,2,125,1,1,,,model
@@ -91,26 +91,26 @@ d729-7e1f-93a9-b1c5,Aeldari - Aeldari Library,Grotesques [Legends],5,6+,,4,"7"""
 a140-a986-5aae-6a78,Aeldari - Aeldari Library,Grotesque w/ paired monstrous weapons,5,6+,,4,"7""",7+,1,,1,1,,,model
 2f2c-ecf4-fcf9-1cac,Aeldari - Aeldari Library,Grotesque w/ Liquifier,5,6+,,4,"7""",7+,1,,1,1,,,model
 32ff-aec4-9669-c8a2,Aeldari - Aeldari Library,Haemonculus,4,5+,,5,"7""",7+,1,60,1,1,,,model
-2311-9feb-9d0a-8154,Aeldari - Aeldari Library,Hellions,4,4+,,2,"14""",7+,1,85,9,10,,,unit
-1529-793d-481b-82bf,Aeldari - Aeldari Library,Incubi,3,3+,,1,"7""",6+,1,90,9,10,,,unit
+2311-9feb-9d0a-8154,Aeldari - Aeldari Library,Hellions,4,4+,,2,"14""",7+,1,85,9,19,,,unit
+1529-793d-481b-82bf,Aeldari - Aeldari Library,Incubi,3,3+,,1,"7""",6+,1,90,9,19,,,unit
 a783-f14f-4278-c2a3,Aeldari - Aeldari Library,Incubi,3,3+,,1,"7""",6+,1,,1,1,,,model
 eb7f-da51-30e-2742,Aeldari - Aeldari Library,Klaivex,3,3+,,2,"7""",6+,1,,1,1,,,model
-d20b-783-ccf6-b29d,Aeldari - Aeldari Library,Kabalite Warriors,3,4+,,1,"7""",7+,2,115,10,14,,,unit
+d20b-783-ccf6-b29d,Aeldari - Aeldari Library,Kabalite Warriors,3,4+,,1,"7""",7+,2,115,10,23,,,unit
 ae1b-1a96-5b4c-cecc,Aeldari - Aeldari Library,Lelith Hesperax,3,6+,,4,"8""",6+,1,85,1,1,,,model
-6a3a-7973-b509-532e,Aeldari - Aeldari Library,Mandrakes,3,7+,,1,"8""",7+,1,75,9,10,,,unit
+6a3a-7973-b509-532e,Aeldari - Aeldari Library,Mandrakes,3,7+,,1,"8""",7+,1,75,9,19,,,unit
 635b-21f4-f801-453,Aeldari - Aeldari Library,Raider,8,4+,,10,"14""",7+,2,85,1,1,,,model
 3376-d337-6a33-4bca,Aeldari - Aeldari Library,Ravager,9,4+,,11,"14""",7+,3,110,1,1,,,model
 fbc4-c7d0-db5b-91c,Aeldari - Aeldari Library,Razorwing Jetfighter,8,4+,,10,"20+""",7+,0,170,1,1,,,model
-2c3a-9752-2516-69ab,Aeldari - Aeldari Library,Reavers,4,4+,,2,"16""",7+,2,70,5,8,,,unit
-7c93-baac-e65f-58bd,Aeldari - Aeldari Library,Scourges with Heavy Weapons,3,4+,,1,"14""",7+,1,130,5,5,,,unit
+2c3a-9752-2516-69ab,Aeldari - Aeldari Library,Reavers,4,4+,,2,"16""",7+,2,70,5,13,,,unit
+7c93-baac-e65f-58bd,Aeldari - Aeldari Library,Scourges with Heavy Weapons,3,4+,,1,"14""",7+,1,130,5,9,,,unit
 b5a9-c802-10f0-6768,Aeldari - Aeldari Library,Succubus,3,6+,,4,"8""",7+,1,50,1,1,,,model
 5c5f-b70b-f6ee-a81e,Aeldari - Aeldari Library,Talos,7,3+,,7,"7""",7+,2,80,1,2,,,unit
 6065-abbb-b1a0-4800,Aeldari - Aeldari Library,Talos,7,3+,,7,"7""",7+,2,,1,1,,,model
 76c4-e2ba-e247-560e,Aeldari - Aeldari Library,Urien Rakarth [Legends],4,6+,,5,"7""",6+,1,80,1,1,,,model
 ee2c-6ca0-5e29-37a6,Aeldari - Aeldari Library,Venom,6,4+,,6,"14""",7+,1,70,1,1,,,model
 71e1-7d54-4856-4ce1,Aeldari - Aeldari Library,Voidraven Bomber,9,4+,,12,"20+""",7+,0,245,1,1,,,model
-2659-7a1b-3ce6-8e4b,Aeldari - Aeldari Library,Wracks,4,5+,,2,"7""",7+,2,60,5,18,,,unit
-edca-1a1b-902d-421a,Aeldari - Aeldari Library,Wyches,3,6+,,1,"8""",7+,2,90,16,,,,unit
+2659-7a1b-3ce6-8e4b,Aeldari - Aeldari Library,Wracks,4,5+,,2,"7""",7+,2,60,5,27,,,unit
+edca-1a1b-902d-421a,Aeldari - Aeldari Library,Wyches,3,6+,,1,"8""",7+,2,90,16,22,,,unit
 e2ad-60b4-9678-88aa,Aeldari - Aeldari Library,Cobra [Legends],11,2+,,24,"14""",6+,8,415,1,1,,,model
 1420-c80d-66fc-6a,Aeldari - Aeldari Library,Scorpion [Legends],11,2+,,24,"14""",6+,8,410,1,1,,,model
 1224-8735-46d-1919,Aeldari - Aeldari Library,Hornet [Legends],7,3+,,8,"14""",6+,2,100,1,1,,,model
@@ -147,13 +147,13 @@ b98a-4fbb-a3d8-1ada,Aeldari - Aeldari Library,Warlock Skyrunner with Witchblade,
 d5e3-30bd-71e8-314b,Aeldari - Aeldari Library,Vyper,6,3+,,6,"14""",7+,2,75,1,1,,,model
 d756-653a-872b-5c1b,Aeldari - Aeldari Library,Wraithknight with Ghostglaive,12,2+,,18,"12""",6+,10,420,1,1,,,model
 c2e0-ca3e-e8c1-e019,Aeldari - Aeldari Library,Ynnari Succubus,3,6+,,4,"8""",6+,1,45,1,1,,,model
-36fd-7c3f-b728-c5d4,Aeldari - Aeldari Library,Ynnari Wyches,3,6+,,1,"8""",6+,2,90,19,,,,unit
+36fd-7c3f-b728-c5d4,Aeldari - Aeldari Library,Ynnari Wyches,3,6+,,1,"8""",6+,2,90,19,19,,,unit
 b88f-2f26-c0fc-8e88,Aeldari - Aeldari Library,Wych,3,6+,,1,"8""",6+,2,,1,1,,,model
 c24e-160d-1ec2-34c4,Aeldari - Aeldari Library,Hekatrix,3,6+,,1,"8""",6+,2,,1,1,,,model
-5bf7-f905-8fab-43b4,Aeldari - Aeldari Library,Ynnari Incubi,3,3+,,1,"7""",6+,1,85,9,10,,,unit
+5bf7-f905-8fab-43b4,Aeldari - Aeldari Library,Ynnari Incubi,3,3+,,1,"7""",6+,1,85,9,19,,,unit
 3b51-90d8-a022-d426,Aeldari - Aeldari Library,Incubi,3,3+,,1,"7""",6+,1,,1,1,,,model
 b73a-a76f-3233-d588,Aeldari - Aeldari Library,Klaivex,3,3+,,2,"7""",6+,1,,1,1,,,model
-915d-ad53-9518-7a85,Aeldari - Aeldari Library,Ynnari Reavers,4,4+,,2,"16""",6+,2,65,5,8,,,unit
+915d-ad53-9518-7a85,Aeldari - Aeldari Library,Ynnari Reavers,4,4+,,2,"16""",6+,2,65,5,13,,,unit
 783f-9571-8ec0-7614,Aeldari - Aeldari Library,Reaver,4,4+,,2,"16""",6+,2,,1,1,,,model
 26bf-b7d3-80f0-2ab7,Aeldari - Aeldari Library,Reaver with Blaster,4,4+,,2,"16""",6+,2,,1,1,,,model
 f427-9992-bcb2-4836,Aeldari - Aeldari Library,Reaver with Heat Lance,4,4+,,2,"16""",6+,2,,1,1,,,model
@@ -161,7 +161,7 @@ d0d6-4170-a69d-1196,Aeldari - Aeldari Library,Arena Champion,4,4+,,2,"16""",6+,2
 8e15-3c74-d36f-7669,Aeldari - Aeldari Library,Ynnari Raider,8,4+,,10,"14""",6+,2,80,1,1,,,model
 5443-6671-baeb-77a3,Aeldari - Aeldari Library,Ynnari Venom,6,4+,,6,"14""",6+,1,70,1,1,,,model
 a223-234b-7886-fccc,Aeldari - Aeldari Library,Lady Malys,3,4+,,5,"7""",6+,2,100,1,1,,,model
-f2d1-4574-223f-998f,Aeldari - Aeldari Library,Scourges with Shardcarbines,3,4+,,1,"14""",6+,1,75,9,,,,unit
+f2d1-4574-223f-998f,Aeldari - Aeldari Library,Scourges with Shardcarbines,3,4+,,1,"14""",6+,1,75,9,10,,,unit
 54dc-aa1f-817a-a5c5,Aeldari - Aeldari Library,Prince Yriel,3,3+,,5,"7""",6+,1,95,1,1,,,model
 4273-173c-e850-4071,Aeldari - Aeldari Library,Kharseth,3,6+,,4,"7""",6+,1,95,1,1,,,model
 f972-78f9-204e-d55c,Aeldari - Aeldari Library,Starfang,6,3+,,6,"14""",7+,2,75,1,1,,,model
@@ -296,7 +296,7 @@ dffe-86b3-59a8-fd3d,Chaos - Chaos Space Marines,Cultist Champion,3,6+,,1,"6""",7
 23aa-b45a-6d5d-e92b,Chaos - Chaos Space Marines,Accursed Cultists,4,6+,,3,"6""",7+,1,90,8,16,,,unit
 2b92-cda8-b369-2b37,Chaos - Chaos Space Marines,Torment,4,6+,,3,"6""",7+,1,0,1,1,,,model
 3c09-b330-cd81-f3ee,Chaos - Chaos Space Marines,Mutant,4,6+,,1,"6""",7+,1,0,1,1,,,model
-203d-c50f-a438-4982,Chaos - Chaos Space Marines,Chaos Terminator Squad,5,2+,,3,"5""",6+,1,180,5,39,,,unit
+203d-c50f-a438-4982,Chaos - Chaos Space Marines,Chaos Terminator Squad,5,2+,,3,"5""",6+,1,180,5,48,,,unit
 d30b-b831-35ff-d173,Chaos - Chaos Space Marines,Accursed weapon and combi-bolter,5,2+,,3,"5""",6+,1,0,1,1,,,model
 8ca9-fb24-a35c-1f20,Chaos - Chaos Space Marines,Accursed weapon and combi-weapon,5,2+,,3,"5""",6+,1,0,1,1,,,model
 6841-4405-b260-2e6e,Chaos - Chaos Space Marines,Power fist and combi-weapon,5,2+,,3,"5""",6+,1,0,1,1,,,model
@@ -308,7 +308,7 @@ c8ef-5f11-beec-4598,Chaos - Chaos Space Marines,Power fist and combi-bolter,5,2+
 bbc7-c418-7e46-61b0,Chaos - Chaos Space Marines,Terminator Champion,5,2+,,3,"5""",6+,1,0,1,1,,,model
 da34-7071-8658-a453,Chaos - Chaos Space Marines,Master of Executions,4,3+,,4,"6""",6+,1,80,1,1,,,model
 cb1-5bcf-9e36-8136,Chaos - Chaos Space Marines,Possessed,6,3+,,3,"9""",6+,1,120,5,20,,,unit
-4e85-615b-5d49-dfa4,Chaos - Chaos Space Marines,Chosen,4,3+,,3,"6""",6+,1,125,5,30,,,unit
+4e85-615b-5d49-dfa4,Chaos - Chaos Space Marines,Chosen,4,3+,,3,"6""",6+,1,125,5,39,,,unit
 30a3-5810-5084-939a,Chaos - Chaos Space Marines,Chosen Champion,4,3+,,3,"6""",6+,1,0,1,1,,,model
 3e98-7689-8bf0-96e0,Chaos - Chaos Space Marines,Venomcrawler,9,3+,,9,"12""",6+,3,110,1,1,,,model
 7373-47b7-11a3-2b48,Chaos - Chaos Space Marines,Chaos Bikers,5,3+,,3,"12""",6+,2,70,3,8,,,unit
@@ -344,7 +344,7 @@ d37d-7e8f-341b-c67c,Chaos - Chaos Space Marines,Maulerfiend,10,3+,,12,"10""",6+,
 e981-27ae-112f-aa9a,Chaos - Chaos Space Marines,Chaos Rhino,9,3+,,10,"12""",6+,2,75,1,1,,,model
 b27f-1c85-5e7f-4e7d,Chaos - Chaos Space Marines,Khorne Lord of Skulls,13,3+,,24,"8""",6+,8,450,1,1,,,model
 7263-70e5-b424-61eb,Chaos - Chaos Space Marines,Chaos Spawn,5,4+,,4,"8""",7+,0,70,2,2,,,unit
-3832-4208-11e9-ca22,Chaos - Chaos Space Marines,Khorne Berzerkers,4,3+,,2,"8""",6+,2,180,10,,,,unit
+3832-4208-11e9-ca22,Chaos - Chaos Space Marines,Khorne Berzerkers,4,3+,,2,"8""",6+,2,180,10,20,,,unit
 515f-5df0-4b83-e984,Chaos - Chaos Space Marines,Khorne Berzerker Champion,4,3+,,2,"8""",6+,2,0,1,1,,,model
 9cdb-1ad-6a3d-ffa,Chaos - Chaos Space Marines,Khorne Berzerker,4,3+,,2,"8""",6+,2,0,1,1,,,model
 a211-0cb7-7d18-6edd,Chaos - Chaos Space Marines,Berzerker w/ chainblade and plasma pistol,4,3+,,2,"8""",6+,2,0,1,1,,,model
@@ -547,7 +547,7 @@ f4b8-1179-de57-4d69,Chaos - World Eaters,Angron,11,2+,,16,"14""",5+,6,340,1,1,,,
 0294-61a4-c6ed-b2e8,Chaos - World Eaters,Daemon Prince of Khorne with wings,9,2+,,10,"14""",6+,3,180,1,1,,,model
 ec72-f024-4283-0558,Chaos - World Eaters,Lord on Juggernaut,6,3+,,7,"10""",6+,2,105,1,1,,,model
 1b56-682c-ac33-bc5f,Chaos - World Eaters,Master of Executions,4,3+,,4,"8""",6+,1,60,1,1,,,model
-f909-00c7-8ba4-018a,Chaos - World Eaters,Khorne Berzerkers,4,3+,,2,"8""",6+,2,180,10,,,,unit
+f909-00c7-8ba4-018a,Chaos - World Eaters,Khorne Berzerkers,4,3+,,2,"8""",6+,2,180,10,20,,,unit
 38fb-1df5-8eb6-fdf6,Chaos - World Eaters,Khorne Berzerker Champion,4,3+,,2,"8""",6+,2,0,1,1,,,model
 45f6-8429-a1d9-2a51,Chaos - World Eaters,Chaos Terminators,5,2+,,3,"7""",6+,1,175,5,10,,,unit
 6f81-4538-a414-251e,Chaos - World Eaters,Jakhals,4,6+,,1,"7""",7+,1,65,3,3,,,unit
@@ -582,7 +582,7 @@ f51d-bc51-f301-9dee,Xenos - Genestealer Cults,Aberrants,6,5+,,3,"6""",7+,1,135,5
 97b1-4873-9fcb-5cb8,Xenos - Genestealer Cults,Abominant,6,5+,,5,"6""",7+,1,85,1,1,,,model
 71c2-cc66-9aac-181e,Xenos - Genestealer Cults,Achilles Ridgerunner,7,3+,,8,"12""",7+,3,,1,1,,,model
 e367-b2cb-d22a-b17c,Xenos - Genestealer Cults,Acolyte Iconward,4,5+,,3,"6""",6+,1,50,1,1,,,model
-3a81-2b84-bf4c-4f85,Xenos - Genestealer Cults,Atalan Jackals,4,5+,,2,"12""",7+,1,85,6,17,,,unit
+3a81-2b84-bf4c-4f85,Xenos - Genestealer Cults,Atalan Jackals,4,5+,,2,"12""",7+,1,85,6,25,,,unit
 9de3-2a5c-beea-72ae,Xenos - Genestealer Cults,Atalan Jackal w/ Grenade launcher,4,5+,,2,"12""",7+,1,,1,1,,,model
 c981-ff67-9a33-386b,Xenos - Genestealer Cults,Atalan Jackal,4,5+,,2,"12""",7+,1,,1,1,,,model
 e824-edab-18c6-3347,Xenos - Genestealer Cults,Atalan Jackal w/ Atalan power weapon,4,5+,,2,"12""",7+,1,,1,1,,,model
@@ -592,13 +592,13 @@ de61-4088-f84c-24a5,Xenos - Genestealer Cults,Atalan Wolfquad,4,5+,,4,"12""",7+,
 5543-973a-cd2e-c941,Xenos - Genestealer Cults,Clamavus,3,5+,,3,"6""",6+,1,50,1,1,,,model
 5ac1-3adb-212a-5e02,Xenos - Genestealer Cults,Goliath Rockgrinder,10,3+,,10,"12""",7+,3,120,1,1,,,model
 1d1-f0d2-b810-12fe,Xenos - Genestealer Cults,Goliath Truck,9,3+,,10,"12""",7+,2,85,1,1,,,model
-8a84-a8fd-977e-9118,Xenos - Genestealer Cults,Hybrid Metamorphs,4,5+,,1,"6""",7+,1,70,5,,,,unit
+8a84-a8fd-977e-9118,Xenos - Genestealer Cults,Hybrid Metamorphs,4,5+,,1,"6""",7+,1,70,5,9,,,unit
 f1f8-5747-2ee6-e1b3,Xenos - Genestealer Cults,Metamorph Leader,4,5+,,1,"6""",7+,1,,1,1,,,model
 6426-ca59-402a-d399,Xenos - Genestealer Cults,Jackal Alphus,4,5,,4,"12""",7+,1,55,1,1,,,model
 5e0e-11d9-181d-3481,Xenos - Genestealer Cults,Kelermorph,3,5+,,3,"6""",7+,1,60,1,1,,,model
 51e8-dac1-561a-aaa9,Xenos - Genestealer Cults,Locus,4,5+,,3,"6""",7+,1,45,1,1,,,model
 4f4-2157-2cb5-8bb,Xenos - Genestealer Cults,Magus,3,5+,,4,"6""",6+,1,50,1,1,,,model
-b5d2-8681-6bba-f05b,Xenos - Genestealer Cults,Neophyte Hybrids,3,5+,,1,"6""",7+,2,65,14,29,,,unit
+b5d2-8681-6bba-f05b,Xenos - Genestealer Cults,Neophyte Hybrids,3,5+,,1,"6""",7+,2,65,14,48,,,unit
 8261-d629-33d4-b642,Xenos - Genestealer Cults,Neophyte Hybrid w/ Hybrid Firearm,3,5+,,1,"6""",7+,2,,1,1,,,model
 28b1-9012-8502-dfc5,Xenos - Genestealer Cults,Neophyte Hybrid w/ Hybrid Firearm & Cult Icon,3,5+,,1,"6""",7+,2,,1,1,,,model
 ab27-9a21-6d9c-ae53,Xenos - Genestealer Cults,Neophyte Hybrid w/ Heavy Weapon,3,5+,,1,"6""",7+,2,,1,1,,,model
@@ -802,12 +802,12 @@ fac5-a242-951a-e1b2,Imperium - Agents of the Imperium,Daemonhost [Legends],3,5+,
 6ee6-7993-3d63-826c,Imperium - Agents of the Imperium,Daemonhost,3,5+,,3,"6""",7+,0,40,1,1,,,model
 bd54-3e9f-3f7d-ad5a,Imperium - Agents of the Imperium,Jokaero Weaponsmith [Legends],3,5+,,2,"6""",7+,0,30,1,1,,,model
 8b98-0ac7-a0ba-dedf,Imperium - Agents of the Imperium,Corvus Blackstar,10,3+,,14,"20+""",6+,0,180,1,1,,,model
-0744-61ce-619d-ffe1,Imperium - Agents of the Imperium,Deathwatch Kill Team,4,3+,,2,"6""",6+,2,100,5,34,,,unit
+0744-61ce-619d-ffe1,Imperium - Agents of the Imperium,Deathwatch Kill Team,4,3+,,2,"6""",6+,2,100,5,43,,,unit
 0b74-440c-ee1d-ca50,Imperium - Agents of the Imperium,Deathwatch Terminator Squad [Legends],5,2+,,3,"5""",6+,1,210,5,10,,,unit
 84c2-9a90-eefd-881b,Imperium - Agents of the Imperium,Deathwatch Terminator,5,2+,,3,"5""",6+,1,,1,1,,,model
 19a3-fdf1-1d30-6ba2,Imperium - Agents of the Imperium,Deathwatch Terminator w/ Heavy Weapon,5,2+,,3,"5""",6+,1,,1,1,,,model
 f689-b401-b6c6-3e62,Imperium - Agents of the Imperium,Deathwatch Terminator Sergeant,5,2+,,3,"5""",6+,1,,1,1,,,model
-edce-f61c-8029-897f,Imperium - Agents of the Imperium,Fortis Kill Team [Legends],4,3+,,2,"6""",6+,1,100,10,28,,,unit
+edce-f61c-8029-897f,Imperium - Agents of the Imperium,Fortis Kill Team [Legends],4,3+,,2,"6""",6+,1,100,10,52,,,unit
 a79f-07df-7641-174d,Imperium - Agents of the Imperium,Kill Team Intercessor,4,3+,,2,"6""",6+,1,,1,1,,,model
 4c3e-06d1-9fe6-9af6,Imperium - Agents of the Imperium,Kill Team Intercessor w/ Special Weapon,4,3+,,2,"6""",6+,1,,1,1,,,model
 cae2-bbbc-152d-4704,Imperium - Agents of the Imperium,Kill Team Intercessor w/ Melee Option,4,3+,,2,"6""",6+,1,,1,1,,,model
@@ -816,7 +816,7 @@ dd20-ee9a-e4bb-a62a,Imperium - Agents of the Imperium,Kill Team Intercessor w/ L
 a387-3a57-eaaf-bf90,Imperium - Agents of the Imperium,Kill Team Outrider,5,3+,,4,"12""",6+,2,,1,1,,,model
 83c2-d601-79d6-b0cb,Imperium - Agents of the Imperium,Kill Team Intercessor w/ plasma pistol and incinerator,4,3+,,2,"6""",6+,1,,1,1,,,model
 54b0-6c22-cc47-158d,Imperium - Agents of the Imperium,Kill Team Intercessor w/ bolt pistol and incinerator,4,3+,,2,"6""",6+,1,,1,1,,,model
-c538-aaf0-5788-5c07,Imperium - Agents of the Imperium,Indomitor Kill Team [Legends],6,3+,,3,"5""",6+,1,120,10,23,,,unit
+c538-aaf0-5788-5c07,Imperium - Agents of the Imperium,Indomitor Kill Team [Legends],6,3+,,3,"5""",6+,1,120,10,43,,,unit
 61f0-d0c1-d9a8-09b9,Imperium - Agents of the Imperium,Kill Team Heavy Intercessor,6,3+,,3,"5""",6+,1,,1,1,,,model
 d211-c487-c433-3434,Imperium - Agents of the Imperium,Kill Team Heavy Intercessor w/ Heavy Bolter,6,3+,,3,"5""",6+,1,,1,1,,,model
 ec81-a1af-ba62-03fa,Imperium - Agents of the Imperium,Kill Team Heavy Intercessor w/ power fists & flamestorm gauntlets,6,3+,,3,"5""",6+,1,,1,1,,,model
@@ -837,7 +837,7 @@ de4b-8fc8-d844-1bf9,Imperium - Agents of the Imperium,Drenn Redblade,4,3+,,2,"6"
 3665-0286-4cd7-bc33,Imperium - Agents of the Imperium,Garran Branatar,5,2+,,3,"5""",6+,2,,1,1,,,model
 3f1d-c4d4-031c-57c6,Imperium - Agents of the Imperium,Ennox Sorrlock,4,3+,,2,"6""",6+,2,,1,1,,,model
 1aa2-8e1d-c2b9-2961,Imperium - Agents of the Imperium,Jetek Suberei,5,3+,,3,"12""",6+,2,,1,1,,,model
-4681-2af4-acf9-2bce,Imperium - Agents of the Imperium,Proteus Kill Team [Legends],5,3+,,3,"12""",6+,2,160,10,31,,,unit
+4681-2af4-acf9-2bce,Imperium - Agents of the Imperium,Proteus Kill Team [Legends],5,3+,,3,"12""",6+,2,160,10,51,,,unit
 a3b8-07ce-1710-f2f4,Imperium - Agents of the Imperium,Kill Team Biker,5,3+,,3,"12""",6+,2,,1,1,,,model
 7284-2777-4a6e-c62f,Imperium - Agents of the Imperium,Kill Team Terminator,5,2+,,3,"5""",6+,1,,1,1,,,model
 da66-9d97-5ad4-2e2e,Imperium - Agents of the Imperium,Kill Team Terminator w/ Heavy Weapon,5,2+,,3,"5""",6+,1,,1,1,,,model
@@ -899,7 +899,7 @@ c28b-c3af-38b2-8865,Imperium - Astra Militarum - Library,Hellhound,10,2+,,11,"10
 913f-3cb6-fb80-7f6a,Imperium - Astra Militarum - Library,‘Iron Hand’ Straken [Legends],3,3+,,4,"6""",7+,1,55,1,1,,,model
 a9d-55c1-3d24-fa25,Imperium - Astra Militarum - Library,Lord Solar Leontus,4,3+,,8,"12""",6+,2,130,1,1,,,model
 41be-48c9-5476-f47a,Imperium - Astra Militarum - Library,Manticore,10,3+,,11,"10""",7+,3,165,1,1,,,model
-497-36ad-8ecb-f7c7,Imperium - Astra Militarum - Library,Militarum Tempestus Command Squad,3,4+,,3,"6""",7+,1,85,5,8,,,unit
+497-36ad-8ecb-f7c7,Imperium - Astra Militarum - Library,Militarum Tempestus Command Squad,3,4+,,3,"6""",7+,1,85,5,12,,,unit
 1999-fec0-869b-8e2,Imperium - Astra Militarum - Library,Tempestor Prime,3,4+,,3,"6""",7+,1,,1,1,,,model
 bcda-f4bb-e726-9bfe,Imperium - Astra Militarum - Library,Nork Deddog,6,4+,,6,"6""",7+,1,60,1,1,,,model
 a7c2-1534-93b0-c0eb,Imperium - Astra Militarum - Library,Ogryn Bodyguard,6,5+,,6,"6""",7+,1,40,1,1,,,model
@@ -956,7 +956,7 @@ f8cc-73b7-6caa-f741,Imperium - Astra Militarum - Library,Valkyrie Sky Talon [Leg
 b44d-ecac-2542-e584,Imperium - Astra Militarum - Library,Aquila Lander [Legends],9,3+,,12,"20+""",7+,0,120,1,1,,,model
 fc41-a899-8d5a-dc01,Imperium - Astra Militarum - Library,Dominus Armoured Siege Bombard [Legends],13,2+,,20,"9""",7+,8,325,1,1,,,model
 5d8e-2b2a-6ed1-8309,Imperium - Astra Militarum - Library,Gorgon Heavy Transport [Legends],13,2+,,20,"9""",7+,8,275,1,1,,,model
-8a25-2a0c-87d2-3ea6,Imperium - Astra Militarum - Library,Death Korps Grenadier Squad [Legends],3,4+,,2,"6""",7+,2,110,17,25,,,unit
+8a25-2a0c-87d2-3ea6,Imperium - Astra Militarum - Library,Death Korps Grenadier Squad [Legends],3,4+,,2,"6""",7+,2,110,17,36,,,unit
 7f88-f3e8-592b-2de0,Imperium - Astra Militarum - Library,Heavy Weapons Team,3,4+,,2,"6""",7+,2,,1,1,,,model
 81d4-2ed9-b0a4-6bdd,Imperium - Astra Militarum - Library,Centaur Light Carrier [Legends],7,3+,,7,"10""",7+,1,40,1,1,,,model
 4b76-f049-77b1-38bf,Imperium - Astra Militarum - Library,Macharius Omega [Legends],13,2+,,20,"9""",7+,8,310,1,1,,,model
@@ -991,7 +991,7 @@ a95f-9dd6-de66-fa59,Imperium - Astra Militarum - Library,Tauros Venator [Legends
 9fb1-876b-ac2d-6c9b,Imperium - Astra Militarum - Library,Salamander Command Vehicle [Legends],8,3+,,10,"12""",7+,3,80,1,1,,,model
 59c4-e4de-fe70-b221,Imperium - Astra Militarum - Library,Arkurian Stormhammer [Legends],13,2+,,24,"9""",7+,8,480,1,1,,,model
 b6a7-4d64-1155-70c1,Imperium - Astra Militarum - Library,Storm Chimera [Legends],9,3+,,11,"10""",7+,2,90,1,1,,,model
-aa9f-f137-1638-0369,Imperium - Astra Militarum - Library,Tempestus Aquilons,3,4+,,1,"6""",7+,1,100,14,15,,,unit
+aa9f-f137-1638-0369,Imperium - Astra Militarum - Library,Tempestus Aquilons,3,4+,,1,"6""",7+,1,100,14,24,,,unit
 8293-a070-2c87-de30,Imperium - Astra Militarum - Library,Ratlings,2,6+,,1,"6""",8+,1,60,5,11,,,unit
 c9f8-bfb9-b363-39d2,Imperium - Astra Militarum - Library,Ratlings,2,6+,,1,"6""",8+,1,,1,1,,,model
 b799-86fa-f6a9-4a76,Imperium - Astra Militarum - Library,Ratling w/ tankstopper rifle,2,6+,,1,"6""",8+,1,,1,1,,,model
@@ -1003,7 +1003,7 @@ ccf1-b4ab-e10f-3777,Imperium - Astra Militarum - Library,Veteran Guardsman w/ Bo
 bc00-4539-cb3a-5a22,Imperium - Astra Militarum - Library,Veteran Guardsman w/ Master vox,3,5+,,1,"6""",7+,1,,1,1,,,model
 66f4-ce88-b2c5-0b46,Imperium - Astra Militarum - Library,Veteran Guardsman w/ Regimental standard,3,5+,,1,"6""",7+,1,,1,1,,,model
 9033-d07c-3e1c-f6f0,Imperium - Astra Militarum - Library,Lord Marshal Dreir,4,4+,,6,"10""",7+,2,100,1,1,,,model
-7d22-9fb6-a7e0-c21b,Imperium - Astra Militarum - Library,Catachan Command Squad,3,5+,,1,"6""",7+,1,65,5,14,,,unit
+7d22-9fb6-a7e0-c21b,Imperium - Astra Militarum - Library,Catachan Command Squad,3,5+,,1,"6""",7+,1,65,5,22,,,unit
 b179-d6c3-a951-7f51,Imperium - Astra Militarum - Library,Veteran Guardsman,3,5+,,1,"6""",7+,1,,1,1,,,model
 6add-45c6-1f7f-e50c,Imperium - Astra Militarum - Library,Veteran Guardsman w/ Master vox,3,5+,,1,"6""",7+,1,,1,1,,,model
 991f-f0fa-0515-7512,Imperium - Astra Militarum - Library,Veteran Guardsman w/ Regimental standard,3,5+,,1,"6""",7+,1,,1,1,,,model
@@ -1017,7 +1017,7 @@ f679-f0a2-ac5c-87a3,Imperium - Astra Militarum - Library,Veteran Guardsman w/ Pl
 2d9e-f95e-8a1d-81ac,Imperium - Astra Militarum - Library,Catachan Commander,3,5+,,3,"6""",7+,1,,1,1,,,model
 78b6-f280-bba9-0594,Imperium - Astra Militarum - Library,Rogal Dorn Commander,12,2+,,18,"10""",7+,5,290,1,1,,,model
 ba72-7b05-33c9-a1c0,Imperium - Astra Militarum - Library,Ministorum Priest,3,6+,,3,"6""",7+,1,35,1,1,,,model
-1669-d311-eff9-243b,Imperium - Astra Militarum - Library,Krieg Heavy Weapons Squad,3,5+,,1,"6""",7+,1,75,4,10,,,unit
+1669-d311-eff9-243b,Imperium - Astra Militarum - Library,Krieg Heavy Weapons Squad,3,5+,,1,"6""",7+,1,75,4,13,,,unit
 607d-c659-01f7-68bb,Imperium - Astra Militarum - Library,Fire Coordinator,3,5+,,1,"6""",7+,1,,1,1,,,model
 0595-6d6c-a783-12ab,Imperium - Astra Militarum - Library,Artillery Team,7,3+,,10,"3""",7+,3,95,1,1,,,model
 f4d1-cea9-f487-4501,Imperium - Astra Militarum - Library,Provisionally Prepared [Legends],2,6+,,2,"6""",8+,2,40,1,1,,,model
@@ -1044,7 +1044,7 @@ dd70-8ed8-309c-1bf,Imperium - Adeptus Astartes - Black Templars,Neophyte w/ Fire
 b3a3-f1ea-c706-bc9,Imperium - Adeptus Astartes - Black Templars,Sword Brother,4,3+,,3,"6""",6+,1,,1,1,,,model
 3378-f713-ff02-3d7c,Imperium - Adeptus Astartes - Black Templars,Sword Brother w/ Twin Lightning Claws,4,3+,,3,"6""",6+,1,,1,1,,,model
 ca2f-f408-c1bd-b87f,Imperium - Adeptus Astartes - Black Templars,Emperor's Champion,4,2+,,5,"8""",6+,1,100,1,1,,,model
-2da2-ad08-6057-5a1c,Imperium - Adeptus Astartes - Black Templars,Crusader Squad [Legends],4,4+,,2,"6""",6+,2,85,5,51,,,unit
+2da2-ad08-6057-5a1c,Imperium - Adeptus Astartes - Black Templars,Crusader Squad [Legends],4,4+,,2,"6""",6+,2,85,5,65,,,unit
 70b9-da75-964e-bd31,Imperium - Adeptus Astartes - Black Templars,Neophyte w/Combat Knife,4,4+,,2,"6""",6+,2,,1,1,,,model
 7c7-2f36-db28-b9a9,Imperium - Adeptus Astartes - Black Templars,Neophyte w/Astartes Shotgun,4,4+,,2,"6""",6+,2,,1,1,,,model
 c93d-dc5a-9d7c-895d,Imperium - Adeptus Astartes - Black Templars,Neophyte w/Boltgun,4,4+,,2,"6""",6+,2,,1,1,,,model
@@ -1211,14 +1211,14 @@ fa-e288-2107-d22e,Imperium - Grey Knights,Stormhawk Interceptor,9,3+,,10,"20+"""
 2efe-459b-9562-e7a9,Imperium - Grey Knights,Stormraven Gunship,10,3+,,14,"20+""",6+,0,280,1,1,,,model
 84ac-b9ea-921f-9082,Imperium - Grey Knights,Stormtalon Gunship,9,3+,,10,"20+""",6+,0,170,1,1,,,model
 bd43-b303-66e0-4c10,Imperium - Grey Knights,Venerable Dreadnought,9,2+,,8,"8""",6+,3,140,1,1,,,model
-d9f7-71b7-8e67-7f44,Imperium - Grey Knights,Interceptor Squad,4,2+,,2,"12""",6+,1,125,8,16,,,unit
+d9f7-71b7-8e67-7f44,Imperium - Grey Knights,Interceptor Squad,4,2+,,2,"12""",6+,1,125,8,26,,,unit
 7a19-5235-692b-320d,Imperium - Grey Knights,Kaldor Draigo [Legends],5,2+,,7,"5""",6+,1,125,1,1,,,model
 5458-a458-c51d-c4e9,Imperium - Grey Knights,Nemesis Dreadknight,8,2+,,13,"8""",6+,4,210,1,1,,,model
-6528-4634-c2cf-2840,Imperium - Grey Knights,Paladin Squad,5,2+,,3,"5""",6+,1,180,4,14,,,unit
-e8ad-bd40-5952-6859,Imperium - Grey Knights,Purgation Squad,4,2+,,2,"6""",6+,1,115,9,22,,,unit
-8865-df22-1629-bf02,Imperium - Grey Knights,Purifier Squad,4,2+,,2,"6""",6+,1,125,5,,,,unit
+6528-4634-c2cf-2840,Imperium - Grey Knights,Paladin Squad,5,2+,,3,"5""",6+,1,180,4,23,,,unit
+e8ad-bd40-5952-6859,Imperium - Grey Knights,Purgation Squad,4,2+,,2,"6""",6+,1,115,9,35,,,unit
+8865-df22-1629-bf02,Imperium - Grey Knights,Purifier Squad,4,2+,,2,"6""",6+,1,125,5,11,,,unit
 35ed-7890-6c56-18b7,Imperium - Grey Knights,Servitors [Legends],4,4+,,1,"6""",8+,0,50,6,14,,,unit
-d81f-c9ac-e338-ba37,Imperium - Grey Knights,Strike Squad,4,2+,,2,"6""",6+,2,120,5,6,,,unit
+d81f-c9ac-e338-ba37,Imperium - Grey Knights,Strike Squad,4,2+,,2,"6""",6+,2,120,5,9,,,unit
 8989-2fd2-4d29-e795,Imperium - Grey Knights,Grey Knights Thunderhawk Gunship,12,2+,,30,"20+""",6+,0,805,1,1,,,model
 69d-a656-fde3-6c3e,Imperium - Grey Knights,Land Raider Banisher,12,2+,,16,"10""",6+,5,255,1,1,,,model
 28d0-5a52-501a-441d,Imperium - Grey Knights,Grey Knights Dreadnought [Legends],9,2+,,8,"6""",6+,3,160,1,1,,,model
@@ -1395,7 +1395,7 @@ c570-c6ba-c9dc-5a44,Imperium - Adeptus Astartes - Space Marines,Eradicator Squad
 71fb-48d9-b0da-332c,Imperium - Adeptus Astartes - Space Marines,Eradicator Sergeant,6,3+,,3,"5""",6+,1,,1,1,,,model
 ab61-e814-8c4d-1cb,Imperium - Adeptus Astartes - Space Marines,Eradicator,6,3+,,3,"5""",6+,1,,1,1,,,model
 eba8-6f8c-759-4e22,Imperium - Adeptus Astartes - Space Marines,Eradicator with Multi-melta,6,3+,,3,"5""",6+,1,,1,1,,,model
-3f4c-1e67-66dc-ffa5,Imperium - Adeptus Astartes - Space Marines,Devastator Squad,4,3+,,2,"6""",6+,1,120,5,14,,,unit
+3f4c-1e67-66dc-ffa5,Imperium - Adeptus Astartes - Space Marines,Devastator Squad,4,3+,,2,"6""",6+,1,120,5,23,,,unit
 9724-313-f5d0-e06c,Imperium - Adeptus Astartes - Space Marines,Devastator Marine w/ Boltgun,4,3+,,2,"6""",6+,1,,1,1,,,model
 624c-c49c-b0a5-9cd4,Imperium - Adeptus Astartes - Space Marines,Devastator Marine w/ Heavy Weapon,4,3+,,2,"6""",6+,1,,1,1,,,model
 dade-57a5-2db7-22ca,Imperium - Adeptus Astartes - Space Marines,Devastator Sergeant,4,3+,,2,"6""",6+,1,,1,1,,,model
@@ -1620,7 +1620,7 @@ ea2c-e140-de98-d555,Xenos - Leagues of Votann,Einhyr Hearthguard,5,2+,,2,"5""",7
 9655-8367-7467-9e6e,Xenos - Leagues of Votann,Sagitaur,9,3+,,9,"12""",7+,2,90,1,1,,,model
 ea1b-99f6-c398-06b1,Xenos - Leagues of Votann,Brôkhyr Thunderkyn,6,3+,,2,"5""",7+,1,80,3,6,,,unit
 a110-e538-4e85-159b,Xenos - Leagues of Votann,Hekaton Land Fortress,12,2+,,16,"10""",7+,5,240,1,1,,,model
-5b0b-c18d-1470-44bb,Xenos - Leagues of Votann,Hernkyn Yaegirs,5,5+,,1,"6""",7+,1,90,10,21,,,unit
+5b0b-c18d-1470-44bb,Xenos - Leagues of Votann,Hernkyn Yaegirs,5,5+,,1,"6""",7+,1,90,10,30,,,unit
 b7e1-55fd-9aae-b690,Xenos - Leagues of Votann,Buri Aegnirssen,6,3+,,5,"5""",6+,1,95,1,1,,,model
 7932-6aac-cd01-3181,Xenos - Leagues of Votann,Memnyr Strategist,5,4+,,4,"5""",7+,1,45,1,1,,,model
 e5c2-d1a0-b54d-65df,Xenos - Leagues of Votann,Arkanyst Evaluator,5,3+,,4,"5""",7+,1,65,1,1,,,model
@@ -1722,7 +1722,7 @@ c4e3-f6b0-f3aa-9d90,Xenos - Necrons,Lychguard,5,3+,,2,"5""",7+,1,85,5,20,,,unit
 b7d7-14c9-63c1-ded5,Xenos - Necrons,Deathmarks,5,3+,,1,"5""",7+,1,60,5,10,,,unit
 c219-a708-f5b0-f0e7,Xenos - Necrons,Flayed Ones,4,4+,,1,"5""",7+,1,60,5,20,,,unit
 ef7a-c413-c779-2d18,Xenos - Necrons,Cryptothralls,4,3+,,3,"5""",8+,1,60,2,2,,,unit
-66e-26f2-7c38-e4d8,Xenos - Necrons,Skorpekh Destroyers,6,3+,,3,"8""",7+,2,90,6,6,,,unit
+66e-26f2-7c38-e4d8,Xenos - Necrons,Skorpekh Destroyers,6,3+,,3,"8""",7+,2,90,6,12,,,unit
 14fa-6813-e51b-7942,Xenos - Necrons,Triarch Stalker,8,3+,,12,"8""",7+,4,110,1,1,,,model
 e09-d7d6-e4e3-42c1,Xenos - Necrons,C'tan Shard of the Deceiver,11,3+,,16,"8""",6+,4,310,1,1,,,model
 f926-a2fe-3494-24b7,Xenos - Necrons,C'tan Shard of the Nightbringer,11,3+,,16,"10""",6+,4,340,1,1,,,model
@@ -1768,7 +1768,7 @@ be60-a5ae-6c7c-df47,Xenos - Necrons,Dynastic Conqueror [Crucible],5,3+,,6,"5""",
 e884-dd7a-a1cd-bad8,Xenos - Necrons,Hyperscientist [Crucible],4,4+,,4,"5""",6+,1,85,1,1,,,model
 50cd-aa29-f506-8ed1,Xenos - Necrons,Triarchal Overseer [Crucible],8,3+,,12,"8""",7+,4,120,1,1,,,model
 306a-b2ac-aaf1-9a7c,Xenos - Orks,Battlewagon,10,3+,,16,"10""",7+,5,160,1,1,,,model
-b7c3-d00e-daf2-76fb,Xenos - Orks,Beast Snagga Boyz,5,5+,,1,"6""",7+,2,95,18,21,,,unit
+b7c3-d00e-daf2-76fb,Xenos - Orks,Beast Snagga Boyz,5,5+,,1,"6""",7+,2,95,18,40,,,unit
 fb39-1402-5d38-83b2,Xenos - Orks,Beast Snagga Boy w/ Thump gun,5,5+,,1,"6""",7+,2,,1,1,,,model
 8462-1df3-6409-5087,Xenos - Orks,Beast Snagga Boy,5,5+,,1,"6""",7+,2,,1,1,,,model
 8495-e7e7-6d41-2f57,Xenos - Orks,Beast Snagga Nob,5,5+,,2,"6""",7+,2,,1,1,,,model
@@ -1782,7 +1782,7 @@ a20-d3af-2c3e-3267,Xenos - Orks,Blitza-bommer,9,3+,,12,"20+""",7+,0,115,1,1,,,mo
 c7c8-6b5b-6bfc-52d1,Xenos - Orks,Boomdakka Snazzwagon,7,4+,,9,"12""",7+,3,70,1,1,,,model
 e651-5901-35e5-dc35,Xenos - Orks,Boss Snikrot,5,5+,,6,"6""",6+,1,75,1,1,,,model
 ec71-71e2-6601-31b8,Xenos - Orks,Boss Zagstruk [Legends],5,4+,,6,"12""",6+,1,90,1,1,,,model
-e3b1-1240-2476-cd86,Xenos - Orks,Boyz,5,5+,,1,"6""",7+,2,80,10,43,,,unit
+e3b1-1240-2476-cd86,Xenos - Orks,Boyz,5,5+,,1,"6""",7+,2,80,10,63,,,unit
 7629-a9f5-e881-6ff9,Xenos - Orks,Boy w/ Slugga and choppa,5,5+,,1,"6""",7+,2,,1,1,,,model
 f6f5-592e-de09-7238,Xenos - Orks,Boy w/ Shoota and close combat weapon,5,5+,,1,"6""",7+,2,,1,1,,,model
 6fc2-677d-fc5e-9329,Xenos - Orks,Boy w/ Big shoota and close combat weapon,5,5+,,1,"6""",7+,2,,1,1,,,model
@@ -1796,7 +1796,7 @@ ca85-1d18-dc30-d64e,Xenos - Orks,Deffkilla Wartrike,6,4+,,9,"12""",6+,3,80,1,1,,
 2d6e-aa3b-c28c-5ef0,Xenos - Orks,Deffkoptas,6,4+,,4,"12""",7+,2,80,5,14,,,unit
 c0f6-1a61-c90f-f188,Xenos - Orks,Deffkopta,6,4+,,4,"12""",7+,2,,1,1,,,model
 484b-6da4-9390-33ae,Xenos - Orks,Deffkopta w/ Kustom mega-blasta,6,4+,,4,"12""",7+,2,,1,1,,,model
-1de9-b138-28a1-9c4b,Xenos - Orks,Flash Gitz,5,4+,,2,"6""",7+,1,80,9,10,,,unit
+1de9-b138-28a1-9c4b,Xenos - Orks,Flash Gitz,5,4+,,2,"6""",7+,1,80,9,19,,,unit
 4ea0-6b70-c17c-bc00,Xenos - Orks,Ghazghkull Thraka,6,2+,,10,"5""",6+,4,235,2,2,,,unit
 de55-e326-8a31-d7b0,Xenos - Orks,Ghazghkull Thraka,6,2+,,10,"5""",6+,4,,1,1,,,model
 369e-6b73-1d48-2abf,Xenos - Orks,Makari,6,7+,,1,"5""",8+,1,,1,1,,,model
@@ -1810,7 +1810,7 @@ fcf3-c626-e7c5-51ab,Xenos - Orks,Killa Kan w/ Kan shoota,6,3+,,5,"6""",8+,2,,1,1
 f03b-8761-eac6-1405,Xenos - Orks,Killa Kan w/ Grotzooka,6,3+,,5,"6""",8+,2,,1,1,,,model
 2058-9f53-d36e-a435,Xenos - Orks,Killa Kan w/ Rokkit launcha,6,3+,,5,"6""",8+,2,,1,1,,,model
 1137-3afb-3ba5-383c,Xenos - Orks,Killa Kan w/ Skorcha,6,3+,,5,"6""",8+,2,,1,1,,,model
-303-267f-e45c-6aa9,Xenos - Orks,Kommandos,5,5+,,1,"6""",7+,1,120,10,15,,,unit
+303-267f-e45c-6aa9,Xenos - Orks,Kommandos,5,5+,,1,"6""",7+,1,120,10,24,,,unit
 c06e-4f96-af48-1eb4,Xenos - Orks,Kommandos w/ Slugga and choppa,5,5+,,1,"6""",7+,1,,1,1,,,model
 d19-9a70-ac11-9351,Xenos - Orks,Kommandos w/ Kustom shoota,5,5+,,1,"6""",7+,1,,1,1,,,model
 ffd3-e26f-4606-2527,Xenos - Orks,Kommandos w/ Breacha ram,5,5+,,1,"6""",7+,1,,1,1,,,model
@@ -1831,23 +1831,23 @@ c800-4c3a-de49-f05b,Xenos - Orks,Mek Gun w/ Traktor kannon,5,5+,,6,"3""",8+,2,50
 9ee5-2b39-de06-dda6,Xenos - Orks,Morkanaut,12,3+,,20,"8""",7+,8,280,1,1,,,model
 b42b-ea0-38f1-6300,Xenos - Orks,Mozrog Skragbad,8,3+,,8,"10""",6+,3,145,1,1,,,model
 3b35-92f5-bd1a-af8d,Xenos - Orks,Nob with Waaagh! Banner [Legends],5,4+,,3,"6""",7+,1,70,1,1,,,model
-b16a-7132-3f8a-abe5,Xenos - Orks,Nobz,5,4+,,2,"6""",7+,1,105,5,28,,,unit
+b16a-7132-3f8a-abe5,Xenos - Orks,Nobz,5,4+,,2,"6""",7+,1,105,5,37,,,unit
 a74a-107a-e2ac-7e4c,Xenos - Orks,Painboss,5,4+,,4,"6""",7+,1,70,1,1,,,model
 7669-1442-2c0b-e0c9,Xenos - Orks,Painboy,5,5+,,3,"6""",7+,1,80,1,1,,,model
 a856-30b7-e56d-57db,Xenos - Orks,Rukkatrukk Squigbuggy,7,4+,,9,"12""",7+,3,95,1,1,,,model
 1d12-e2ae-33bb-4558,Xenos - Orks,Shokkjump Dragsta,7,4+,,9,"12""",7+,3,70,1,1,,,model
 6a83-8e1f-63ef-50c3,Xenos - Orks,Squighog Boyz,7,4+,,4,"10""",7+,2,150,1,3,,,unit
 6c08-9131-14a3-a3b4,Xenos - Orks,Stompa,14,2+,,30,"10""",6+,12,800,1,1,,,model
-4adf-8249-c6b2-dd4f,Xenos - Orks,Stormboyz,5,5+,,1,"12""",7+,1,65,9,10,,,unit
+4adf-8249-c6b2-dd4f,Xenos - Orks,Stormboyz,5,5+,,1,"12""",7+,1,65,9,19,,,unit
 540f-1216-ff44-6a37,Xenos - Orks,Stormboy,5,5+,,1,"12""",7+,1,,1,1,,,model
 50fb-8b6d-ab70-7c2,Xenos - Orks,Boss Nob,5,5+,,2,"12""",7+,1,,1,1,,,model
-dadc-d370-ef10-853c,Xenos - Orks,Tankbustas,5,4+,,2,"6""",7+,1,140,10,,,,unit
+dadc-d370-ef10-853c,Xenos - Orks,Tankbustas,5,4+,,2,"6""",7+,1,140,10,13,,,unit
 cdd4-c8f7-bc72-9af0,Xenos - Orks,Boss Nob,5,4+,,2,"6""",7+,1,,1,1,,,model
 40b3-1364-acb9-c1eb,Xenos - Orks,Tankbusta w/ Rokkit launcha,5,4+,,2,"6""",7+,1,,1,1,,,model
 3697-d01c-ebcd-835d,Xenos - Orks,Tankbusta w/ Two rokkit launchas,5,4+,,2,"6""",7+,1,,1,1,,,model
 f3be-f9fd-a145-5aa9,Xenos - Orks,Tankbusta w/ Pulsa rokkit,5,4+,,2,"6""",7+,1,,1,1,,,model
 1291-7ba8-2c5a-4a92,Xenos - Orks,Trukk,8,4+,,10,"12""",7+,2,70,1,1,,,model
-83a7-ea20-ed9-d14a,Xenos - Orks,Warbikers,6,4+,,3,"12""",7+,2,65,3,16,,,unit
+83a7-ea20-ed9-d14a,Xenos - Orks,Warbikers,6,4+,,3,"12""",7+,2,65,3,21,,,unit
 64c4-85e4-bc36-e4b6,Xenos - Orks,Warbiker,6,4+,,3,"12""",7+,2,,1,1,,,model
 df67-9045-caed-7f37,Xenos - Orks,Warbiker w/ Slugga,6,4+,,3,"12""",7+,2,,1,1,,,model
 b072-d55f-9271-c7f2,Xenos - Orks,Warbiker w/ Choppa,6,4+,,3,"12""",7+,2,,1,1,,,model
@@ -1895,7 +1895,7 @@ f019-5df1-88d5-ddc7,Xenos - Orks,Gretchin,2,7+,,1,"6""",8+,2,,1,1,,,model
 552d-6c0d-80e8-ac32,Xenos - Orks,Runtherd,5,5+,,2,"6""",7+,1,,1,1,,,model
 954d-5938-64d8-597c,Xenos - Orks,Squighog Boy,7,4+,,3,"10""",7+,2,,1,1,,,model
 99c8-e37d-ae6d-a8ba,Xenos - Orks,Nob on Smasha Squig,7,4+,,4,"10""",7+,2,,1,1,,,model
-a596-3d99-257e-0ea1,Xenos - Orks,Breaka Boyz,5,4+,,2,"6""",7+,1,140,9,,,,unit
+a596-3d99-257e-0ea1,Xenos - Orks,Breaka Boyz,5,4+,,2,"6""",7+,1,140,9,13,,,unit
 6610-3cb7-dc72-8852,Xenos - Orks,Da Red Gobbo's A-bomb-inable Snowman [Legends],2,5+,,3,"6""",7+,2,40,1,1,,,model
 070f-5f7f-2cab-6ee6,Xenos - Orks,Da Red Gobbo's Tinboy [Legends],6,3+,,5,"6""",7+,2,45,1,1,,,model
 2ba9-e97a-909d-3ac5,Xenos - Orks,Hordeboss [Crucible],5,4+,,5,"6""",7+,1,75,1,1,,,model
@@ -1914,32 +1914,32 @@ bbeb-8f65-fce1-b963,Xenos - T'au Empire,Aun'va,3,5+,,5,"6""",7+,1,,1,1,,,model
 8407-585b-76d2-72f3,Xenos - T'au Empire,Aun'shi [Legends],3,6+,,3,"6""",7+,1,50,1,1,,,model
 a0f5-5934-1570-5a21,Xenos - T'au Empire,Darkstrider,3,4+,,3,"7""",7+,1,60,1,1,,,model
 5bf-16e5-d77b-ea7d,Xenos - T'au Empire,Longstrike [Legends],10,3+,,14,"10""",7+,3,140,1,1,,,model
-acdd-2901-1a75-99f4,Xenos - T'au Empire,Strike Team,3,4+,,1,"6""",7+,2,70,10,19,,,unit
+acdd-2901-1a75-99f4,Xenos - T'au Empire,Strike Team,3,4+,,1,"6""",7+,2,70,10,28,,,unit
 cc51-5731-3dce-1d45,Xenos - T'au Empire,Fire Warrior w/ pulse carbine,3,4+,,1,"6""",7+,2,,1,1,,,model
 1c19-f20d-8e7b-db5d,Xenos - T'au Empire,Fire Warrior w/ pulse rifle,3,4+,,1,"6""",7+,2,,1,1,,,model
 bf14-d428-e240-e593,Xenos - T'au Empire,Fire Warrior Shas'ui,3,4+,,1,"6""",7+,2,,1,1,,,model
 afc0-2b21-8ddc-3b2a,Xenos - T'au Empire,Breacher Team,3,4+,,1,"6""",7+,2,90,9,9,,,unit
 91e6-a9de-d33f-d0ab,Xenos - T'au Empire,Breacher Fire Warriors,3,4+,,1,"6""",7+,2,,1,1,,,model
 a3c9-46a0-bd0b-8e9e,Xenos - T'au Empire,Breacher Fire Warrior Shas'ui,3,4+,,1,"6""",7+,2,,1,1,,,model
-d631-3ca5-e206-4e6a,Xenos - T'au Empire,Kroot Carnivores,3,6+,,1,"7""",7+,2,65,17,22,,,unit
+d631-3ca5-e206-4e6a,Xenos - T'au Empire,Kroot Carnivores,3,6+,,1,"7""",7+,2,65,17,41,,,unit
 c523-a2e2-a398-ea00,Xenos - T'au Empire,Krootox Riders,6,5+,,5,"7""",7+,2,40,1,9,,,unit
 de16-2476-9749-b603,Xenos - T'au Empire,Crisis Battlesuits [Legends],5,3+,,4,"10""",7+,2,200,2,5,,,unit
 ed43-d594-193f-8b56,Xenos - T'au Empire,Crisis Shas’ui,5,3+,,4,"10""",7+,2,,1,1,,,model
 724f-237b-2ead-756e,Xenos - T'au Empire,Crisis Shas’vre,5,3+,,4,"10""",7+,2,,1,1,,,model
-5d3a-803e-7cbc-b2f1,Xenos - T'au Empire,Stealth Battlesuits,4,3+,,2,"8""",7+,1,100,7,7,,,unit
+5d3a-803e-7cbc-b2f1,Xenos - T'au Empire,Stealth Battlesuits,4,3+,,2,"8""",7+,1,100,7,11,,,unit
 40a5-647f-cdd8-9cf6,Xenos - T'au Empire,Stealth Shas'ui w/ burst cannon,4,3+,,2,"8""",7+,1,,1,1,,,model
 5429-90b5-398b-9e2d,Xenos - T'au Empire,Stealth Shas'ui w/ fusion blaster,4,3+,,2,"8""",7+,1,,1,1,,,model
 3673-4644-8d64-3604,Xenos - T'au Empire,Stealth Shas'vre,4,3+,,2,"8""",7+,1,,1,1,,,model
 5268-6e9-8f5c-c810,Xenos - T'au Empire,Ghostkeel Battlesuit,8,2+,,12,"10""",7+,3,160,1,1,,,model
 5fe4-86de-b88c-a47b,Xenos - T'au Empire,Firesight Team,3,4+,,4,"6""",7+,3,60,1,1,,,model
-2598-d700-9952-e439,Xenos - T'au Empire,Pathfinder Team,3,4+,,1,"7""",7+,1,90,19,,,,unit
+2598-d700-9952-e439,Xenos - T'au Empire,Pathfinder Team,3,4+,,1,"7""",7+,1,90,19,29,,,unit
 ad87-9bfe-ad76-481e,Xenos - T'au Empire,Pathfinders w/ pulse carbine,3,4+,,1,"7""",7+,1,,1,1,,,model
 f1ca-59d2-49db-849f,Xenos - T'au Empire,Pathfinders w/ pulse carbine and grenade launcher,3,4+,,1,"7""",7+,1,,1,1,,,model
 bad1-a6d1-a65e-943b,Xenos - T'au Empire,Pathfinders w/ ion rifle,3,4+,,1,"7""",7+,1,,1,1,,,model
 68d2-39b6-1033-f3a,Xenos - T'au Empire,Pathfinders w/ rail rifle,3,4+,,1,"7""",7+,1,,1,1,,,model
 2af6-b5a5-4a1e-e2be,Xenos - T'au Empire,Pathfinder Shas'ui,3,4+,,1,"7""",7+,1,,1,1,,,model
 fe61-6f7e-e7e8-f6ce,Xenos - T'au Empire,Piranhas,7,4+,,7,"14""",7+,2,60,1,1,,,model
-b91-ba27-3842-76c,Xenos - T'au Empire,Vespid Stingwings,4,4+,,1,"12""",7+,1,65,9,13,,,unit
+b91-ba27-3842-76c,Xenos - T'au Empire,Vespid Stingwings,4,4+,,1,"12""",7+,1,65,9,22,,,unit
 6883-85aa-b338-b88,Xenos - T'au Empire,Kroot Hounds,3,6+,,1,"12""",8+,0,40,5,10,,,unit
 a594-317-b90a-a226,Xenos - T'au Empire,Broadside Battlesuits,6,2+,,8,"5""",7+,2,80,1,3,,,unit
 8a73-2cbe-9248-fe7d,Xenos - T'au Empire,Broadside Shas’ui,6,2+,,8,"5""",7+,2,,1,1,,,model
@@ -1955,7 +1955,7 @@ af7f-fc61-e9c0-6a7e,Xenos - T'au Empire,Tidewall Droneport,8,3+,,10,"4""",7+,0,8
 e412-ea81-6767-9974,Xenos - T'au Empire,Tidewall Gunrig,8,3+,,14,"4""",7+,0,90,1,1,,,model
 439b-e08-4466-e162,Xenos - T'au Empire,Stormsurge,11,2+,,20,"8""",7+,6,360,1,1,,,model
 f98a-5aa8-9305-2ed,Xenos - T'au Empire,Tactical Drones [Legends],3,4+,,1,"8""",7+,0,70,4,12,,,unit
-72f2-7d0b-80f9-43b7,Xenos - T'au Empire,Kroot Farstalkers,3,6+,,1,"12""",7+,0,85,12,,,,unit
+72f2-7d0b-80f9-43b7,Xenos - T'au Empire,Kroot Farstalkers,3,6+,,1,"12""",7+,0,85,12,12,,,unit
 b146-daf1-9b8b-6de9,Xenos - T'au Empire,R'varna Battlesuit [Legends],10,2+,,15,"8""",7+,4,200,1,1,,,model
 8013-c4e0-166e-a961,Xenos - T'au Empire,Y'vahra Battlesuit [Legends],9,2+,,15,"10""",7+,4,210,1,1,,,model
 388f-478b-18f5-aee7,Xenos - T'au Empire,Tetras [Legends],7,4+,,7,"14""",7+,2,80,4,8,,,unit

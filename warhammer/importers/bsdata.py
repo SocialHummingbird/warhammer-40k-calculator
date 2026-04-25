@@ -595,6 +595,8 @@ def _extract_unit_size(selection: ET.Element, related_entries: Sequence[ET.Eleme
             if not group.findall(".//selectionEntry[@type='model']"):
                 continue
             g_min, g_max = parse_min_max_from_node(group)
+            if g_min is None and g_max is None:
+                continue
             if g_min is not None and g_min > 0:
                 total_min += g_min
                 have_any = True
