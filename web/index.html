@@ -1789,6 +1789,10 @@
       };
     }
 
+    function distance(x1, y1, x2, y2) {
+      return Math.hypot(Number(x2) - Number(x1), Number(y2) - Number(y1));
+    }
+
     function updateBattleUnitPosition(instanceId, x, y) {
       const unit = battleUnitByInstance(instanceId);
       const battleMap = state.battlefield.state && state.battlefield.state.map;
@@ -1811,6 +1815,12 @@
         .map((candidate) => ({ ...candidate, distance: distance(unit.x, unit.y, candidate.x, candidate.y) }))
         .sort((left, right) => left.distance - right.distance)[0];
       return nearest || null;
+    }
+
+    function nearestBattleObjective(battleState, unit) {
+      return ((battleState && battleState.map && battleState.map.objectives) || [])
+        .slice()
+        .sort((left, right) => distance(unit.x, unit.y, left.x, left.y) - distance(unit.x, unit.y, right.x, right.y))[0] || null;
     }
 
     function unitLabelById(unitId) {
