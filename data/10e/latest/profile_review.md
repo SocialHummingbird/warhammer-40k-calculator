@@ -1,11 +1,12 @@
 # Imported Profile Review
 
-Generated: 2026-04-25T20:11:44.880262Z
+Generated: 2026-04-26T15:56:15.870004Z
 
 ## Files
 
 - `weapon_profile_review.csv`: one row per imported weapon profile, joined to unit name, faction, source file, points, model counts, parsed averages, and parse status.
 - `suspicious_weapon_review.csv`: filtered weapon profiles with zero or extreme parsed damage characteristics for manual inspection.
+- `unit_profile_review.csv`: one row per imported unit with core stat, points, and model-count validation for manual inspection.
 - `ability_profile_review.csv`: one row per imported ability profile, joined to unit name, faction, and source file where applicable.
 - `ability_modifier_review.csv`: one row per imported ability effect that the calculator turns into a modifier.
 - `unit_variant_review.csv`: one row per unit whose name appears more than once, preserving IDs, faction context, and source file.
@@ -17,49 +18,51 @@ Generated: 2026-04-25T20:11:44.880262Z
 
 | Item | Count |
 | --- | ---: |
-| Units | 2093 |
-| Weapon profiles | 10808 |
+| Units | 1464 |
+| Weapon profiles | 8628 |
 | Suspicious weapon profiles | 58 |
-| Ability profiles | 3173 |
-| Ability modifier rows | 370 |
-| Duplicate-name unit rows | 365 |
-| Weapon coverage rows | 2093 |
-| Loadout review rows | 344 |
+| Unit profile review rows | 1464 |
+| Unit profile issue rows | 5 |
+| Ability profiles | 3124 |
+| Ability modifier rows | 368 |
+| Duplicate-name unit rows | 186 |
+| Weapon coverage rows | 1464 |
+| Loadout review rows | 302 |
 | Source catalogue rows | 37 |
 
 ## Largest Factions
 
 | Faction | Units |
 | --- | ---: |
-| Imperium - Adeptus Astartes - Space Marines | 240 |
-| Aeldari - Aeldari Library | 175 |
-| Imperium - Astra Militarum - Library | 163 |
-| Chaos - Chaos Space Marines | 142 |
-| Xenos - Orks | 134 |
-| Imperium - Agents of the Imperium | 104 |
-| Xenos - T'au Empire | 99 |
-| Imperium - Adeptus Astartes - Space Wolves | 76 |
-| Chaos - Daemons Library | 74 |
-| Xenos - Necrons | 70 |
-| Xenos - Tyranids | 57 |
-| Chaos - Death Guard | 54 |
+| Imperium - Adeptus Astartes - Space Marines | 132 |
+| Aeldari - Aeldari Library | 127 |
+| Imperium - Astra Militarum - Library | 115 |
+| Xenos - Orks | 97 |
+| Chaos - Chaos Space Marines | 84 |
+| Chaos - Daemons Library | 68 |
+| Xenos - T'au Empire | 68 |
+| Xenos - Necrons | 67 |
+| Chaos - Death Guard | 51 |
+| Imperium - Agents of the Imperium | 49 |
+| Imperium - Adeptus Mechanicus | 44 |
+| Chaos - Thousand Sons | 42 |
 
 ## Source Catalogue Coverage
 
-| Source File | Factions | Units | Weapons | Suspicious Weapons | Loadout Rows |
-| --- | --- | ---: | ---: | ---: | ---: |
-| [Imperium - Space Marines.cat](https://github.com/BSData/wh40k-10e/blob/32b4525d9f69f062f3458d517c6cf82512ef6fef/Imperium%20-%20Space%20Marines.cat) | Imperium - Adeptus Astartes - Space Marines | 240 | 2125 | 0 | 55 |
-| [Aeldari - Aeldari Library.cat](https://github.com/BSData/wh40k-10e/blob/32b4525d9f69f062f3458d517c6cf82512ef6fef/Aeldari%20-%20Aeldari%20Library.cat) | Aeldari - Aeldari Library | 175 | 828 | 1 | 23 |
-| [Imperium - Astra Militarum - Library.cat](https://github.com/BSData/wh40k-10e/blob/32b4525d9f69f062f3458d517c6cf82512ef6fef/Imperium%20-%20Astra%20Militarum%20-%20Library.cat) | Imperium - Astra Militarum - Library | 163 | 906 | 4 | 40 |
-| [Chaos - Chaos Space Marines.cat](https://github.com/BSData/wh40k-10e/blob/32b4525d9f69f062f3458d517c6cf82512ef6fef/Chaos%20-%20Chaos%20Space%20Marines.cat) | Chaos - Chaos Space Marines | 142 | 630 | 0 | 24 |
-| [Orks.cat](https://github.com/BSData/wh40k-10e/blob/32b4525d9f69f062f3458d517c6cf82512ef6fef/Orks.cat) | Xenos - Orks | 134 | 595 | 7 | 10 |
-| [Imperium - Agents of the Imperium.cat](https://github.com/BSData/wh40k-10e/blob/32b4525d9f69f062f3458d517c6cf82512ef6fef/Imperium%20-%20Agents%20of%20the%20Imperium.cat) | Imperium - Agents of the Imperium | 104 | 615 | 0 | 22 |
-| [T'au Empire.cat](https://github.com/BSData/wh40k-10e/blob/32b4525d9f69f062f3458d517c6cf82512ef6fef/T%27au%20Empire.cat) | Xenos - T'au Empire | 99 | 577 | 10 | 22 |
-| [Imperium - Space Wolves.cat](https://github.com/BSData/wh40k-10e/blob/32b4525d9f69f062f3458d517c6cf82512ef6fef/Imperium%20-%20Space%20Wolves.cat) | Imperium - Adeptus Astartes - Space Wolves | 76 | 205 | 0 | 15 |
-| [Chaos - Chaos Daemons Library.cat](https://github.com/BSData/wh40k-10e/blob/32b4525d9f69f062f3458d517c6cf82512ef6fef/Chaos%20-%20Chaos%20Daemons%20Library.cat) | Chaos - Daemons Library | 74 | 242 | 0 | 3 |
-| [Necrons.cat](https://github.com/BSData/wh40k-10e/blob/32b4525d9f69f062f3458d517c6cf82512ef6fef/Necrons.cat) | Xenos - Necrons | 70 | 250 | 5 | 3 |
-| [Tyranids.cat](https://github.com/BSData/wh40k-10e/blob/32b4525d9f69f062f3458d517c6cf82512ef6fef/Tyranids.cat) | Xenos - Tyranids | 57 | 137 | 1 | 2 |
-| [Chaos - Death Guard.cat](https://github.com/BSData/wh40k-10e/blob/32b4525d9f69f062f3458d517c6cf82512ef6fef/Chaos%20-%20Death%20Guard.cat) | Chaos - Death Guard | 54 | 341 | 0 | 12 |
+| Source File | Factions | Units | Weapons | Suspicious Weapons | Unit Issues | Loadout Rows |
+| --- | --- | ---: | ---: | ---: | ---: | ---: |
+| [Imperium - Space Marines.cat](https://github.com/BSData/wh40k-10e/blob/32b4525d9f69f062f3458d517c6cf82512ef6fef/Imperium%20-%20Space%20Marines.cat) | Imperium - Adeptus Astartes - Space Marines | 132 | 1342 | 0 | 1 | 39 |
+| [Aeldari - Aeldari Library.cat](https://github.com/BSData/wh40k-10e/blob/32b4525d9f69f062f3458d517c6cf82512ef6fef/Aeldari%20-%20Aeldari%20Library.cat) | Aeldari - Aeldari Library | 127 | 667 | 1 | 0 | 22 |
+| [Imperium - Astra Militarum - Library.cat](https://github.com/BSData/wh40k-10e/blob/32b4525d9f69f062f3458d517c6cf82512ef6fef/Imperium%20-%20Astra%20Militarum%20-%20Library.cat) | Imperium - Astra Militarum - Library | 115 | 746 | 4 | 0 | 36 |
+| [Orks.cat](https://github.com/BSData/wh40k-10e/blob/32b4525d9f69f062f3458d517c6cf82512ef6fef/Orks.cat) | Xenos - Orks | 97 | 501 | 7 | 0 | 10 |
+| [Chaos - Chaos Space Marines.cat](https://github.com/BSData/wh40k-10e/blob/32b4525d9f69f062f3458d517c6cf82512ef6fef/Chaos%20-%20Chaos%20Space%20Marines.cat) | Chaos - Chaos Space Marines | 84 | 532 | 0 | 1 | 24 |
+| [T'au Empire.cat](https://github.com/BSData/wh40k-10e/blob/32b4525d9f69f062f3458d517c6cf82512ef6fef/T%27au%20Empire.cat) | Xenos - T'au Empire | 68 | 440 | 10 | 0 | 17 |
+| [Chaos - Chaos Daemons Library.cat](https://github.com/BSData/wh40k-10e/blob/32b4525d9f69f062f3458d517c6cf82512ef6fef/Chaos%20-%20Chaos%20Daemons%20Library.cat) | Chaos - Daemons Library | 68 | 232 | 0 | 0 | 3 |
+| [Necrons.cat](https://github.com/BSData/wh40k-10e/blob/32b4525d9f69f062f3458d517c6cf82512ef6fef/Necrons.cat) | Xenos - Necrons | 67 | 241 | 5 | 0 | 3 |
+| [Chaos - Death Guard.cat](https://github.com/BSData/wh40k-10e/blob/32b4525d9f69f062f3458d517c6cf82512ef6fef/Chaos%20-%20Death%20Guard.cat) | Chaos - Death Guard | 51 | 308 | 0 | 0 | 11 |
+| [Imperium - Agents of the Imperium.cat](https://github.com/BSData/wh40k-10e/blob/32b4525d9f69f062f3458d517c6cf82512ef6fef/Imperium%20-%20Agents%20of%20the%20Imperium.cat) | Imperium - Agents of the Imperium | 49 | 416 | 0 | 0 | 18 |
+| [Imperium - Adeptus Mechanicus.cat](https://github.com/BSData/wh40k-10e/blob/32b4525d9f69f062f3458d517c6cf82512ef6fef/Imperium%20-%20Adeptus%20Mechanicus.cat) | Imperium - Adeptus Mechanicus | 44 | 267 | 0 | 0 | 7 |
+| [Chaos - Thousand Sons.cat](https://github.com/BSData/wh40k-10e/blob/32b4525d9f69f062f3458d517c6cf82512ef6fef/Chaos%20-%20Thousand%20Sons.cat) | Chaos - Thousand Sons | 42 | 255 | 0 | 0 | 8 |
 
 ## Units With Most Weapon Profiles
 
@@ -104,44 +107,95 @@ Generated: 2026-04-25T20:11:44.880262Z
 | very high raw damage throughput | 18 |
 | very high attacks average | 16 |
 
+## Suspicious Weapon Severity
+
+| Severity | Rows |
+| --- | ---: |
+| info | 40 |
+| warning | 18 |
+
+## Suspicious Weapon Categories
+
+| Category | Rows |
+| --- | ---: |
+| extreme_profile | 18 |
+| large_platform_profile | 40 |
+
+## Unit Profile Validation
+
+| Severity | Rows |
+| --- | ---: |
+| info | 5 |
+| ok | 1459 |
+
+## Unit Profile Review Reasons
+
+| Reason | Rows |
+| --- | ---: |
+| missing points | 4 |
+| invalid points | 1 |
+
+## Unit Profile Review Categories
+
+| Category | Rows |
+| --- | ---: |
+| model_points_unset | 5 |
+| ok | 1459 |
+
 ## Derived Ability Modifiers
 
 | Modifier Type | Rows |
 | --- | ---: |
-| attack_modifier | 356 |
+| attack_modifier | 354 |
 | damage_reduction | 14 |
 
 ## Duplicate Unit Names
 
 | Unit Name | Variants |
 | --- | ---: |
-| Chaos Spawn | 6 |
 | Chaos Land Raider | 5 |
 | Chaos Rhino | 5 |
+| Chaos Spawn | 5 |
 | Defiler | 5 |
-| Boss Nob | 4 |
 | Chaos Predator Annihilator | 4 |
 | Chaos Predator Destructor | 4 |
-| Fiends | 4 |
 | Helbrute | 4 |
 | Heldrake | 4 |
 | Hell Talon [Legends] | 4 |
 | Hellblade [Legends] | 4 |
+| Maulerfiend | 4 |
+| Forgefiend | 3 |
 
 ## Unit Weapon Coverage
 
 | Coverage | Units |
 | --- | ---: |
-| both | 1767 |
-| melee_only | 248 |
-| no_weapons | 19 |
-| ranged_only | 59 |
+| both | 1260 |
+| melee_only | 145 |
+| no_weapons | 16 |
+| ranged_only | 43 |
 
 ## Loadout Review Reasons
 
 | Reason | Rows |
 | --- | ---: |
-| mixed loadout profiles | 343 |
-| many imported weapon profiles | 151 |
-| many ranged profiles | 109 |
-| many melee profiles | 50 |
+| mixed loadout profiles | 301 |
+| many imported weapon profiles | 133 |
+| many ranged profiles | 101 |
+| many melee profiles | 49 |
+
+## Loadout Review Severity
+
+| Severity | Rows |
+| --- | ---: |
+| info | 159 |
+| warning | 143 |
+
+## Loadout Review Categories
+
+| Category | Rows |
+| --- | ---: |
+| crucible_profile | 62 |
+| legends_profile | 97 |
+| many_profiles | 33 |
+| mixed_profiles | 110 |

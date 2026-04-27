@@ -40,7 +40,7 @@ python main.py --attacker "Ork Boy" --defender "Space Marine Intercessor" --mode
 
 ### Standalone local HTML
 
-Open `warhammer_calculator_local.html` directly, or double-click `open_local_html.bat`. This file embeds the imported unit data, audit report, update report, profile review summary, import diff, and browser-side calculator logic, so it does not need the local Python web server. Use the Data Review button to inspect the latest update summary, profile coverage, audit findings, and update diff in the browser.
+Open `warhammer_calculator_local.html` directly, or double-click `open_local_html.bat`. This file embeds the imported unit data, audit report, update report, profile review summary, import diff, suspicious weapon summary, and browser-side calculator logic, so it does not need the local Python web server. Use the Data Review button to inspect the latest update summary, profile coverage, suspicious weapon categories, audit findings, and update diff in the browser.
 
 The web UI preserves importer unit IDs and shows each selected unit and weapon's BSData source file, so duplicate unit names from different factions or variants remain selectable and auditable instead of being collapsed into one name.
 
@@ -48,6 +48,10 @@ To refresh the BSData checkout, rebuild all generated files, and open the standa
 
 ```powershell
 .\update_and_open_local_html.ps1
+.\update_and_open_local_html.ps1 -FailOnReviewIssues
+.\update_and_open_local_html.ps1 -FailOnReviewIssues -MaxSuspiciousWeaponWarnings 18 -MaxLoadoutWarnings 143 -MaxNoWeaponUnits 16
+.\update_and_open_local_html.ps1 -FailOnReviewIssues -ReviewThresholds config\review_thresholds_10e.json
+.\update_and_open_local_html.ps1 -WriteReviewThresholds config\review_thresholds_10e.json
 ```
 
 Regenerate it after refreshing `data\10e\latest`:
@@ -78,6 +82,13 @@ Then open `http://127.0.0.1:8765/`. The server loads units once at startup and s
 
 The local server also exposes the latest generated data review at `http://127.0.0.1:8765/api/data-review`, including `update_report.md` and `profile_review.md`, which powers the same Data Review button used by the standalone HTML.
 
+To run the server with a non-default advisory model, pass `--model` through the module or PowerShell launcher:
+
+```powershell
+python -m warhammer.webapp --csv-dir data\10e\latest --model models\10e\matchup_logistic_model.json
+.\run_web_ui.ps1 --model models\10e\matchup_logistic_model.json
+```
+
 ## Importing units from BSData catalogues
 1. Retrieve the Warhammer 40,000 BSData repository (for example, by cloning `https://github.com/BSData/wh40k-10e` or letting the importer download it on demand with `python import_bsdata.py --github-repo BSData/wh40k-10e --output data\10e\latest --edition 10e`).
 2. Run the importer to convert catalogues into CSV extracts:
@@ -101,11 +112,11 @@ When `data\wh40k-10e` is a local Git checkout, refresh the whole generated datab
 python update_database.py
 ```
 
-The updater fast-forwards the BSData checkout from `https://github.com/BSData/wh40k-10e.git`, regenerates `data\10e\latest`, writes `audit_report.json`, `schema_review.csv`, `edition_status.json`, `import_diff.json`, joined profile review files, and a readable `update_report.md`, refreshes the ML feature CSV/model/audit under `data\ml\10e` and `models\10e`, stores a commit-keyed snapshot under `data\10e\snapshots`, rebuilds `warhammer_calculator_local.html`, and mirrors artifacts to `data\latest` for older commands. Use `--skip-ml` to leave existing ML artifacts untouched during a data-only refresh.
+The updater fast-forwards the BSData checkout from `https://github.com/BSData/wh40k-10e.git`, regenerates `data\10e\latest`, writes `audit_report.json`, `schema_review.csv`, `edition_status.json`, `edition_readiness.md`, `import_diff.json`, joined profile review files, and a readable `update_report.md`, refreshes the ML feature CSV/model/audit under `data\ml\10e` and `models\10e`, records linked ML artifact hashes in `artifact_manifest.json`, stores a commit-keyed snapshot under `data\10e\snapshots`, rebuilds `warhammer_calculator_local.html`, and mirrors artifacts to `data\latest` for older commands. Use `--skip-ml` to leave existing ML artifacts untouched during a data-only refresh, `--ml-model-type logistic_regression` to have the update pipeline train and embed the optional logistic advisory model, or `--fail-on-review-issues` to make the update exit non-zero when generated artifacts, schema, edition readiness, or error-severity audit rows fail the data review gate. Add `--review-fail-on-warnings` when you want warning rows to block the refresh too, `--review-thresholds config\review_thresholds_10e.json` to use the current accepted warning baseline, `--write-review-thresholds config\review_thresholds_10e.json` to write a new accepted baseline after a successful refresh, or threshold flags such as `--max-suspicious-weapon-warnings`, `--max-loadout-warnings`, and `--max-no-weapon-units` when existing warning rows are accepted but growth should fail the update.
 
-Generated metadata records the active rules edition. The current supported value is `10e`; pass `--edition 10e` explicitly when scripting updates that will later coexist with additional edition snapshots. The server discovers `data\<edition>\latest` folders, reports them through `/api/health`, and routes unit search, unit detail, data review, review downloads, and calculations through the selected edition when a matching ruleset exists. If data exists for an edition whose ruleset is not implemented, the server reports it as blocked instead of silently hiding it. The standalone HTML remains a single embedded dataset but shows the edition used for that export.
+Generated metadata records the active rules edition. The current supported value is `10e`; pass `--edition 10e` explicitly when scripting updates that will later coexist with additional edition snapshots. The server discovers `data\<edition>\latest` folders, reports them through `/api/health`, and routes unit search, unit detail, data review, review downloads, and calculations through the selected edition when a matching ruleset exists. If data exists for an edition whose ruleset is not implemented, the server reports it as blocked instead of silently hiding it. Each supported ruleset also publishes machine-readable capability coverage in `edition_status.json` and `/api/health.rulesets`, so future edition work can compare implemented mechanics such as hit rolls, wound rolls, saves, damage handling, and model removal before calculations are enabled. The standalone HTML remains a single embedded dataset but shows the edition used for that export.
 
-Matchup calculations are routed through `warhammer.matchups`, a reusable service layer shared by the web API compatibility helpers and intended for future ML dataset export. Generated review artifacts are loaded through `warhammer.data_review`, keeping audit/report parsing separate from HTTP routing. Edition discovery and readiness rows live in `warhammer.editions`, so future edition folders can be audited without binding that logic to the web server. API payload parsing lives in `warhammer.api_payloads`, and unit filtering lives in `warhammer.unit_search`. Keep new advisory or prediction code behind these service layers so the deterministic rules engine and generated audit files remain the source of truth.
+Matchup calculations are routed through `warhammer.matchups`, a reusable service layer shared by the web API and intended for future ML dataset export. Matchup payload formatting and AI judgement text live in `warhammer.matchup_payloads`, and the webapp now uses that module directly for unit and result serialization. Generated review artifacts, review downloads, and model download path parsing are loaded through `warhammer.data_review`, keeping audit/report parsing separate from HTTP routing. Edition discovery and readiness rows live in `warhammer.editions`, while loaded web datasets, default data paths, and ML model state live in `warhammer.web_state`. API payload parsing lives in `warhammer.api_payloads`, web calculate-request handling lives in `warhammer.web_calculation`, web API response payload and download-target selection live in `warhammer.web_api`, unit filtering lives in `warhammer.unit_search`, ability modifier collection lives in `warhammer.ability_resolver`, engagement state lives in `warhammer.context`, result dataclasses/scaling live in `warhammer.results`, and single-weapon orchestration lives in `warhammer.weapon_resolution`. The webapp routes to those modules directly instead of maintaining duplicate private helper proxies. `warhammer.calculator` remains the public compatibility API for callers. Edition-specific combat behavior lives behind `warhammer.rules`; the current `10e` ruleset owns hit rolls, hit rerolls, Lethal Hits, Sustained Hits, wound rolls, Anti critical wounds, Devastating Wounds pool splitting, modifier caps, advance firing, Rapid Fire, Blast, Heavy, Assault, cover/save resolution, FNP, expected damage, model removal, melta, and damage handling. Keep new advisory or prediction code behind these service layers so the deterministic rules engine and generated audit files remain the source of truth.
 
 ## ML feature export
 
@@ -125,18 +136,61 @@ python train_ml_model.py --features data\ml\10e\matchup_training_rows.csv --outp
 
 By default the trainer uses `--feature-set pre_match`, which includes unit/profile inputs and same-mode weapon aggregates such as attacks, skill, strength, AP, damage, keyword count, and special rule count, while excluding calculator output metrics such as expected damage and points removed. Use `--feature-set full` only when you intentionally want a comparison model that can see those deterministic calculator outputs.
 
+The default model type is the dependency-free nearest-centroid baseline. If `scikit-learn` is installed, you can train an optional stronger JSON-serialised logistic-regression advisory model without adding runtime dependencies to the web app or standalone HTML:
+
+```powershell
+python train_ml_model.py --model-type logistic_regression --features data\ml\10e\matchup_training_rows.csv --output models\10e\matchup_logistic_model.json --report models\10e\matchup_logistic_model.md
+```
+
+The full data update pipeline can train and embed that optional model in one run:
+
+```powershell
+python update_database.py --ml-model-type logistic_regression
+```
+
+To compare available model families on the same feature CSV without writing or replacing model artifacts:
+
+```powershell
+python compare_ml_models.py --features data\ml\10e\matchup_training_rows.csv
+```
+
+Database updates also write this comparison to `models\10e\model_comparison.md` and expose it in Data Review with the model audit downloads.
+
+To embed a non-default model in the standalone HTML, pass it to the exporter:
+
+```powershell
+python export_local_html.py --csv-dir data\10e\latest --model models\10e\matchup_logistic_model.json
+```
+
 Training also stores feature CSV provenance in the model JSON, including feature row count, byte size, and SHA-256 hash. It also writes `models\10e\matchup_centroid_model.md`, a Markdown audit report with model type, feature set, label source, saved feature hash, class balance, validation confusion matrix, feature columns, and a warning when calculator output metrics are used as features. The Data Review view includes this report and download links for the model audit/JSON alongside the database audit files. To audit an existing model without retraining:
 
 ```powershell
 python audit_ml_model.py --model models\10e\matchup_centroid_model.json --features data\ml\10e\matchup_training_rows.csv
 ```
 
+Verify that the current feature CSV still matches the model's saved training provenance:
+
+```powershell
+python verify_ml_artifacts.py --features data\ml\10e\matchup_training_rows.csv --model models\10e\matchup_centroid_model.json
+```
+
 When `models\<edition>\matchup_centroid_model.json` exists, the local web API reports model status through `/api/health` and attaches a separate `ml_judgement` object to `/api/calculate` responses. The UI status bar shows the loaded model's validation accuracy, and results render the ML advisory beneath the deterministic rules judgement. `export_local_html.py` embeds the same small model JSON into `warhammer_calculator_local.html`, so the standalone file can show the advisory without a Python server.
+
+For a compact terminal summary of the generated review artifacts, run:
+
+```powershell
+python data_review_summary.py --data-dir data\10e\latest
+python data_review_summary.py --data-dir data\10e\latest --fail-on-issues
+python data_review_summary.py --data-dir data\10e\latest --fail-on-issues --max-suspicious-weapon-warnings 18 --max-loadout-warnings 143 --max-no-weapon-units 16
+python data_review_summary.py --data-dir data\10e\latest --fail-on-issues --thresholds config\review_thresholds_10e.json
+python data_review_summary.py --data-dir data\10e\latest --write-thresholds config\review_thresholds_10e.json
+```
 
 For manual data review, open:
 
 - `data\10e\latest\weapon_profile_review.csv` for every imported weapon joined to unit name, faction, source file, points, model count, parsed averages, parse status, and raw damage throughput.
-- `data\10e\latest\suspicious_weapon_review.csv` for zero or extreme parsed weapon damage characteristics that deserve manual review.
+- `data\10e\latest\suspicious_weapon_review.csv` for missing, unparsable, zero, or extreme weapon characteristics, with severity and category columns for manual review.
+- `data\10e\latest\unit_profile_review.csv` for every imported unit with core stat, points, and model-count validation columns.
 - `data\10e\latest\ability_profile_review.csv` for every imported ability joined to unit name, faction, and source file where applicable.
 - `data\10e\latest\ability_modifier_review.csv` for derived ability effects that the calculator applies during matchup math.
 - `data\10e\latest\unit_variant_review.csv` for duplicate-name unit rows with their unit IDs, factions, source files, points, and model counts.
@@ -145,14 +199,22 @@ For manual data review, open:
 - `data\10e\latest\source_catalogue_review.csv` for per-catalogue unit, weapon, ability, suspicious, loadout review counts, and exact upstream GitHub file URLs.
 - `data\10e\latest\schema_review.csv` for required versus actual generated CSV columns.
 - `data\10e\latest\edition_status.json` for ruleset availability, calculation readiness, blockers, source commit, row counts, and audit summary.
-- `data\10e\latest\artifact_manifest.json` for file sizes and SHA-256 hashes of generated artifacts.
+- `data\10e\latest\edition_readiness.md` for a readable compatibility report and migration checklist for future edition support.
+- `data\10e\latest\artifact_manifest.json` for file sizes and SHA-256 hashes of generated artifacts and linked ML artifacts.
 - `data\10e\latest\profile_review.md` for a short summary of imported profile coverage.
 
-Verify generated artifacts against their manifest with:
+Verify generated artifacts, linked ML artifact hashes, and linked ML training provenance against their manifest with:
 
 ```powershell
 python verify_artifacts.py --data-dir data\10e\latest
 python verify_artifacts.py --data-dir data\10e\snapshots\32b4525d9f69
+```
+
+Run the full local release verification set with:
+
+```powershell
+python verify_release.py
+.\verify_release.ps1
 ```
 
 ## Generating keyword & ability references
@@ -160,26 +222,70 @@ Create a Markdown cheat sheet listing every keyword and ability plus the units t
 
 ```powershell
 # Print the reference to the console
-python main.py --csv-dir data\latest --reference -
+python main.py --csv-dir data\10e\latest --reference -
 
 # Write the reference to a Markdown file
-python main.py --csv-dir data\latest --reference data\latest\references.md
+python main.py --csv-dir data\10e\latest --reference data\10e\latest\references.md
 ```
 
-Prefer a standalone script? `python export_reference.py --csv-dir data\latest --output data\latest\references.md` produces the same Markdown output.
+Prefer a standalone script? `python export_reference.py --csv-dir data\10e\latest --output data\10e\latest\references.md` produces the same Markdown output.
 
 ## Advanced usage tips
-- `main.py` accepts `--mode melee` or `--mode ranged` to restrict calculations to weapons of that type.
-- When using `--csv-dir`, the calculator consumes the CSV outputs directly-no need to maintain a separate JSON file. Include the optional keyword columns your importer emits (`keywords`, weapon `reroll_hits`, `reroll_wounds`, `lethal_hits`, `sustained_hits`, `devastating_wounds`, etc.) so advanced weapon rules propagate end-to-end.
-- Supply optional fields such as `reroll_hits`, `reroll_wounds`, `lethal_hits`, `sustained_hits`, `devastating_wounds`, `feel_no_pain`, `damage_cap`, `keywords`, or ability text that grants Twin-linked/Anti-X/Ignore Cover to model common 10th-edition abilities.
-- Advanced rules like Heavy, Assault, Rapid Fire, Ignores Cover, and damage reduction require engagement context. When calling the API use `EngagementContext(attacker_moved=..., attacker_advanced=..., target_within_half_range=..., target_in_cover=...)` (see the Python snippet below). CLI invocations presently assume a stationary attacker and no cover, so reach for the snippet or the `preset_matchups.py` helper whenever you need to model advancing, half-range bonuses, or defending units in cover.
-- preset_matchups.py wraps the source-backed CLI so you can stick with the original preset commands while still benefiting from preserved keyword data. Combine `--preset`, `--weapon-mode`, `--seed`, and `--csv-dir` to control which tables print without scripting, pair `--attacker` with `--defender` for a single-target duel, and use `--scenario` to feed extra context when you want the AI narrative to weigh positioning or tactics. Use `--random-fair-duel` (optionally with `--max-point-delta`) to auto-pair single-model units that share battlefield keywords and have weapons for the selected mode.
+- Prefer `data\10e\latest` for current generated data. `data\latest` is still mirrored for older commands, but edition-scoped paths make future 11th-edition data safer to keep beside 10th edition.
+- `main.py` accepts `--mode melee` or `--mode ranged` for direct attacker-versus-defender calculations. CLI calls use default engagement context: stationary attacker, no cover, no half-range bonus unless a rule is profile-driven.
+- When using `--csv-dir`, the calculator consumes importer CSV output directly. Keep generated columns such as `keywords`, `reroll_hits`, `reroll_wounds`, `lethal_hits`, `sustained_hits`, `devastating_wounds`, `feel_no_pain`, `damage_cap`, ability text, unit IDs, points, and model counts so rules, duplicate unit selection, points removed, and audit views stay connected.
+- Advanced 10th-edition rules such as Heavy, Assault, Rapid Fire, Blast, Ignores Cover, Melta, Anti, Twin-linked, Lethal Hits, Sustained Hits, Devastating Wounds, Feel No Pain, and damage reduction are resolved through the `10e` ruleset. Movement, half-range, cover, and target model count need engagement context when you use the Python API or `/api/calculate`.
+- `preset_matchups.py` wraps the source-backed CLI for preset target tables and duels. Combine `--preset`, `--weapon-mode`, `--seed`, and `--csv-dir` to control tables, pair `--attacker` with `--defender` for a single duel, and use `--scenario realistic` with `--explain` when you want AI commentary to consider positioning. Use `--random-fair-duel` with `--max-point-delta` to auto-pair similar single-model units.
+- The local web server and standalone HTML are usually better for repeated manual review because they expose unit IDs, faction filtering, weapon filters, model multipliers, deterministic judgement, ML advisory output, and Data Review links.
 
-Example: Account for an advancing attacker that fires at half range into a unit in cover by using the Python API directly:
+Direct CLI examples:
 
 ```powershell
-python -c "from pathlib import Path; from warhammer.datasheet import load_units_from_csv; from warhammer.calculator import EngagementContext, evaluate_unit; units = load_units_from_csv(Path('data/latest')); attacker = units['Garran Branatar']; defender = units['Rhino']; context = EngagementContext(attacker_moved=True, attacker_advanced=True, target_within_half_range=True, target_in_cover=True); result = evaluate_unit(attacker, defender, 'ranged', context=context); print(f'{attacker.name} vs {defender.name} (ranged) expected damage: {result.total_damage:.2f}')"
+python main.py --csv-dir data\10e\latest --attacker "Intercessor Squad" --defender "Boyz" --mode ranged
+python main.py --csv-dir data\10e\latest --attacker "Boyz" --defender "Intercessor Squad" --mode melee
 ```
+
+Python API example with explicit engagement context:
+
+```powershell
+python -c "from pathlib import Path; from warhammer.datasheet import load_units_from_csv; from warhammer.calculator import EngagementContext, evaluate_unit; units = load_units_from_csv(Path('data/10e/latest')); attacker = units['Garran Branatar']; defender = units['Rhino']; context = EngagementContext(attacker_moved=True, attacker_advanced=True, target_within_half_range=True, target_in_cover=True, target_model_count=1); result = evaluate_unit(attacker, defender, 'ranged', context=context, edition='10e'); print(f'{attacker.name} vs {defender.name} expected damage: {result.total_damage:.2f}; models destroyed: {result.expected_models_destroyed:.2f}')"
+```
+
+Preset and duel examples:
+
+```powershell
+python preset_matchups.py --csv-dir data\10e\latest --attacker "Garran Branatar" --preset vehicles --preset monsters --weapon-mode all
+python preset_matchups.py --csv-dir data\10e\latest --attacker "Bladeguard Veteran Squad" --defender "Custodian Wardens" --weapon-mode melee --explain --scenario realistic
+python preset_matchups.py --csv-dir data\10e\latest --random-fair-duel --fair-require-both --weapon-mode all --max-point-delta 40 --explain --scenario realistic
+```
+
+Local server API example:
+
+```powershell
+python -m warhammer.webapp --csv-dir data\10e\latest --port 8765
+
+$body = @{
+  edition = "10e"
+  attacker = "Intercessor Squad"
+  defender = "Boyz"
+  mode = "ranged"
+  outgoing_context = @{ attacker_moved = $true; target_in_cover = $true }
+  incoming_context = @{ attacker_moved = $false }
+} | ConvertTo-Json -Depth 4
+
+Invoke-RestMethod -Method Post -Uri http://127.0.0.1:8765/api/calculate -Body $body -ContentType "application/json"
+```
+
+Data and ML audit examples:
+
+```powershell
+python verify_artifacts.py --data-dir data\10e\latest
+python verify_ml_artifacts.py --features data\ml\10e\matchup_training_rows.csv --model models\10e\matchup_centroid_model.json
+python main.py --rulesets
+python main.py --rulesets-json
+python datasheet.py --csv-dir data\10e\latest --unit "Intercessor Squad"
+```
+
 ## Directory recap
 - `main.py` - CLI damage calculator.
 - `import_bsdata.py` - BSData catalogue importer that emits CSV tables.
@@ -196,10 +302,10 @@ Quickly confirm that imported data is parsed correctly:
 
 ```powershell
 # Print a specific unit datasheet
-python datasheet.py --csv-dir data\latest --unit "Intercessor Squad"
+python datasheet.py --csv-dir data\10e\latest --unit "Intercessor Squad"
 
 # Pick a random unit and print its datasheet
-python -c "import random; from pathlib import Path; from warhammer.datasheet import load_units_from_csv, print_unit_datasheet; units = load_units_from_csv(Path('data/latest')); unit = random.choice(list(units.values())); print(f'Random unit selected: {unit.name}'); print_unit_datasheet(unit)"
+python -c "import random; from pathlib import Path; from warhammer.datasheet import load_units_from_csv, print_unit_datasheet; units = load_units_from_csv(Path('data/10e/latest')); unit = random.choice(list(units.values())); print(f'Random unit selected: {unit.name}'); print_unit_datasheet(unit)"
 ```
 
 Use `--include-crusade` if you want the CLI to show Crusade battle scars and upgrades.
@@ -225,28 +331,28 @@ Commands:
 
 ```powershell
 # Random attacker vs every preset (uses importer CSV output)
-python main.py --csv-dir data/latest --weapon-tables-all-presets-random --weapon-mode all --ppm-basis average
+python main.py --csv-dir data/10e/latest --weapon-tables-all-presets-random --weapon-mode all --ppm-basis average
 
 # Lock to a specific attacker and melee weapons only
-python main.py --csv-dir data/latest --attacker "Garran Branatar" --weapon-tables-all-presets --weapon-mode melee
+python main.py --csv-dir data/10e/latest --attacker "Garran Branatar" --weapon-tables-all-presets --weapon-mode melee
 
 # Export the tables to Markdown for later reference
-python main.py --csv-dir data/latest --attacker "Garran Branatar" --weapon-tables-all-presets --weapon-mode all --export-table data/latest/garran-vs-presets.md --export-format md
+python main.py --csv-dir data/10e/latest --attacker "Garran Branatar" --weapon-tables-all-presets --weapon-mode all --export-table data/10e/latest/garran-vs-presets.md --export-format md
 
 # Optional helper: focus on selected presets through the wrapper
-python preset_matchups.py --csv-dir data/latest --attacker "Garran Branatar" --preset vehicles --preset monsters
+python preset_matchups.py --csv-dir data/10e/latest --attacker "Garran Branatar" --preset vehicles --preset monsters
 
 # Discover available presets without running calculations
 python preset_matchups.py --list-presets
 
 # Ask the AI for a preset rundown (Bladeguard)
-python preset_matchups.py --csv-dir data/latest --attacker "Bladeguard Veteran Squad" --preset elite --weapon-mode melee --explain --scenario realistic
+python preset_matchups.py --csv-dir data/10e/latest --attacker "Bladeguard Veteran Squad" --preset elite --weapon-mode melee --explain --scenario realistic
 
 # Ask the AI for a preset rundown (Wardens)
-python preset_matchups.py --csv-dir data/latest --attacker "Custodian Wardens" --preset elite --weapon-mode melee --explain --scenario realistic
+python preset_matchups.py --csv-dir data/10e/latest --attacker "Custodian Wardens" --preset elite --weapon-mode melee --explain --scenario realistic
 
 # Random two-unit duel (tables only)
-python -c "import random, subprocess; from pathlib import Path; from warhammer.datasheet import load_units_from_csv; units = load_units_from_csv(Path('data/latest'));
+python -c "import random, subprocess; from pathlib import Path; from warhammer.datasheet import load_units_from_csv; units = load_units_from_csv(Path('data/10e/latest'));
 eligible = [u for u in units.values() if getattr(u, 'points', 0) and any(getattr(w, 'type', '').lower() == 'melee' for w in getattr(u, 'weapons', []))];
 if len(eligible) < 2: raise SystemExit('Not enough melee-capable units with points to sample.');
 attacker = random.choice(eligible);
@@ -254,16 +360,16 @@ defenders = [u for u in eligible if u is not attacker];
 defender = random.choice(defenders);
 print(f'Selected attacker: {attacker.name} ({attacker.points} pts)');
 print(f'Selected defender: {defender.name} ({defender.points} pts)');
-subprocess.run(['python', 'preset_matchups.py', '--csv-dir', 'data/latest', '--attacker', attacker.name, '--defender', defender.name, '--weapon-mode', 'melee'], check=False)"
+subprocess.run(['python', 'preset_matchups.py', '--csv-dir', 'data/10e/latest', '--attacker', attacker.name, '--defender', defender.name, '--weapon-mode', 'melee'], check=False)"
 
 # Two-unit duel (tables only)
-python preset_matchups.py --csv-dir data/latest --attacker "Bladeguard Veteran Squad" --defender "Custodian Wardens" --weapon-mode melee
+python preset_matchups.py --csv-dir data/10e/latest --attacker "Bladeguard Veteran Squad" --defender "Custodian Wardens" --weapon-mode melee
 
 # Random fair duel (single-model, similar points, melee + ranged)
-python preset_matchups.py --csv-dir data/latest --random-fair-duel --fair-require-both --weapon-mode all --max-point-delta 40 --explain --scenario realistic
+python preset_matchups.py --csv-dir data/10e/latest --random-fair-duel --fair-require-both --weapon-mode all --max-point-delta 40 --explain --scenario realistic
 
 # Random two-unit duel with AI commentary
-python -c "import random, subprocess; from pathlib import Path; from warhammer.datasheet import load_units_from_csv; units = load_units_from_csv(Path('data/latest'));
+python -c "import random, subprocess; from pathlib import Path; from warhammer.datasheet import load_units_from_csv; units = load_units_from_csv(Path('data/10e/latest'));
 eligible = [u for u in units.values() if getattr(u, 'points', 0) and any(getattr(w, 'type', '').lower() == 'melee' for w in getattr(u, 'weapons', []))];
 if len(eligible) < 2: raise SystemExit('Not enough melee-capable units with points to sample.');
 attacker = random.choice(eligible);
@@ -271,10 +377,10 @@ defenders = [u for u in eligible if u is not attacker];
 defender = random.choice(defenders);
 print(f'Selected attacker: {attacker.name} ({attacker.points} pts)');
 print(f'Selected defender: {defender.name} ({defender.points} pts)');
-subprocess.run(['python', 'preset_matchups.py', '--csv-dir', 'data/latest', '--attacker', attacker.name, '--defender', defender.name, '--weapon-mode', 'melee', '--explain', '--scenario', 'realistic'], check=False)"
+subprocess.run(['python', 'preset_matchups.py', '--csv-dir', 'data/10e/latest', '--attacker', attacker.name, '--defender', defender.name, '--weapon-mode', 'melee', '--explain', '--scenario', 'realistic'], check=False)"
 
 # Direct duel with AI commentary
-python preset_matchups.py --csv-dir data/latest --attacker "Bladeguard Veteran Squad" --defender "Custodian Wardens" --weapon-mode melee --explain --scenario realistic
+python preset_matchups.py --csv-dir data/10e/latest --attacker "Bladeguard Veteran Squad" --defender "Custodian Wardens" --weapon-mode melee --explain --scenario realistic
 ```
 
 The helper flags defenders with >=10" Move or Advance+Charge when you run preset tables so fast targets stand out immediately.
@@ -298,10 +404,10 @@ Run the helper to review the latest CSV exports:
 
 ```powershell
 # Collects heuristic stats and lets the model flag questionable rows
-python ai_clean.py --csv-dir data/latest
+python ai_clean.py --csv-dir data/10e/latest
 
 # Skip the model call and only print the heuristics
-python ai_clean.py --csv-dir data/latest --summary-only
+python ai_clean.py --csv-dir data/10e/latest --summary-only
 ```
 
 The script summarises missing values, duplicate names, and other quick checks before handing the report to the model you specify (default: `gpt-5-mini`).
@@ -318,24 +424,24 @@ The helper in `preset_matchups.py` simply reuses that engine for convenience whe
 Run the audit whenever you refresh the importer output to see which units still need manual points/min/max data and to catch suspicious weapon/profile rows, such as placeholder damage, invalid Strength/AP values, orphaned weapon links, duplicate profile IDs, and duplicate mappings:
 
 ```powershell
-python audit_import.py --csv-dir data/latest
+python audit_import.py --csv-dir data/10e/latest
 ```
 
 Write the same results to JSON for review tooling or the web UI:
 
 ```powershell
-python audit_import.py --csv-dir data/latest --json-report data/latest/audit_report.json
+python audit_import.py --csv-dir data/10e/latest --json-report data/10e/latest/audit_report.json
 ```
 
 Use `--fail-on-issues` when you want a CI-style non-zero exit code:
 
 ```powershell
-python audit_import.py --csv-dir data/latest --fail-on-issues
+python audit_import.py --csv-dir data/10e/latest --fail-on-issues
 ```
 
-This helper only uses the exported CSVs, so it behaves just like the AI checker but without requiring an API key. The latest generation timestamp and source path are stored in `data/latest/metadata.json`.
+This helper only uses the exported CSVs, so it behaves just like the AI checker but without requiring an API key. The latest generation timestamp and source path are stored in `data/10e/latest/metadata.json`.
 
-For a human-readable update summary, open `data/latest/update_report.md`. It includes the source BSData commit, audit status, row counts, and import diff counts, and it is also copied into each `data/snapshots/<commit>` folder.
+For a human-readable update summary, open `data/10e/latest/update_report.md`. It includes the source BSData commit, audit status, row counts, import diff counts, and any review-gate thresholds applied during the refresh, and it is also copied into each `data/10e/snapshots/<commit>` folder.
 
 
 

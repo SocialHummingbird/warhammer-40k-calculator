@@ -1,7 +1,7 @@
 # Changelog
 
 ## Planned Work
-- [ ] Refactor core boundaries before adding ML-heavy features.
+- [x] Refactor core boundaries before adding ML-heavy features.
   - [x] Extract deterministic matchup orchestration into `warhammer.matchups` so the web API and future ML exporters can share one calculation path.
   - [x] Extract generated review artifact loading into `warhammer.data_review`.
   - [x] Extract edition metadata, discovery, and readiness rows into `warhammer.editions`.
@@ -18,7 +18,50 @@
   - [x] Surface ML model audit content and model artifact links through the Data Review screen and standalone HTML export.
   - [x] Regenerate ML features, model, and audit during `update_database.py` before rebuilding standalone HTML, with `--skip-ml` for data-only refreshes.
   - [x] Store feature CSV provenance in trained model JSON and surface the saved feature row count/hash in the ML audit report.
-  - Later replace or augment the dependency-free baseline with a stronger optional model.
+  - [x] Add `verify_ml_artifacts.py` and run it during database updates to catch stale feature CSV/model pairs.
+  - [x] Record linked ML artifact hashes in generated data `artifact_manifest.json`.
+  - [x] Extend `verify_artifacts.py` to verify linked ML artifact hashes recorded in `artifact_manifest.json`.
+  - [x] Extend `verify_artifacts.py` to run linked ML training-provenance checks when feature/model links are present.
+  - [x] Add an optional scikit-learn logistic-regression trainer behind `train_ml_model.py --model-type logistic_regression` while keeping the dependency-free centroid model as the default.
+  - [x] Let `export_local_html.py --model` embed a selected advisory model and teach the standalone HTML predictor to run logistic-regression model JSON offline.
+  - [x] Let the Python web server load a selected advisory model via `--model`, including Data Review/download links for that selected model.
+  - [x] Let `update_database.py --ml-model-type logistic_regression` train, verify, link, and embed the optional logistic advisory model in the generated standalone HTML.
+  - [x] Expand ML audit reports with confidence basis and model-parameter summaries, and verify linked manifest model type against the saved model JSON.
+  - [x] Add `compare_ml_models.py` to compare advisory model families on one feature CSV without overwriting active model artifacts.
+  - [x] Generate and expose `model_comparison.md` during database updates so Data Review includes model-family comparison output.
+  - [x] Render the ML model comparison report directly inside hosted and standalone Data Review screens.
+  - [ ] Later replace or augment the dependency-free baseline with a stronger optional model once real labels or a better supervised target exist.
+- [x] Improve data/profile anomaly review.
+  - [x] Add severity and category columns to `suspicious_weapon_review.csv` so missing/unparsable/zero damage profiles are separated from high-output warning profiles.
+  - [x] Surface suspicious weapon severity, categories, common reasons, and sample rows directly in the Data Review UI.
+  - [x] Add `unit_profile_review.csv` with core stat, points, and model-count validation for every imported unit.
+  - [x] Normalize bare numeric imported save, invulnerable save, and Feel No Pain rolls to `N+` labels in generated CSV data.
+  - [x] Surface unit profile validation counts, reasons, and sample rows directly in the Data Review UI.
+  - [x] Categorize unit profile issues so model-level missing points are informational while full unit points gaps remain warnings.
+  - [x] Backfill zero-cost unit parents from positive model-level points in BSData imports, removing false full-unit point warnings for variable-size units.
+  - [x] Prioritize the primary unit/model point cost over child model costs, preventing optional child selections from making large units look undercosted.
+  - [x] Downgrade expected high-output weapon profiles on large platforms to informational audit rows while keeping smaller extreme profiles as warnings.
+  - [x] Add severity and category columns to `loadout_review.csv` so Crucible/Legends loadout complexity is separated from normal units needing manual weapon selection.
+  - [x] Stop importing nested, zero-cost child model profiles as standalone calculator units while preserving their weapons on the parent unit.
+  - [x] Stop importing shared zero-cost model entries as standalone units when they are only referenced from parent unit composition options.
+  - [x] Surface loadout review severity, categories, common reasons, and sample rows directly in the Data Review UI and standalone HTML export.
+  - [x] Surface source catalogue coverage, issue counts, and upstream source links directly in the Data Review UI and standalone HTML export.
+  - [x] Surface duplicate unit-name variants directly in the Data Review UI and standalone HTML export.
+  - [x] Surface unit weapon coverage counts and no-weapon unit samples directly in the Data Review UI and standalone HTML export.
+  - [x] Confirm remaining no-weapon Exalted Eightbound row reflects missing weapon profiles in the upstream source rather than dropped importer links.
+  - [x] Surface derived ability modifier counts, grants, and sample rows directly in the Data Review UI and standalone HTML export.
+  - [x] Surface generated CSV schema review status directly in the Data Review UI and standalone HTML export.
+  - [x] Add a CLI data review summary for quick terminal audits of generated review artifacts.
+  - [x] Add a CLI data review gate that exits non-zero for failed artifacts, schema failures, blocked editions, and error-severity audit rows.
+  - [x] Let `update_database.py --fail-on-review-issues` run the data review gate at the end of a refresh, with optional warning-strict mode.
+  - [x] Let the one-click local HTML refresh launcher pass review-gate flags through to `update_database.py`.
+  - [x] Add review-gate thresholds for accepted warning counts and no-weapon unit counts, so data refreshes can fail only when known audit debt grows.
+  - [x] Add reusable review-threshold JSON files and commands for writing the current accepted audit baseline.
+  - [x] Include applied review-gate thresholds in generated update reports.
+  - [x] Print applied review-gate thresholds in CLI and update-pipeline gate output.
+  - [x] Let `update_database.py --write-review-thresholds` write the current accepted audit baseline after a successful refresh.
+  - [x] Add `verify_release.py` to run tests, artifact manifest checks, and the thresholded data review gate as one command.
+  - [x] Add PowerShell and batch launchers for local release verification.
 - [ ] Add multi-edition support so 10th edition and future 11th edition data can coexist without sharing incompatible rules assumptions.
   - [x] First step: introduce an explicit ruleset registry and route current calculator behavior through a `10e` ruleset while keeping current outputs unchanged.
   - [x] Add edition metadata to generated data artifacts and display the active rules edition in the UI status.
@@ -28,7 +71,51 @@
   - [x] Load discovered edition datasets server-side and route unit search, unit detail, data review, review downloads, and calculations through the selected edition.
   - [x] Keep discovered editions with missing rulesets visible as blocked, e.g. future `11e` data before an `11e` rules engine exists.
   - [x] Write `edition_status.json` during database updates so each generated data folder records ruleset availability, calculation readiness, blockers, and source provenance.
-  - Later add separate 11th-edition importer/data snapshots once an upstream data source and rules mapping are available.
+  - [x] Move contextual 10e mechanics for advance firing, Rapid Fire, Blast, Heavy, and Assault hit modifiers behind the ruleset interface.
+  - [x] Move 10e save/cover resolution and melta/damage annotations behind the ruleset interface.
+  - [x] Move 10e wound rolls, Anti critical wounds, and Devastating Wounds pool splitting behind the ruleset interface.
+  - [x] Move 10e hit-pool resolution for auto-hits, Lethal Hits, Sustained Hits, and hit rerolls behind the ruleset interface.
+  - [x] Move 10e save failure, Feel No Pain, expected damage, and model-removal pipeline behind the ruleset interface.
+  - [x] Extract ability modifier collection, reroll merging, Anti threshold matching, and weapon note formatting into `warhammer.ability_resolver`.
+  - [x] Extract result dataclasses and scaling helpers into `warhammer.results` while preserving existing calculator imports.
+  - [x] Extract engagement context and mode types into `warhammer.context` while preserving existing calculator imports.
+  - [x] Extract single-weapon orchestration into `warhammer.weapon_resolution` while keeping `warhammer.calculator` as the public API wrapper.
+  - [x] Remove unused private calculator helper wrappers and add an explicit `warhammer.calculator.__all__` compatibility surface.
+  - [x] Extract matchup/result payload serializers, points-removed math, and matchup judgement text into `warhammer.matchup_payloads`.
+  - [x] Route webapp unit/result serialization directly through `warhammer.matchup_payloads` and remove duplicate private webapp serializer wrappers.
+  - [x] Route webapp request parsing, unit search, and data review helpers directly through their owning service modules instead of private webapp proxies.
+  - [x] Extract web dataset state, edition dataset loading, default data paths, and ML model state into `warhammer.web_state`.
+  - [x] Move review/model download path parsing into `warhammer.data_review`.
+  - [x] Extract web calculation request parsing, matchup execution, and ML judgement attachment into `warhammer.web_calculation`.
+  - [x] Extract web API response payload and download-target selection helpers into `warhammer.web_api`.
+  - [x] Generate and render `edition_readiness.md` with compatibility status and a migration checklist for future editions.
+  - [x] Add machine-readable ruleset capability coverage to `edition_status.json` and render it in Data Review/readiness reports.
+  - [x] Expose ruleset capability coverage through `/api/health.rulesets` and the UI status tooltip.
+  - [x] Add `main.py --rulesets` and `--rulesets-json` for quick CLI inspection of registered edition capabilities.
+  - [x] Centralize ruleset capability serialization and drift detection in `warhammer.rules.capabilities`.
+  - [x] Extract generated edition-status construction into `warhammer.edition_status`.
+  - [x] Extract artifact manifest construction, linked ML artifact hashing, and portable manifest paths into `warhammer.artifact_manifest`.
+  - [x] Extract generated table loading, CSV row counting, and import-diff construction into `warhammer.import_diff`.
+  - [x] Extract Markdown update-report rendering into `warhammer.update_report`.
+  - [x] Extract edition-scoped ML artifact path and filename helpers into `warhammer.ml.artifacts`.
+  - [x] Extract database-update ML refresh command orchestration into `warhammer.ml.update`.
+  - [x] Extract artifact copying and snapshot writing into `warhammer.artifact_manifest`.
+  - [x] Extract BSData git metadata, cleanliness checks, and fast-forward commands into `warhammer.source_update`.
+  - [x] Extract database-update subprocess command construction into `warhammer.update_commands`.
+  - [x] Extract database-update path defaults and edition data directories into `warhammer.update_config`.
+  - [x] Extract database-update console summary rendering into `warhammer.update_summary`.
+  - [x] Extract database-update CLI parser setup and validation into `warhammer.update_args`.
+  - [x] Extract JSON/text file read-write helpers into `warhammer.file_io`.
+  - [x] Extract generated audit/profile/edition report writing into `warhammer.update_reports`.
+  - [x] Extract artifact manifest, HTML export, snapshot, and legacy mirror finalization into `warhammer.update_finalize`.
+  - [x] Remove unused compatibility wrappers from `update_database.py` after extracting update services.
+  - [x] Route `update_database.py` directly through extracted update services and remove duplicate wrapper tests.
+  - [x] Extract subprocess success enforcement into `warhammer.command_runner`.
+  - [x] Extract the database refresh orchestration into `warhammer.update_pipeline`, leaving `update_database.py` as a thin CLI wrapper.
+  - [x] Add a smoke test for `python update_database.py --help` so the thin CLI wrapper and extracted parser stay connected.
+  - [x] Add update-pipeline branch coverage for legacy data seeding and skip flags.
+  - [x] Add an integration-style update-pipeline test that writes real reports and an artifact manifest from a tiny CSV import fixture.
+  - [ ] Add separate 11th-edition importer/data snapshots once an upstream data source and rules mapping are available.
 
 ## 2025-10-02
 - Ability parsing now recognises abilities that grant the [Assault] keyword, keeping those modifiers so ranged weapons fire after advancing when granted by enhancements.
@@ -56,7 +143,7 @@
 
 ### TODOs
 - [x] Extend the rules engine and ability parser for the remaining keyword-driven effects (Anti-/Torrent/Blast, flat damage reduction, conditional Twin-linked).
-- [ ] Refresh README advanced usage examples to cover keyword imports, engagement context flags, and preset matchup commands.
+- [x] Refresh README advanced usage examples to cover keyword imports, engagement context flags, and preset matchup commands.
 - [x] Add smoke tests around preset_matchups.py to catch header/format regressions when importing sample data.
 
 ## 2025-09-16
@@ -74,7 +161,6 @@
 
 ### Planned enhancements
 - Broaden the importer coverage (e.g. detachment rules, complex wargear options) and integrate CSV outputs with future roster management tooling.
-- Extend rules engine to interpret the weapon keywords and defensive modifiers we still ignore (e.g. Anti-X, Blast, Heavy/Assault/Torrent, Melta/Twin-linked, Ignores Cover, flat damage reduction).
-- Tie the reference output into the main CLI or a lightweight UI for quicker in-app lookups.
+- Keep edition-specific rulesets explicit as new 40K editions change core mechanics.
 
 

@@ -7,6 +7,7 @@ from review_profiles import (
     build_loadout_review_rows,
     build_source_catalogue_review_rows,
     build_suspicious_weapon_review_rows,
+    build_unit_profile_review_rows,
     build_unit_variant_review_rows,
     build_unit_weapon_coverage_rows,
     build_weapon_review_rows,
@@ -106,6 +107,8 @@ def test_build_weapon_review_rows_marks_unsupported_damage_expressions():
 
     assert rows[0]["damage_average"] == "0.00"
     assert rows[0]["damage_parse_status"] == "unsupported"
+    assert suspicious_rows[0]["review_severity"] == "error"
+    assert suspicious_rows[0]["review_category"] == "invalid_damage"
     assert "unsupported damage expression" in suspicious_rows[0]["review_reason"]
 
 
@@ -125,6 +128,7 @@ def test_build_suspicious_weapon_review_rows_flags_zero_and_extreme_profiles():
             {
                 "faction": "Test",
                 "unit_name": "Titan",
+                "unit_points": "3500",
                 "weapon_name": "Large gun",
                 "ap": "-5",
                 "attacks_average": "30.00",
@@ -135,6 +139,7 @@ def test_build_suspicious_weapon_review_rows_flags_zero_and_extreme_profiles():
             {
                 "faction": "Test",
                 "unit_name": "Normal",
+                "unit_points": "80",
                 "weapon_name": "Bolt rifle",
                 "ap": "-1",
                 "attacks_average": "2.00",
@@ -146,9 +151,114 @@ def test_build_suspicious_weapon_review_rows_flags_zero_and_extreme_profiles():
     )
 
     assert len(rows) == 2
+    assert rows[0]["review_severity"] == "error"
+    assert rows[0]["review_category"] == "zero_damage"
     assert "zero raw damage throughput" in rows[0]["review_reason"]
+    assert rows[1]["review_severity"] == "info"
+    assert rows[1]["review_category"] == "large_platform_profile"
     assert "very high raw damage throughput" in rows[1]["review_reason"]
     assert "extreme AP" in rows[1]["review_reason"]
+
+
+def test_build_suspicious_weapon_review_rows_keeps_small_extreme_profiles_as_warnings():
+    rows = build_suspicious_weapon_review_rows(
+        [
+            {
+                "faction": "Test",
+                "unit_name": "Small Platform",
+                "unit_points": "90",
+                "weapon_name": "One-shot railgun",
+                "ap": "-5",
+                "attacks_average": "1.00",
+                "strength_average": "20.00",
+                "damage_average": "6.00",
+                "raw_damage_throughput": "6.00",
+            }
+        ]
+    )
+
+    assert rows[0]["review_severity"] == "warning"
+    assert rows[0]["review_category"] == "extreme_profile"
+    assert "extreme AP" in rows[0]["review_reason"]
+
+
+def test_build_suspicious_weapon_review_rows_classifies_missing_damage():
+    rows = build_suspicious_weapon_review_rows(
+        [
+            {
+                "faction": "Test",
+                "unit_name": "Broken",
+                "weapon_name": "Blank damage",
+                "ap": "0",
+                "attacks_average": "1.00",
+                "strength_average": "4.00",
+                "damage_average": "0.00",
+                "raw_damage_throughput": "0.00",
+                "damage_parse_status": "empty",
+            }
+        ]
+    )
+
+    assert rows[0]["review_severity"] == "error"
+    assert rows[0]["review_category"] == "missing_damage"
+    assert "empty damage expression" in rows[0]["review_reason"]
+
+
+def test_build_unit_profile_review_rows_flags_missing_core_fields():
+    rows = build_unit_profile_review_rows(
+        [
+            {
+                "unit_id": "bad",
+                "name": "Broken Unit",
+                "faction": "Test",
+                "toughness": "",
+                "save": "bad",
+                "wounds": "0",
+                "points": "",
+                "models_min": "5",
+                "models_max": "1",
+            },
+            {
+                "unit_id": "good",
+                "name": "Complete Unit",
+                "faction": "Test",
+                "toughness": "4",
+                "save": "3+",
+                "wounds": "2",
+                "points": "80",
+                "models_min": "5",
+                "models_max": "10",
+            },
+            {
+                "unit_id": "model",
+                "name": "Library Model",
+                "faction": "Test",
+                "selection_type": "model",
+                "toughness": "4",
+                "save": "3+",
+                "wounds": "2",
+                "points": "0",
+                "models_min": "1",
+                "models_max": "1",
+            },
+        ]
+    )
+
+    by_id = {row["unit_id"]: row for row in rows}
+    assert by_id["bad"]["review_severity"] == "error"
+    assert by_id["bad"]["toughness_status"] == "missing"
+    assert by_id["bad"]["save_status"] == "invalid"
+    assert by_id["bad"]["wounds_status"] == "invalid"
+    assert by_id["bad"]["points_status"] == "missing"
+    assert by_id["bad"]["model_count_status"] == "invalid"
+    assert by_id["bad"]["review_category"] == "core_stats"
+    assert "missing or invalid toughness" in by_id["bad"]["review_reason"]
+    assert by_id["good"]["review_severity"] == ""
+    assert by_id["good"]["review_category"] == "ok"
+    assert by_id["good"]["model_count_status"] == "ok"
+    assert by_id["model"]["review_severity"] == "info"
+    assert by_id["model"]["review_category"] == "model_points_unset"
+    assert "invalid points" in by_id["model"]["review_reason"]
 
 
 def test_build_ability_review_rows_joins_unit_context_only_for_unit_sources():
@@ -271,6 +381,14 @@ def test_build_loadout_review_rows_flags_many_imported_profiles():
                 "melee_weapons": "6",
             },
             {
+                "unit_id": "u3",
+                "unit_name": "Champion [Crucible]",
+                "faction": "Test",
+                "total_weapons": "16",
+                "ranged_weapons": "10",
+                "melee_weapons": "6",
+            },
+            {
                 "unit_id": "u2",
                 "unit_name": "Normal",
                 "faction": "Test",
@@ -281,10 +399,15 @@ def test_build_loadout_review_rows_flags_many_imported_profiles():
         ]
     )
 
-    assert len(rows) == 1
+    assert len(rows) == 2
     assert rows[0]["unit_id"] == "u1"
+    assert rows[0]["review_severity"] == "warning"
+    assert rows[0]["review_category"] == "many_profiles"
     assert "many imported weapon profiles" in rows[0]["review_reason"]
     assert "many ranged profiles" in rows[0]["review_reason"]
+    assert rows[1]["unit_id"] == "u3"
+    assert rows[1]["review_severity"] == "info"
+    assert rows[1]["review_category"] == "crucible_profile"
 
 
 def test_build_source_catalogue_review_rows_summarizes_review_counts():
@@ -305,6 +428,9 @@ def test_build_source_catalogue_review_rows_summarizes_review_counts():
         suspicious_weapon_rows=[
             {"weapon_id": "w3", "source_file": "Orks.cat"},
         ],
+        unit_profile_rows=[
+            {"unit_id": "u3", "source_file": "Orks.cat", "review_severity": "error"},
+        ],
         loadout_rows=[
             {"unit_id": "u1", "source_file": "Space Marines.cat"},
         ],
@@ -324,6 +450,7 @@ def test_build_source_catalogue_review_rows_summarizes_review_counts():
     assert by_source["Space Marines.cat"]["loadout_review_rows"] == "1"
     assert by_source["Space Marines.cat"]["duplicate_name_unit_rows"] == "1"
     assert by_source["Orks.cat"]["suspicious_weapon_profiles"] == "1"
+    assert by_source["Orks.cat"]["unit_profile_issue_rows"] == "1"
     assert by_source["Orks.cat"]["no_weapon_units"] == "1"
 
 
@@ -365,6 +492,8 @@ def test_write_profile_review_outputs_joined_csvs_and_markdown(tmp_path):
         "units": 2,
         "weapon_profiles": 1,
         "suspicious_weapon_profiles": 0,
+        "unit_profile_review_rows": 2,
+        "unit_profile_issue_rows": 0,
         "ability_profiles": 1,
         "ability_modifiers": 0,
         "unit_name_variants": 2,
@@ -380,6 +509,8 @@ def test_write_profile_review_outputs_joined_csvs_and_markdown(tmp_path):
         variant_rows = list(csv.DictReader(handle))
     with (tmp_path / "unit_weapon_coverage_review.csv").open(newline="", encoding="utf-8") as handle:
         coverage_rows = list(csv.DictReader(handle))
+    with (tmp_path / "unit_profile_review.csv").open(newline="", encoding="utf-8") as handle:
+        unit_profile_rows = list(csv.DictReader(handle))
     with (tmp_path / "ability_modifier_review.csv").open(newline="", encoding="utf-8") as handle:
         modifier_rows = list(csv.DictReader(handle))
     with (tmp_path / "loadout_review.csv").open(newline="", encoding="utf-8") as handle:
@@ -391,6 +522,8 @@ def test_write_profile_review_outputs_joined_csvs_and_markdown(tmp_path):
     assert suspicious_weapon_rows == []
     assert {row["unit_id"] for row in variant_rows} == {"u1", "u2"}
     assert {row["coverage"] for row in coverage_rows} == {"ranged_only", "no_weapons"}
+    assert {row["unit_id"] for row in unit_profile_rows} == {"u1", "u2"}
+    assert {row["review_severity"] for row in unit_profile_rows} == {""}
     assert modifier_rows == []
     assert loadout_rows == []
     assert {row["source_file"] for row in source_rows} == {"Space Marines.cat", "Other.cat"}
@@ -407,7 +540,13 @@ def test_write_profile_review_outputs_joined_csvs_and_markdown(tmp_path):
     assert "Unit Weapon Coverage" in profile_review
     assert "Highest Raw Damage Throughput" in profile_review
     assert "Suspicious Weapon Review Reasons" in profile_review
+    assert "Suspicious Weapon Severity" in profile_review
+    assert "Suspicious Weapon Categories" in profile_review
+    assert "Unit Profile Validation" in profile_review
+    assert "Unit Profile Review Reasons" in profile_review
     assert "Derived Ability Modifiers" in profile_review
     assert "Loadout Review Reasons" in profile_review
+    assert "Loadout Review Severity" in profile_review
+    assert "Loadout Review Categories" in profile_review
     assert "Source Catalogue Coverage" in profile_review
     assert "https://github.com/BSData/wh40k-10e/blob/abc123/Space%20Marines.cat" in profile_review

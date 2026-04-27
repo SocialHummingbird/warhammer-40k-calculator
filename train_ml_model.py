@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Sequence
 
 from warhammer.ml.audit import write_model_audit_report
-from warhammer.ml.model import FEATURE_COLUMN_SETS, read_feature_csv, train_from_csv
+from warhammer.ml.model import FEATURE_COLUMN_SETS, MODEL_TYPES, read_feature_csv, train_from_csv
 
 
 PROJECT_ROOT = Path(__file__).resolve().parent
@@ -24,6 +24,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         validation_fraction=args.validation_fraction,
         seed=args.seed,
         feature_set=args.feature_set,
+        model_type=args.model_type,
     )
     validation = model["validation"]
     accuracy = validation["accuracy"]
@@ -56,6 +57,12 @@ def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
         choices=sorted(FEATURE_COLUMN_SETS),
         default="pre_match",
         help="Named feature set to train with. 'pre_match' excludes calculator output metrics.",
+    )
+    parser.add_argument(
+        "--model-type",
+        choices=sorted(MODEL_TYPES),
+        default="centroid",
+        help="Model trainer to use. 'centroid' is dependency-free; 'logistic_regression' uses scikit-learn at training time.",
     )
     parser.add_argument("--validation-fraction", type=float, default=0.2, help="Fraction of rows reserved for validation")
     parser.add_argument("--seed", type=int, default=40, help="Shuffle seed for train/validation split")

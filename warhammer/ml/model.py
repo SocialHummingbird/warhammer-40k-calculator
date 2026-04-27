@@ -87,6 +87,12 @@ FEATURE_COLUMN_SETS = {
     "pre_match": PRE_MATCH_FEATURE_COLUMNS,
 }
 
+MODEL_TYPES = {
+    "centroid": "nearest_centroid_classifier",
+    "nearest_centroid": "nearest_centroid_classifier",
+    "logistic_regression": "logistic_regression_classifier",
+}
+
 
 def read_feature_csv(path: Path) -> list[dict[str, str]]:
     with Path(path).open("r", encoding="utf-8", newline="") as handle:
@@ -117,16 +123,18 @@ def train_from_csv(
     feature_columns: Sequence[str] | None = None,
     feature_set: str = "full",
     label_column: str = "winner_label",
+    model_type: str = "centroid",
 ) -> dict[str, Any]:
     input_path = Path(input_path)
     rows = read_feature_csv(input_path)
-    model = train_centroid_model(
+    model = train_model(
         rows,
         validation_fraction=validation_fraction,
         seed=seed,
         feature_columns=feature_columns,
         feature_set=feature_set,
         label_column=label_column,
+        model_type=model_type,
     )
     model["training_source"] = feature_csv_provenance(input_path, rows=rows)
     write_model(model, output_path)
@@ -143,6 +151,38 @@ def feature_csv_provenance(path: Path, *, rows: Sequence[dict[str, Any]] | None 
     }
 
 
+def train_model(
+    rows: Iterable[dict[str, Any]],
+    *,
+    validation_fraction: float = 0.2,
+    seed: int = 40,
+    feature_columns: Sequence[str] | None = None,
+    feature_set: str = "full",
+    label_column: str = "winner_label",
+    model_type: str = "centroid",
+) -> dict[str, Any]:
+    normalized_type = _normalize_model_type(model_type)
+    if normalized_type == "nearest_centroid_classifier":
+        return train_centroid_model(
+            rows,
+            validation_fraction=validation_fraction,
+            seed=seed,
+            feature_columns=feature_columns,
+            feature_set=feature_set,
+            label_column=label_column,
+        )
+    if normalized_type == "logistic_regression_classifier":
+        return train_logistic_regression_model(
+            rows,
+            validation_fraction=validation_fraction,
+            seed=seed,
+            feature_columns=feature_columns,
+            feature_set=feature_set,
+            label_column=label_column,
+        )
+    raise ValueError(f"Unsupported model type {model_type!r}")
+
+
 def train_centroid_model(
     rows: Iterable[dict[str, Any]],
     *,
@@ -152,29 +192,18 @@ def train_centroid_model(
     feature_set: str = "full",
     label_column: str = "winner_label",
 ) -> dict[str, Any]:
-    feature_columns = list(feature_columns) if feature_columns is not None else feature_columns_for_set(feature_set)
-    usable_rows = [row for row in rows if str(row.get(label_column) or "").strip()]
-    if not usable_rows:
-        raise ValueError("No labelled feature rows were provided")
-    missing_columns = missing_feature_columns(usable_rows, feature_columns)
-    if missing_columns:
-        preview = ", ".join(missing_columns[:8])
-        suffix = "" if len(missing_columns) <= 8 else f", ... ({len(missing_columns)} total)"
-        raise ValueError(
-            f"Feature rows are missing required columns for feature set {feature_set!r}: {preview}{suffix}. "
-            "Regenerate the feature CSV with export_ml_features.py."
-        )
-
-    shuffled = list(usable_rows)
-    random.Random(seed).shuffle(shuffled)
-    validation_fraction = max(0.0, min(0.8, float(validation_fraction)))
-    validation_count = _validation_count(len(shuffled), validation_fraction)
-    validation_rows = shuffled[:validation_count]
-    training_rows = shuffled[validation_count:] or shuffled
-    if validation_fraction > 0 and not validation_rows and len(shuffled) > 1:
-        validation_rows = shuffled[-1:]
-        training_rows = shuffled[:-1]
-
+    prepared = _prepare_training_rows(
+        rows,
+        validation_fraction=validation_fraction,
+        seed=seed,
+        feature_columns=feature_columns,
+        feature_set=feature_set,
+        label_column=label_column,
+    )
+    feature_columns = prepared["feature_columns"]
+    usable_rows = prepared["usable_rows"]
+    training_rows = prepared["training_rows"]
+    validation_rows = prepared["validation_rows"]
     stats = _feature_stats(training_rows, feature_columns)
     centroids, class_counts = _class_centroids(training_rows, feature_columns, label_column, stats)
     model = {
@@ -203,10 +232,87 @@ def train_centroid_model(
     return model
 
 
+def train_logistic_regression_model(
+    rows: Iterable[dict[str, Any]],
+    *,
+    validation_fraction: float = 0.2,
+    seed: int = 40,
+    feature_columns: Sequence[str] | None = None,
+    feature_set: str = "full",
+    label_column: str = "winner_label",
+) -> dict[str, Any]:
+    try:
+        from sklearn.linear_model import LogisticRegression
+    except ImportError as exc:
+        raise ValueError(
+            "The logistic_regression model type requires scikit-learn. "
+            "Install scikit-learn or use --model-type centroid."
+        ) from exc
+
+    prepared = _prepare_training_rows(
+        rows,
+        validation_fraction=validation_fraction,
+        seed=seed,
+        feature_columns=feature_columns,
+        feature_set=feature_set,
+        label_column=label_column,
+    )
+    feature_columns = prepared["feature_columns"]
+    usable_rows = prepared["usable_rows"]
+    training_rows = prepared["training_rows"]
+    validation_rows = prepared["validation_rows"]
+    labels = sorted({str(row.get(label_column) or "").strip() for row in training_rows if str(row.get(label_column) or "").strip()})
+    if len(labels) < 2:
+        raise ValueError("Logistic regression requires at least two labelled classes")
+
+    stats = _feature_stats(training_rows, feature_columns)
+    x_train = [_normalised_values(row, feature_columns, stats) for row in training_rows]
+    y_train = [str(row.get(label_column) or "").strip() for row in training_rows]
+    classifier = LogisticRegression(max_iter=1000, random_state=seed)
+    classifier.fit(x_train, y_train)
+    class_counts = _class_counts(training_rows, label_column)
+    model = {
+        "model_type": "logistic_regression_classifier",
+        "feature_set": feature_set,
+        "label_source": _common_value(usable_rows, "label_source"),
+        "created_at": datetime.now(UTC).isoformat().replace("+00:00", "Z"),
+        "feature_columns": list(feature_columns),
+        "label_column": label_column,
+        "labels": [str(label) for label in classifier.classes_],
+        "class_counts": class_counts,
+        "feature_stats": stats,
+        "coefficients": classifier.coef_.tolist(),
+        "intercepts": classifier.intercept_.tolist(),
+        "training_rows": len(training_rows),
+        "validation_rows": len(validation_rows),
+        "validation": evaluate_model(
+            {
+                "model_type": "logistic_regression_classifier",
+                "feature_columns": list(feature_columns),
+                "feature_stats": stats,
+                "labels": [str(label) for label in classifier.classes_],
+                "coefficients": classifier.coef_.tolist(),
+                "intercepts": classifier.intercept_.tolist(),
+                "label_column": label_column,
+            },
+            validation_rows,
+        ),
+    }
+    return model
+
+
 def predict_row(model: dict[str, Any], row: dict[str, Any]) -> dict[str, Any]:
     feature_columns = list(model["feature_columns"])
     stats = model["feature_stats"]
     values = _normalised_values(row, feature_columns, stats)
+    if model.get("model_type") == "logistic_regression_classifier":
+        probabilities = _logistic_probabilities(model, values)
+        label, confidence = max(probabilities.items(), key=lambda item: item[1])
+        return {
+            "label": label,
+            "confidence": confidence,
+            "probabilities": probabilities,
+        }
     distances = {
         label: _distance(values, centroid)
         for label, centroid in model["centroids"].items()
@@ -278,6 +384,45 @@ def _validation_count(row_count: int, validation_fraction: float) -> int:
     return max(1, int(round(row_count * validation_fraction)))
 
 
+def _prepare_training_rows(
+    rows: Iterable[dict[str, Any]],
+    *,
+    validation_fraction: float,
+    seed: int,
+    feature_columns: Sequence[str] | None,
+    feature_set: str,
+    label_column: str,
+) -> dict[str, Any]:
+    selected_columns = list(feature_columns) if feature_columns is not None else feature_columns_for_set(feature_set)
+    usable_rows = [row for row in rows if str(row.get(label_column) or "").strip()]
+    if not usable_rows:
+        raise ValueError("No labelled feature rows were provided")
+    missing_columns = missing_feature_columns(usable_rows, selected_columns)
+    if missing_columns:
+        preview = ", ".join(missing_columns[:8])
+        suffix = "" if len(missing_columns) <= 8 else f", ... ({len(missing_columns)} total)"
+        raise ValueError(
+            f"Feature rows are missing required columns for feature set {feature_set!r}: {preview}{suffix}. "
+            "Regenerate the feature CSV with export_ml_features.py."
+        )
+
+    shuffled = list(usable_rows)
+    random.Random(seed).shuffle(shuffled)
+    validation_fraction = max(0.0, min(0.8, float(validation_fraction)))
+    validation_count = _validation_count(len(shuffled), validation_fraction)
+    validation_rows = shuffled[:validation_count]
+    training_rows = shuffled[validation_count:] or shuffled
+    if validation_fraction > 0 and not validation_rows and len(shuffled) > 1:
+        validation_rows = shuffled[-1:]
+        training_rows = shuffled[:-1]
+    return {
+        "feature_columns": selected_columns,
+        "usable_rows": usable_rows,
+        "training_rows": training_rows,
+        "validation_rows": validation_rows,
+    }
+
+
 def _feature_stats(rows: Sequence[dict[str, Any]], feature_columns: Sequence[str]) -> dict[str, dict[str, float]]:
     stats = {}
     for column in feature_columns:
@@ -314,6 +459,15 @@ def _class_centroids(
     return centroids, counts
 
 
+def _class_counts(rows: Sequence[dict[str, Any]], label_column: str) -> dict[str, int]:
+    counts: dict[str, int] = {}
+    for row in rows:
+        label = str(row.get(label_column) or "").strip()
+        if label:
+            counts[label] = counts.get(label, 0) + 1
+    return counts
+
+
 def _normalised_values(
     row: dict[str, Any],
     feature_columns: Sequence[str],
@@ -331,6 +485,38 @@ def _distance(left: Sequence[float], right: Sequence[float]) -> float:
     return math.sqrt(sum((a - b) ** 2 for a, b in zip(left, right)))
 
 
+def _logistic_probabilities(model: dict[str, Any], values: Sequence[float]) -> dict[str, float]:
+    labels = [str(label) for label in model.get("labels", [])]
+    coefficients = model.get("coefficients", [])
+    intercepts = model.get("intercepts", [])
+    if len(labels) == 2 and len(coefficients) == 1:
+        logit = _linear_score(values, coefficients[0], _number(intercepts[0] if intercepts else 0))
+        positive = 1.0 / (1.0 + math.exp(-_clip_logit(logit)))
+        return {labels[0]: 1.0 - positive, labels[1]: positive}
+    scores = [
+        _linear_score(values, coefficients[index], _number(intercepts[index] if index < len(intercepts) else 0))
+        for index in range(len(labels))
+    ]
+    return dict(zip(labels, _softmax(scores), strict=False))
+
+
+def _linear_score(values: Sequence[float], coefficients: Sequence[float], intercept: float) -> float:
+    return sum(value * float(coefficient) for value, coefficient in zip(values, coefficients)) + intercept
+
+
+def _softmax(scores: Sequence[float]) -> list[float]:
+    if not scores:
+        return []
+    max_score = max(scores)
+    exponents = [math.exp(_clip_logit(score - max_score)) for score in scores]
+    total = sum(exponents) or 1.0
+    return [value / total for value in exponents]
+
+
+def _clip_logit(value: float) -> float:
+    return max(-60.0, min(60.0, float(value)))
+
+
 def _number(value: object) -> float:
     if value is None or value == "":
         return 0.0
@@ -344,3 +530,12 @@ def _common_value(rows: Sequence[dict[str, Any]], column: str) -> str:
     values = {str(row.get(column) or "").strip() for row in rows}
     values.discard("")
     return next(iter(values)) if len(values) == 1 else ""
+
+
+def _normalize_model_type(model_type: str) -> str:
+    key = str(model_type or "centroid").strip().lower().replace("-", "_")
+    try:
+        return MODEL_TYPES[key]
+    except KeyError as exc:
+        choices = ", ".join(sorted(MODEL_TYPES))
+        raise ValueError(f"Unknown model type {model_type!r}; expected one of: {choices}") from exc

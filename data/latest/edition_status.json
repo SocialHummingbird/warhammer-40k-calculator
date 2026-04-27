@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-25T20:11:44.913626Z",
+  "generated_at": "2026-04-26T18:05:34.110995Z",
   "edition": "10e",
   "requested_edition": "10e",
   "metadata_edition": "10e",
@@ -7,10 +7,126 @@
   "supported_rules_editions": [
     "10e"
   ],
+  "rule_capabilities": [
+    {
+      "key": "hit_rolls",
+      "label": "Hit rolls, hit modifiers, and critical hits",
+      "status": "implemented",
+      "notes": []
+    },
+    {
+      "key": "hit_rerolls",
+      "label": "Hit rerolls",
+      "status": "implemented",
+      "notes": []
+    },
+    {
+      "key": "lethal_hits",
+      "label": "Lethal Hits",
+      "status": "implemented",
+      "notes": []
+    },
+    {
+      "key": "sustained_hits",
+      "label": "Sustained Hits",
+      "status": "implemented",
+      "notes": []
+    },
+    {
+      "key": "auto_hits",
+      "label": "Torrent and automatic hits",
+      "status": "implemented",
+      "notes": []
+    },
+    {
+      "key": "advance_firing",
+      "label": "Advance firing restrictions and Assault handling",
+      "status": "implemented",
+      "notes": []
+    },
+    {
+      "key": "heavy",
+      "label": "Heavy stationary hit bonus",
+      "status": "implemented",
+      "notes": []
+    },
+    {
+      "key": "rapid_fire",
+      "label": "Rapid Fire attack bonuses",
+      "status": "implemented",
+      "notes": []
+    },
+    {
+      "key": "blast",
+      "label": "Blast attack bonuses",
+      "status": "implemented",
+      "notes": []
+    },
+    {
+      "key": "wound_rolls",
+      "label": "Wound roll thresholds and wound modifiers",
+      "status": "implemented",
+      "notes": []
+    },
+    {
+      "key": "wound_rerolls",
+      "label": "Wound rerolls and Twin-linked",
+      "status": "implemented",
+      "notes": []
+    },
+    {
+      "key": "anti",
+      "label": "Anti keyword critical wounds",
+      "status": "implemented",
+      "notes": []
+    },
+    {
+      "key": "devastating_wounds",
+      "label": "Devastating Wounds pool splitting",
+      "status": "implemented",
+      "notes": []
+    },
+    {
+      "key": "save_resolution",
+      "label": "Armour, invulnerable, AP, cover, and Ignores Cover",
+      "status": "implemented",
+      "notes": []
+    },
+    {
+      "key": "feel_no_pain",
+      "label": "Feel No Pain damage prevention",
+      "status": "implemented",
+      "notes": []
+    },
+    {
+      "key": "melta",
+      "label": "Melta range damage bonuses",
+      "status": "implemented",
+      "notes": []
+    },
+    {
+      "key": "damage_reduction",
+      "label": "Flat damage reduction",
+      "status": "implemented",
+      "notes": []
+    },
+    {
+      "key": "damage_caps",
+      "label": "Defender damage caps",
+      "status": "implemented",
+      "notes": []
+    },
+    {
+      "key": "model_removal",
+      "label": "Expected model removal with overkill capping",
+      "status": "implemented",
+      "notes": []
+    }
+  ],
   "calculations_enabled": true,
   "status": "ready",
   "blockers": [],
-  "data_dir": "C:\\Users\\ap010\\OneDrive\\Documents\\dev\\Warhammer 40K Calculator\\250916 0942 Warhammer 40k damage calculator\\data\\10e\\latest",
+  "data_dir": "data\\latest",
   "source": {
     "remote_origin": "https://github.com/BSData/wh40k-10e.git",
     "branch": "main",
@@ -20,11 +136,11 @@
     "dirty": false
   },
   "counts": {
-    "units": 2093,
-    "weapons": 10808,
-    "abilities": 3173,
-    "keywords": 1425,
-    "unit_keywords": 9644
+    "units": 1464,
+    "weapons": 8628,
+    "abilities": 3124,
+    "keywords": 1407,
+    "unit_keywords": 9523
   },
   "audit_summary": {
     "error": 0,

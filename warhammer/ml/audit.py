@@ -44,6 +44,7 @@ def render_model_audit_report(
         "",
         "## Summary",
         f"- Model: `{model.get('model_type', 'unknown')}`",
+        f"- Confidence basis: {_confidence_basis(model)}",
         f"- Feature set: `{model.get('feature_set', '') or 'custom'}`",
         f"- Model file: `{model_path}`" if model_path else "- Model file: not specified",
         f"- Feature file: `{feature_path}`" if feature_path else "- Feature file: not specified",
@@ -61,6 +62,7 @@ def render_model_audit_report(
         "- This is an advisory model, not the rules engine.",
         "- Labels are generated from deterministic calculator outputs, not real tabletop results.",
         "- Validation accuracy measures agreement with the calculator-derived labels.",
+        *_model_interpretation_lines(model),
     ]
     if calculator_features:
         lines.append(
@@ -76,6 +78,9 @@ def render_model_audit_report(
 
     lines.extend(["", "## Validation Confusion Matrix"])
     lines.extend(_confusion_table(validation.get("confusion"), labels))
+
+    lines.extend(["", "## Model Parameters"])
+    lines.extend(_parameter_summary(model))
 
     lines.extend(["", "## Feature Columns", f"- Total columns: {len(feature_columns)}"])
     if calculator_features:
@@ -179,6 +184,57 @@ def _confusion_table(value: object, labels: Sequence[str]) -> list[str]:
 def _accuracy_text(value: object) -> str:
     if value is None or value == "":
         return "n/a"
+
+
+def _confidence_basis(model: dict[str, Any]) -> str:
+    model_type = str(model.get("model_type") or "")
+    if model_type == "logistic_regression_classifier":
+        return "probability-based"
+    if model_type == "nearest_centroid_classifier":
+        return "distance-based"
+    return "unknown"
+
+
+def _model_interpretation_lines(model: dict[str, Any]) -> list[str]:
+    model_type = str(model.get("model_type") or "")
+    if model_type == "logistic_regression_classifier":
+        return [
+            "- Logistic regression stores coefficients and intercepts in JSON; scikit-learn is only needed for training, not for prediction.",
+            "- Confidence is the predicted class probability from the saved linear model.",
+        ]
+    if model_type == "nearest_centroid_classifier":
+        return [
+            "- Nearest-centroid classification is dependency-free and compares each matchup to saved class centroids.",
+            "- Confidence is based on the gap between the nearest and next-nearest class distance.",
+        ]
+    return ["- Model family is not recognised by the audit renderer."]
+
+
+def _parameter_summary(model: dict[str, Any]) -> list[str]:
+    model_type = str(model.get("model_type") or "")
+    if model_type == "logistic_regression_classifier":
+        coefficients = model.get("coefficients")
+        intercepts = model.get("intercepts")
+        coefficient_rows = len(coefficients) if isinstance(coefficients, list) else 0
+        coefficient_columns = len(coefficients[0]) if coefficient_rows and isinstance(coefficients[0], list) else 0
+        intercept_count = len(intercepts) if isinstance(intercepts, list) else 0
+        return [
+            f"- Coefficient rows: {coefficient_rows}",
+            f"- Coefficients per row: {coefficient_columns}",
+            f"- Intercepts: {intercept_count}",
+        ]
+    if model_type == "nearest_centroid_classifier":
+        centroids = model.get("centroids")
+        centroid_count = len(centroids) if isinstance(centroids, dict) else 0
+        centroid_width = 0
+        if isinstance(centroids, dict) and centroids:
+            first = next(iter(centroids.values()))
+            centroid_width = len(first) if isinstance(first, list) else 0
+        return [
+            f"- Centroids: {centroid_count}",
+            f"- Features per centroid: {centroid_width}",
+        ]
+    return ["- No recognised parameter summary is available."]
     try:
         return f"{float(value):.3f}"
     except (TypeError, ValueError):

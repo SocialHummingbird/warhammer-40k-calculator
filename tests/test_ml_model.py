@@ -13,6 +13,7 @@ from warhammer.ml.model import (
     predict_row,
     train_centroid_model,
     train_from_csv,
+    train_logistic_regression_model,
 )
 
 
@@ -115,6 +116,52 @@ def test_train_from_csv_can_write_pre_match_model(tmp_path):
     assert loaded["feature_set"] == "pre_match"
     assert loaded["feature_columns"] == PRE_MATCH_FEATURE_COLUMNS
     assert "outgoing_damage" not in loaded["feature_columns"]
+
+
+def test_train_logistic_regression_model_predicts_labels():
+    pytest.importorskip("sklearn")
+    rows = [
+        _row("attacker", outgoing_damage=5, incoming_damage=1),
+        _row("attacker", outgoing_damage=6, incoming_damage=1),
+        _row("defender", outgoing_damage=1, incoming_damage=5),
+        _row("defender", outgoing_damage=1, incoming_damage=6),
+    ]
+
+    model = train_logistic_regression_model(rows, validation_fraction=0, feature_columns=DEFAULT_FEATURE_COLUMNS)
+
+    assert model["model_type"] == "logistic_regression_classifier"
+    assert model["labels"] == ["attacker", "defender"]
+    prediction = predict_row(model, _row("attacker", outgoing_damage=7, incoming_damage=1))
+    assert prediction["label"] == "attacker"
+    assert prediction["confidence"] > 0.5
+    assert set(prediction["probabilities"]) == {"attacker", "defender"}
+
+
+def test_train_from_csv_can_write_logistic_regression_model(tmp_path):
+    pytest.importorskip("sklearn")
+    rows = [
+        _row("attacker", outgoing_damage=5, incoming_damage=1),
+        _row("attacker", outgoing_damage=6, incoming_damage=1),
+        _row("defender", outgoing_damage=1, incoming_damage=5),
+        _row("defender", outgoing_damage=1, incoming_damage=6),
+    ]
+    features = tmp_path / "features.csv"
+    with features.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=["label_source", "winner_label", *DEFAULT_FEATURE_COLUMNS])
+        writer.writeheader()
+        writer.writerows(rows)
+
+    output = tmp_path / "model.json"
+    loaded = train_from_csv(
+        features,
+        output,
+        validation_fraction=0,
+        seed=1,
+        model_type="logistic_regression",
+    )
+
+    assert loaded["model_type"] == "logistic_regression_classifier"
+    assert load_model(output)["model_type"] == "logistic_regression_classifier"
 
 
 def test_missing_feature_columns_reports_schema_gaps():

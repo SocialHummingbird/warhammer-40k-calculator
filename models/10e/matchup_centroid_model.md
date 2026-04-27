@@ -3,16 +3,16 @@
 ## Summary
 - Model: `nearest_centroid_classifier`
 - Feature set: `pre_match`
-- Model file: `models\10e\matchup_centroid_model.json`
-- Feature file: `data\ml\10e\matchup_training_rows.csv`
+- Model file: `C:\Users\ap010\OneDrive\Documents\dev\Warhammer 40K Calculator\250916 0942 Warhammer 40k damage calculator\models\10e\matchup_centroid_model.json`
+- Feature file: `C:\Users\ap010\OneDrive\Documents\dev\Warhammer 40K Calculator\250916 0942 Warhammer 40k damage calculator\data\ml\10e\matchup_training_rows.csv`
 - Saved feature rows: 10000
-- Saved feature SHA-256: `bf4ec5a691fc532bace77a4df03adafecc232be936d867f67ee2f74b6f079078`
-- Created at: `2026-04-25T20:13:36.712378Z`
+- Saved feature SHA-256: `0b84aae91010141e89adb91ccaa69bb4a0ba873a364bba5991f3b17af2b46d35`
+- Created at: `2026-04-26T15:56:19.585925Z`
 - Label source: `deterministic_calculator`
 - Labels: `attacker`, `close`, `defender`
 - Training rows: 8000
 - Validation rows: 2000
-- Validation accuracy: 0.694
+- Validation accuracy: 0.688
 - Feature CSV completeness: ok
 
 ## Interpretation
@@ -25,25 +25,25 @@
 
 | Label | Rows | Share |
 | --- | ---: | ---: |
-| `attacker` | 5104 | 51.0% |
-| `close` | 437 | 4.4% |
-| `defender` | 4459 | 44.6% |
+| `attacker` | 5100 | 51.0% |
+| `close` | 510 | 5.1% |
+| `defender` | 4390 | 43.9% |
 | **Total** | **10000** | **100.0%** |
 ### Training labels
 
 | Label | Rows | Share |
 | --- | ---: | ---: |
-| `attacker` | 4129 | 51.6% |
-| `close` | 356 | 4.5% |
-| `defender` | 3515 | 43.9% |
+| `attacker` | 4080 | 51.0% |
+| `close` | 417 | 5.2% |
+| `defender` | 3503 | 43.8% |
 | **Total** | **8000** | **100.0%** |
 
 ## Validation Confusion Matrix
 | Expected \ Predicted | `attacker` | `close` | `defender` |
 | --- | ---: | ---: | ---: |
-| `attacker` | 685 | 268 | 22 |
-| `close` | 4 | 63 | 14 |
-| `defender` | 16 | 288 | 640 |
+| `attacker` | 687 | 300 | 33 |
+| `close` | 14 | 56 | 23 |
+| `defender` | 21 | 233 | 633 |
 
 ## Feature Columns
 - Total columns: 42

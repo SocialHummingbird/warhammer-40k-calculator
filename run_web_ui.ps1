@@ -5,4 +5,4 @@ $ProjectRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 Set-Location -LiteralPath $ProjectRoot
 
 $Python = (Get-Command python -ErrorAction Stop).Source
-& $Python -m warhammer.webapp --csv-dir data/10e/latest --host 127.0.0.1 --port 8765
+& $Python -m warhammer.webapp --csv-dir data/10e/latest --host 127.0.0.1 --port 8765 @args

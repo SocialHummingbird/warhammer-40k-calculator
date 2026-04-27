@@ -52,6 +52,8 @@ WEAPON_REVIEW_HEADERS = [
 
 SUSPICIOUS_WEAPON_REVIEW_HEADERS = [
     *WEAPON_REVIEW_HEADERS,
+    "review_severity",
+    "review_category",
     "review_reason",
 ]
 
@@ -122,6 +124,8 @@ UNIT_WEAPON_COVERAGE_HEADERS = [
 
 LOADOUT_REVIEW_HEADERS = [
     *UNIT_WEAPON_COVERAGE_HEADERS,
+    "review_severity",
+    "review_category",
     "review_reason",
 ]
 
@@ -133,9 +137,38 @@ SOURCE_CATALOGUE_REVIEW_HEADERS = [
     "weapon_profiles",
     "ability_profiles",
     "suspicious_weapon_profiles",
+    "unit_profile_issue_rows",
     "loadout_review_rows",
     "duplicate_name_unit_rows",
     "no_weapon_units",
+]
+
+UNIT_PROFILE_REVIEW_HEADERS = [
+    "faction",
+    "unit_name",
+    "selection_type",
+    "unit_id",
+    "source_file",
+    "toughness",
+    "save",
+    "invulnerable_save",
+    "wounds",
+    "move",
+    "leadership",
+    "objective_control",
+    "points",
+    "models_min",
+    "models_max",
+    "feel_no_pain",
+    "damage_cap",
+    "toughness_status",
+    "save_status",
+    "wounds_status",
+    "points_status",
+    "model_count_status",
+    "review_severity",
+    "review_category",
+    "review_reason",
 ]
 
 
@@ -153,11 +186,13 @@ def write_profile_review(csv_dir: Path) -> dict[str, int]:
     unit_variant_rows = build_unit_variant_review_rows(units)
     weapon_coverage_rows = build_unit_weapon_coverage_rows(units, weapons)
     loadout_rows = build_loadout_review_rows(weapon_coverage_rows)
+    unit_profile_rows = build_unit_profile_review_rows(units)
     source_catalogue_rows = build_source_catalogue_review_rows(
         units,
         weapon_rows,
         ability_rows,
         suspicious_weapon_rows,
+        unit_profile_rows,
         loadout_rows,
         unit_variant_rows,
         weapon_coverage_rows,
@@ -166,6 +201,7 @@ def write_profile_review(csv_dir: Path) -> dict[str, int]:
 
     _write_csv(csv_dir / "weapon_profile_review.csv", WEAPON_REVIEW_HEADERS, weapon_rows)
     _write_csv(csv_dir / "suspicious_weapon_review.csv", SUSPICIOUS_WEAPON_REVIEW_HEADERS, suspicious_weapon_rows)
+    _write_csv(csv_dir / "unit_profile_review.csv", UNIT_PROFILE_REVIEW_HEADERS, unit_profile_rows)
     _write_csv(csv_dir / "ability_profile_review.csv", ABILITY_REVIEW_HEADERS, ability_rows)
     _write_csv(csv_dir / "ability_modifier_review.csv", ABILITY_MODIFIER_REVIEW_HEADERS, ability_modifier_rows)
     _write_csv(csv_dir / "unit_variant_review.csv", UNIT_VARIANT_REVIEW_HEADERS, unit_variant_rows)
@@ -182,6 +218,7 @@ def write_profile_review(csv_dir: Path) -> dict[str, int]:
             unit_variant_rows,
             weapon_coverage_rows,
             loadout_rows,
+            unit_profile_rows,
             source_catalogue_rows,
         ),
         encoding="utf-8",
@@ -191,6 +228,8 @@ def write_profile_review(csv_dir: Path) -> dict[str, int]:
         "units": len(units),
         "weapon_profiles": len(weapon_rows),
         "suspicious_weapon_profiles": len(suspicious_weapon_rows),
+        "unit_profile_review_rows": len(unit_profile_rows),
+        "unit_profile_issue_rows": sum(1 for row in unit_profile_rows if row.get("review_severity")),
         "ability_profiles": len(ability_rows),
         "ability_modifiers": len(ability_modifier_rows),
         "unit_name_variants": len(unit_variant_rows),
@@ -257,11 +296,19 @@ def build_suspicious_weapon_review_rows(weapon_rows: Iterable[Dict[str, str]]) -
         reasons = _weapon_review_reasons(row)
         if not reasons:
             continue
-        rows.append({**row, "review_reason": "; ".join(reasons)})
+        rows.append(
+            {
+                **row,
+                "review_severity": _weapon_review_severity(row, reasons),
+                "review_category": _weapon_review_category(row, reasons),
+                "review_reason": "; ".join(reasons),
+            }
+        )
     return sorted(
         rows,
         key=lambda row: (
-            0 if "zero raw damage throughput" in row["review_reason"] else 1,
+            0 if row["review_severity"] == "error" else 1,
+            row["review_category"],
             -(_float_or_none(row.get("raw_damage_throughput")) or 0.0),
             row["faction"].casefold(),
             row["unit_name"].casefold(),
@@ -302,6 +349,186 @@ def _weapon_review_reasons(row: Dict[str, str]) -> List[str]:
     if ap is not None and ap <= -5:
         reasons.append("extreme AP")
     return reasons
+
+
+def _weapon_review_severity(row: Dict[str, str], reasons: Sequence[str]) -> str:
+    error_reasons = {
+        "empty attacks expression",
+        "placeholder attacks expression",
+        "unsupported attacks expression",
+        "empty strength expression",
+        "placeholder strength expression",
+        "unsupported strength expression",
+        "empty damage expression",
+        "placeholder damage expression",
+        "unsupported damage expression",
+        "zero raw damage throughput",
+        "zero attacks average",
+        "zero strength average",
+        "zero damage average",
+    }
+    if any(reason in error_reasons for reason in reasons):
+        return "error"
+    if _float_or_none(row.get("raw_damage_throughput")) == 0:
+        return "error"
+    if _is_expected_large_platform_extreme(row, reasons):
+        return "info"
+    return "warning"
+
+
+def _weapon_review_category(row: Dict[str, str], reasons: Sequence[str]) -> str:
+    damage_status = row.get("damage_parse_status") or "ok"
+    if damage_status in {"empty", "placeholder"}:
+        return "missing_damage"
+    if damage_status != "ok":
+        return "invalid_damage"
+    if "zero damage average" in reasons or "zero raw damage throughput" in reasons:
+        return "zero_damage"
+    if any(reason in reasons for reason in ("empty attacks expression", "placeholder attacks expression", "unsupported attacks expression")):
+        return "invalid_attacks"
+    if any(reason in reasons for reason in ("empty strength expression", "placeholder strength expression", "unsupported strength expression")):
+        return "invalid_strength"
+    if any(reason.startswith("very high") or reason == "extreme AP" for reason in reasons):
+        if _is_expected_large_platform_extreme(row, reasons):
+            return "large_platform_profile"
+        return "extreme_profile"
+    return "other"
+
+
+def _is_expected_large_platform_extreme(row: Dict[str, str], reasons: Sequence[str]) -> bool:
+    if not reasons:
+        return False
+    unit_points = _int_or_none(row.get("unit_points"))
+    if unit_points is None or unit_points < 300:
+        return False
+    return all(reason.startswith("very high") or reason == "extreme AP" for reason in reasons)
+
+
+def build_unit_profile_review_rows(units: Iterable[Dict[str, str]]) -> List[Dict[str, str]]:
+    rows: List[Dict[str, str]] = []
+    for unit in units:
+        reasons = _unit_profile_review_reasons(unit)
+        category = _unit_profile_review_category(unit, reasons)
+        rows.append(
+            {
+                "faction": unit.get("faction", ""),
+                "unit_name": unit.get("name", ""),
+                "selection_type": unit.get("selection_type", ""),
+                "unit_id": unit.get("unit_id", ""),
+                "source_file": unit.get("source_file", ""),
+                "toughness": unit.get("toughness", ""),
+                "save": unit.get("save", ""),
+                "invulnerable_save": unit.get("invulnerable_save", ""),
+                "wounds": unit.get("wounds", ""),
+                "move": unit.get("move", ""),
+                "leadership": unit.get("leadership", ""),
+                "objective_control": unit.get("objective_control", ""),
+                "points": unit.get("points", ""),
+                "models_min": unit.get("models_min", ""),
+                "models_max": unit.get("models_max", ""),
+                "feel_no_pain": unit.get("feel_no_pain", ""),
+                "damage_cap": unit.get("damage_cap", ""),
+                "toughness_status": _positive_int_status(unit.get("toughness", "")),
+                "save_status": _save_status(unit.get("save", "")),
+                "wounds_status": _positive_int_status(unit.get("wounds", "")),
+                "points_status": _optional_positive_int_status(unit.get("points", "")),
+                "model_count_status": _model_count_status(unit),
+                "review_severity": _unit_profile_review_severity(unit, reasons),
+                "review_category": category,
+                "review_reason": "; ".join(reasons),
+            }
+        )
+    return sorted(
+        rows,
+        key=lambda row: (
+            0 if row["review_severity"] == "error" else 1 if row["review_severity"] == "warning" else 2,
+            row["faction"].casefold(),
+            row["unit_name"].casefold(),
+            row["unit_id"],
+        ),
+    )
+
+
+def _unit_profile_review_reasons(unit: Dict[str, str]) -> List[str]:
+    reasons: List[str] = []
+    if _positive_int_status(unit.get("toughness", "")) != "ok":
+        reasons.append("missing or invalid toughness")
+    if _save_status(unit.get("save", "")) != "ok":
+        reasons.append("missing or invalid save")
+    if _positive_int_status(unit.get("wounds", "")) != "ok":
+        reasons.append("missing or invalid wounds")
+    points_status = _optional_positive_int_status(unit.get("points", ""))
+    if points_status == "missing":
+        reasons.append("missing points")
+    elif points_status != "ok":
+        reasons.append("invalid points")
+    model_status = _model_count_status(unit)
+    if model_status == "missing":
+        reasons.append("missing model count")
+    elif model_status == "invalid":
+        reasons.append("invalid model count")
+    return reasons
+
+
+def _unit_profile_review_severity(unit: Dict[str, str], reasons: Sequence[str]) -> str:
+    if any(reason.startswith("missing or invalid") or reason == "invalid model count" for reason in reasons):
+        return "error"
+    if reasons:
+        if _unit_profile_review_category(unit, reasons) == "model_points_unset":
+            return "info"
+        return "warning"
+    return ""
+
+
+def _unit_profile_review_category(unit: Dict[str, str], reasons: Sequence[str]) -> str:
+    if not reasons:
+        return "ok"
+    if any(reason.startswith("missing or invalid") for reason in reasons):
+        return "core_stats"
+    if any("model count" in reason for reason in reasons):
+        return "model_count"
+    if set(reasons).issubset({"missing points", "invalid points"}):
+        selection_type = (unit.get("selection_type") or "").strip().lower()
+        return "model_points_unset" if selection_type == "model" else "unit_points_unset"
+    return "other"
+
+
+def _positive_int_status(value: str) -> str:
+    parsed = _int_or_none(value)
+    if parsed is None:
+        return "missing"
+    return "ok" if parsed > 0 else "invalid"
+
+
+def _optional_positive_int_status(value: str) -> str:
+    if not str(value or "").strip():
+        return "missing"
+    return _positive_int_status(value)
+
+
+def _save_status(value: str) -> str:
+    cleaned = str(value or "").strip()
+    if not cleaned:
+        return "missing"
+    if cleaned.endswith("+") and cleaned[:-1].isdigit():
+        parsed = int(cleaned[:-1])
+        if 2 <= parsed <= 7:
+            return "ok"
+    return "invalid"
+
+
+def _model_count_status(unit: Dict[str, str]) -> str:
+    minimum = _int_or_none(unit.get("models_min"))
+    maximum = _int_or_none(unit.get("models_max"))
+    if minimum is None and maximum is None:
+        return "missing"
+    if minimum is not None and minimum <= 0:
+        return "invalid"
+    if maximum is not None and maximum <= 0:
+        return "invalid"
+    if minimum is not None and maximum is not None and minimum > maximum:
+        return "invalid"
+    return "ok"
 
 
 def build_ability_review_rows(
@@ -517,10 +744,19 @@ def build_loadout_review_rows(weapon_coverage_rows: Iterable[Dict[str, str]]) ->
         reasons = _loadout_review_reasons(row)
         if not reasons:
             continue
-        rows.append({**row, "review_reason": "; ".join(reasons)})
+        rows.append(
+            {
+                **row,
+                "review_severity": _loadout_review_severity(row),
+                "review_category": _loadout_review_category(row),
+                "review_reason": "; ".join(reasons),
+            }
+        )
     return sorted(
         rows,
         key=lambda row: (
+            0 if row["review_severity"] == "warning" else 1,
+            row["review_category"],
             -int(row.get("total_weapons") or 0),
             row["faction"].casefold(),
             row["unit_name"].casefold(),
@@ -545,11 +781,39 @@ def _loadout_review_reasons(row: Dict[str, str]) -> List[str]:
     return reasons
 
 
+def _loadout_review_severity(row: Dict[str, str]) -> str:
+    category = _loadout_review_category(row)
+    if category in {"crucible_profile", "legends_profile"}:
+        return "info"
+    return "warning"
+
+
+def _loadout_review_category(row: Dict[str, str]) -> str:
+    unit_name = row.get("unit_name", "")
+    total = int(row.get("total_weapons") or 0)
+    ranged = int(row.get("ranged_weapons") or 0)
+    melee = int(row.get("melee_weapons") or 0)
+    if "[Crucible]" in unit_name:
+        return "crucible_profile"
+    if "[Legends]" in unit_name:
+        return "legends_profile"
+    if total >= 12:
+        return "many_profiles"
+    if ranged and melee and total >= 8:
+        return "mixed_profiles"
+    if ranged >= 10:
+        return "many_ranged_profiles"
+    if melee >= 10:
+        return "many_melee_profiles"
+    return "other"
+
+
 def build_source_catalogue_review_rows(
     units: Iterable[Dict[str, str]],
     weapon_rows: Iterable[Dict[str, str]],
     ability_rows: Iterable[Dict[str, str]],
     suspicious_weapon_rows: Iterable[Dict[str, str]],
+    unit_profile_rows: Iterable[Dict[str, str]],
     loadout_rows: Iterable[Dict[str, str]],
     unit_variant_rows: Iterable[Dict[str, str]],
     weapon_coverage_rows: Iterable[Dict[str, str]],
@@ -560,13 +824,14 @@ def build_source_catalogue_review_rows(
     weapon_rows = list(weapon_rows)
     ability_rows = list(ability_rows)
     suspicious_weapon_rows = list(suspicious_weapon_rows)
+    unit_profile_rows = list(unit_profile_rows)
     loadout_rows = list(loadout_rows)
     unit_variant_rows = list(unit_variant_rows)
     weapon_coverage_rows = list(weapon_coverage_rows)
 
     all_sources = {
         _source_label(row.get("source_file", ""))
-        for rows in (units, weapon_rows, ability_rows, suspicious_weapon_rows, loadout_rows, unit_variant_rows, weapon_coverage_rows)
+        for rows in (units, weapon_rows, ability_rows, suspicious_weapon_rows, unit_profile_rows, loadout_rows, unit_variant_rows, weapon_coverage_rows)
         for row in rows
     }
     faction_by_source: dict[str, set[str]] = {source: set() for source in all_sources}
@@ -580,6 +845,11 @@ def build_source_catalogue_review_rows(
     weapon_counts = Counter(_source_label(row.get("source_file", "")) for row in weapon_rows)
     ability_counts = Counter(_source_label(row.get("source_file", "")) for row in ability_rows)
     suspicious_counts = Counter(_source_label(row.get("source_file", "")) for row in suspicious_weapon_rows)
+    unit_profile_issue_counts = Counter(
+        _source_label(row.get("source_file", ""))
+        for row in unit_profile_rows
+        if row.get("review_severity")
+    )
     loadout_counts = Counter(_source_label(row.get("source_file", "")) for row in loadout_rows)
     variant_counts = Counter(_source_label(row.get("source_file", "")) for row in unit_variant_rows)
     no_weapon_counts = Counter(
@@ -599,6 +869,7 @@ def build_source_catalogue_review_rows(
                 "weapon_profiles": str(weapon_counts[source]),
                 "ability_profiles": str(ability_counts[source]),
                 "suspicious_weapon_profiles": str(suspicious_counts[source]),
+                "unit_profile_issue_rows": str(unit_profile_issue_counts[source]),
                 "loadout_review_rows": str(loadout_counts[source]),
                 "duplicate_name_unit_rows": str(variant_counts[source]),
                 "no_weapon_units": str(no_weapon_counts[source]),
@@ -661,6 +932,7 @@ def build_profile_review_markdown(
     unit_variant_rows: List[Dict[str, str]],
     weapon_coverage_rows: List[Dict[str, str]],
     loadout_rows: List[Dict[str, str]],
+    unit_profile_rows: List[Dict[str, str]],
     source_catalogue_rows: List[Dict[str, str]],
 ) -> str:
     generated_at = datetime.now(UTC).isoformat().replace("+00:00", "Z")
@@ -669,6 +941,13 @@ def build_profile_review_markdown(
     variant_name_counts = Counter(row.get("unit_name", "") or "<unknown unit>" for row in unit_variant_rows)
     coverage_counts = Counter(row.get("coverage", "") or "<unknown>" for row in weapon_coverage_rows)
     modifier_type_counts = Counter(row.get("modifier_type", "") or "<unknown>" for row in ability_modifier_rows)
+    unit_profile_issue_counts = Counter(row.get("review_severity") or "ok" for row in unit_profile_rows)
+    unit_profile_category_counts = Counter(row.get("review_category") or "ok" for row in unit_profile_rows)
+    unit_profile_reason_counts = Counter()
+    for row in unit_profile_rows:
+        for reason in (row.get("review_reason") or "").split("; "):
+            if reason:
+                unit_profile_reason_counts[reason] += 1
 
     lines = [
         "# Imported Profile Review",
@@ -679,6 +958,7 @@ def build_profile_review_markdown(
         "",
         "- `weapon_profile_review.csv`: one row per imported weapon profile, joined to unit name, faction, source file, points, model counts, parsed averages, and parse status.",
         "- `suspicious_weapon_review.csv`: filtered weapon profiles with zero or extreme parsed damage characteristics for manual inspection.",
+        "- `unit_profile_review.csv`: one row per imported unit with core stat, points, and model-count validation for manual inspection.",
         "- `ability_profile_review.csv`: one row per imported ability profile, joined to unit name, faction, and source file where applicable.",
         "- `ability_modifier_review.csv`: one row per imported ability effect that the calculator turns into a modifier.",
         "- `unit_variant_review.csv`: one row per unit whose name appears more than once, preserving IDs, faction context, and source file.",
@@ -693,6 +973,8 @@ def build_profile_review_markdown(
         f"| Units | {len(units)} |",
         f"| Weapon profiles | {len(weapon_rows)} |",
         f"| Suspicious weapon profiles | {len(suspicious_weapon_rows)} |",
+        f"| Unit profile review rows | {len(unit_profile_rows)} |",
+        f"| Unit profile issue rows | {sum(count for severity, count in unit_profile_issue_counts.items() if severity != 'ok')} |",
         f"| Ability profiles | {len(ability_rows)} |",
         f"| Ability modifier rows | {len(ability_modifier_rows)} |",
         f"| Duplicate-name unit rows | {len(unit_variant_rows)} |",
@@ -713,8 +995,8 @@ def build_profile_review_markdown(
             "",
             "## Source Catalogue Coverage",
             "",
-            "| Source File | Factions | Units | Weapons | Suspicious Weapons | Loadout Rows |",
-            "| --- | --- | ---: | ---: | ---: | ---: |",
+            "| Source File | Factions | Units | Weapons | Suspicious Weapons | Unit Issues | Loadout Rows |",
+            "| --- | --- | ---: | ---: | ---: | ---: | ---: |",
         ]
     )
     for row in source_catalogue_rows[:12]:
@@ -722,7 +1004,8 @@ def build_profile_review_markdown(
         lines.append(
             f"| {source_label} | {_markdown_cell(row['factions'])} "
             f"| {row['units']} | {row['weapon_profiles']} "
-            f"| {row['suspicious_weapon_profiles']} | {row['loadout_review_rows']} |"
+            f"| {row['suspicious_weapon_profiles']} | {row['unit_profile_issue_rows']} "
+            f"| {row['loadout_review_rows']} |"
         )
 
     lines.extend(
@@ -759,6 +1042,8 @@ def build_profile_review_markdown(
         lines.append(f"| {row['unit_name']} | {row['weapon_name']} | {row['raw_damage_throughput']} |")
 
     suspicious_reason_counts = Counter()
+    suspicious_severity_counts = Counter(row.get("review_severity") or "unknown" for row in suspicious_weapon_rows)
+    suspicious_category_counts = Counter(row.get("review_category") or "unknown" for row in suspicious_weapon_rows)
     for row in suspicious_weapon_rows:
         for reason in (row.get("review_reason") or "").split("; "):
             if reason:
@@ -777,6 +1062,75 @@ def build_profile_review_markdown(
             lines.append(f"| {reason} | {count} |")
     else:
         lines.append("| None | 0 |")
+
+    lines.extend(
+        [
+            "",
+            "## Suspicious Weapon Severity",
+            "",
+            "| Severity | Rows |",
+            "| --- | ---: |",
+        ]
+    )
+    if suspicious_severity_counts:
+        for severity, count in sorted(suspicious_severity_counts.items()):
+            lines.append(f"| {severity} | {count} |")
+    else:
+        lines.append("| None | 0 |")
+
+    lines.extend(
+        [
+            "",
+            "## Suspicious Weapon Categories",
+            "",
+            "| Category | Rows |",
+            "| --- | ---: |",
+        ]
+    )
+    if suspicious_category_counts:
+        for category, count in sorted(suspicious_category_counts.items()):
+            lines.append(f"| {category} | {count} |")
+    else:
+        lines.append("| None | 0 |")
+
+    lines.extend(
+        [
+            "",
+            "## Unit Profile Validation",
+            "",
+            "| Severity | Rows |",
+            "| --- | ---: |",
+        ]
+    )
+    for severity, count in sorted(unit_profile_issue_counts.items()):
+        lines.append(f"| {severity} | {count} |")
+
+    lines.extend(
+        [
+            "",
+            "## Unit Profile Review Reasons",
+            "",
+            "| Reason | Rows |",
+            "| --- | ---: |",
+        ]
+    )
+    if unit_profile_reason_counts:
+        for reason, count in unit_profile_reason_counts.most_common():
+            lines.append(f"| {reason} | {count} |")
+    else:
+        lines.append("| None | 0 |")
+
+    lines.extend(
+        [
+            "",
+            "## Unit Profile Review Categories",
+            "",
+            "| Category | Rows |",
+            "| --- | ---: |",
+        ]
+    )
+    for category, count in sorted(unit_profile_category_counts.items()):
+        lines.append(f"| {category} | {count} |")
 
 
     lines.extend(
@@ -822,6 +1176,8 @@ def build_profile_review_markdown(
         lines.append(f"| {coverage} | {count} |")
 
     loadout_reason_counts = Counter()
+    loadout_severity_counts = Counter(row.get("review_severity") or "unknown" for row in loadout_rows)
+    loadout_category_counts = Counter(row.get("review_category") or "unknown" for row in loadout_rows)
     for row in loadout_rows:
         for reason in (row.get("review_reason") or "").split("; "):
             if reason:
@@ -838,6 +1194,36 @@ def build_profile_review_markdown(
     if loadout_reason_counts:
         for reason, count in loadout_reason_counts.most_common():
             lines.append(f"| {reason} | {count} |")
+    else:
+        lines.append("| None | 0 |")
+
+    lines.extend(
+        [
+            "",
+            "## Loadout Review Severity",
+            "",
+            "| Severity | Rows |",
+            "| --- | ---: |",
+        ]
+    )
+    if loadout_severity_counts:
+        for severity, count in sorted(loadout_severity_counts.items()):
+            lines.append(f"| {severity} | {count} |")
+    else:
+        lines.append("| None | 0 |")
+
+    lines.extend(
+        [
+            "",
+            "## Loadout Review Categories",
+            "",
+            "| Category | Rows |",
+            "| --- | ---: |",
+        ]
+    )
+    if loadout_category_counts:
+        for category, count in sorted(loadout_category_counts.items()):
+            lines.append(f"| {category} | {count} |")
     else:
         lines.append("| None | 0 |")
 

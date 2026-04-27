@@ -14,7 +14,7 @@ import pytest
 
 from warhammer.calculator import EngagementContext, evaluate_unit
 from warhammer.importers.csv_loader import load_units_from_directory
-from warhammer.webapp import _evaluate_unit_with_weapon_filter
+from warhammer.matchups import evaluate_unit_with_weapon_filter
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -246,7 +246,7 @@ def test_standalone_html_can_calculate_matchup_in_headless_browser():
             if response["result"].get("exceptionDetails"):
                 pytest.fail(str(response["result"]["exceptionDetails"]))
 
-            assert result["units"] >= 2000
+            assert result["units"] >= 1400
             assert result["attackerId"]
             assert result["defenderId"]
             assert result["error"] == ""
@@ -268,6 +268,8 @@ def test_standalone_html_can_calculate_matchup_in_headless_browser():
             assert "generated" in result["status"]
             assert "wh40k-10e" in result["statusTitle"]
             assert "training rows" in result["statusTitle"]
+            assert "Ruleset capabilities" in result["statusTitle"]
+            assert "Hit rolls" in result["statusTitle"]
             summary = result["summary"].casefold()
             assert "outgoing points" in summary
             assert "return points" in summary
@@ -366,7 +368,7 @@ def test_standalone_html_can_calculate_matchup_in_headless_browser():
                 target_in_cover=True,
                 target_model_count=5,
             )
-            outgoing_ranged = _evaluate_unit_with_weapon_filter(
+            outgoing_ranged = evaluate_unit_with_weapon_filter(
                 ranged_attacker,
                 ranged_defender,
                 "ranged",
@@ -374,7 +376,7 @@ def test_standalone_html_can_calculate_matchup_in_headless_browser():
                 weapon_name=ranged["outgoingWeapon"],
                 multiplier=2,
             )
-            incoming_ranged = _evaluate_unit_with_weapon_filter(
+            incoming_ranged = evaluate_unit_with_weapon_filter(
                 ranged_defender,
                 ranged_attacker,
                 "ranged",
@@ -397,9 +399,19 @@ def test_standalone_html_can_calculate_matchup_in_headless_browser():
                             sourceLinks: document.querySelectorAll('.report-markdown a[href*="github.com/BSData/wh40k-10e/blob/"]').length,
                             schemaReviewLink: [...document.querySelectorAll('.review-link')].some((link) => /schema_review\.csv/.test(link.getAttribute("download") || link.textContent || "")),
                             editionStatusLink: [...document.querySelectorAll('.review-link')].some((link) => /edition_status\.json/.test(link.getAttribute("download") || link.textContent || "")),
+                            editionReadinessLink: [...document.querySelectorAll('.review-link')].some((link) => /edition_readiness\.md/.test(link.getAttribute("download") || link.textContent || "")),
                             modelAuditLink: [...document.querySelectorAll('.review-link')].some((link) => /matchup_centroid_model\.md/.test(link.getAttribute("download") || link.textContent || "")),
+                            modelComparisonLink: [...document.querySelectorAll('.review-link')].some((link) => /model_comparison\.md/.test(link.getAttribute("download") || link.textContent || "")),
                             readinessText: document.body.textContent.includes("Edition Readiness"),
-                            modelAuditText: document.body.textContent.includes("ML Model Audit")
+                            readinessReportText: document.body.textContent.includes("Edition Readiness Report"),
+                            modelAuditText: document.body.textContent.includes("ML Model Audit"),
+                            modelComparisonText: document.body.textContent.includes("ML Model Comparison"),
+                            provenanceGeneratedArtifactsText: document.body.textContent.includes("Generated artifacts"),
+                            provenanceLinkedArtifactsText: document.body.textContent.includes("Linked ML artifacts"),
+                            provenanceModelTypeText: document.body.textContent.includes("ML model type"),
+                            provenanceComparisonText: document.body.textContent.includes("Model comparison"),
+                            capabilityCoverageText: document.body.textContent.includes("Ruleset Capability Coverage"),
+                            capabilityHitRollsText: document.body.textContent.includes("Hit rolls")
                           };
                         })()
                     """,
@@ -413,9 +425,19 @@ def test_standalone_html_can_calculate_matchup_in_headless_browser():
             assert review_result["sourceLinks"] > 0
             assert review_result["schemaReviewLink"] is True
             assert review_result["editionStatusLink"] is True
+            assert review_result["editionReadinessLink"] is True
             assert review_result["modelAuditLink"] is True
+            assert review_result["modelComparisonLink"] is True
             assert review_result["readinessText"] is True
+            assert review_result["readinessReportText"] is True
             assert review_result["modelAuditText"] is True
+            assert review_result["modelComparisonText"] is True
+            assert review_result["provenanceGeneratedArtifactsText"] is True
+            assert review_result["provenanceLinkedArtifactsText"] is True
+            assert review_result["provenanceModelTypeText"] is True
+            assert review_result["provenanceComparisonText"] is True
+            assert review_result["capabilityCoverageText"] is True
+            assert review_result["capabilityHitRollsText"] is True
         finally:
             if websocket is not None:
                 try:

@@ -1,3 +1,5 @@
+import json
+
 import pytest
 
 from warhammer import cli_core
@@ -73,3 +75,21 @@ def test_weapon_table_uses_overkill_safe_model_count_for_points_removed():
     assert float(damage) > 1.0
     assert float(models) < float(damage)
     assert points.endswith("pts")
+
+
+def test_main_rulesets_prints_capability_report(capsys):
+    cli_core.main(["--rulesets"])
+
+    output = capsys.readouterr().out
+    assert "10e:" in output
+    assert "hit_rolls" in output
+    assert "model_removal" in output
+
+
+def test_main_rulesets_json_prints_machine_readable_report(capsys):
+    cli_core.main(["--rulesets-json"])
+
+    payload = json.loads(capsys.readouterr().out)
+    capabilities = {item["key"] for item in payload["rulesets"]["10e"]["capabilities"]}
+    assert payload["rulesets"]["10e"]["capability_count"] >= 10
+    assert {"hit_rolls", "wound_rolls", "save_resolution", "model_removal"} <= capabilities

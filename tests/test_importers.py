@@ -77,6 +77,233 @@ def test_importer_does_not_attach_child_upgrade_abilities_to_unit(tmp_path):
     assert abilities[0].source_file == "test.cat"
 
 
+def test_importer_normalises_bare_numeric_roll_stats(tmp_path):
+    catalogue = tmp_path / "test.cat"
+    catalogue.write_text(
+        """<?xml version="1.0" encoding="UTF-8"?>
+<catalogue name="Test Faction">
+  <selectionEntries>
+    <selectionEntry type="unit" import="true" name="Line Unit" id="unit-1">
+      <profiles>
+        <profile name="Line Unit" typeName="Unit">
+          <characteristics>
+            <characteristic name="T">4</characteristic>
+            <characteristic name="SV">3</characteristic>
+            <characteristic name="Invulnerable Save">5</characteristic>
+            <characteristic name="FNP">6</characteristic>
+            <characteristic name="W">2</characteristic>
+          </characteristics>
+        </profile>
+      </profiles>
+    </selectionEntry>
+  </selectionEntries>
+</catalogue>
+""",
+        encoding="utf-8",
+    )
+
+    units, _weapons, _abilities, _keywords, _unit_keywords = import_catalogues([catalogue])
+
+    assert units[0].save == "3+"
+    assert units[0].invulnerable_save == "5+"
+    assert units[0].feel_no_pain == "6+"
+
+
+def test_importer_uses_model_points_when_unit_parent_is_zero(tmp_path):
+    catalogue = tmp_path / "test.cat"
+    catalogue.write_text(
+        """<?xml version="1.0" encoding="UTF-8"?>
+<catalogue name="Test Faction">
+  <selectionEntries>
+    <selectionEntry type="unit" import="true" name="Walker Unit" id="unit-1">
+      <costs>
+        <cost name="pts" value="0"/>
+      </costs>
+      <profiles>
+        <profile name="Walker Unit" typeName="Unit">
+          <characteristics>
+            <characteristic name="T">7</characteristic>
+            <characteristic name="SV">3+</characteristic>
+            <characteristic name="W">6</characteristic>
+          </characteristics>
+        </profile>
+      </profiles>
+      <selectionEntries>
+        <selectionEntry type="model" import="true" name="Walker" id="model-1">
+          <costs>
+            <cost name="pts" value="85"/>
+          </costs>
+        </selectionEntry>
+      </selectionEntries>
+    </selectionEntry>
+  </selectionEntries>
+</catalogue>
+""",
+        encoding="utf-8",
+    )
+
+    units, _weapons, _abilities, _keywords, _unit_keywords = import_catalogues([catalogue])
+
+    assert units[0].points == 85
+
+
+def test_importer_keeps_primary_model_points_over_child_model_costs(tmp_path):
+    catalogue = tmp_path / "test.cat"
+    catalogue.write_text(
+        """<?xml version="1.0" encoding="UTF-8"?>
+<catalogue name="Test Faction">
+  <selectionEntries>
+    <selectionEntry type="model" import="true" name="Knight Unit" id="unit-1">
+      <costs>
+        <cost name="pts" value="410"/>
+      </costs>
+      <profiles>
+        <profile name="Knight Unit" typeName="Unit">
+          <characteristics>
+            <characteristic name="T">12</characteristic>
+            <characteristic name="SV">3+</characteristic>
+            <characteristic name="W">24</characteristic>
+          </characteristics>
+        </profile>
+      </profiles>
+      <selectionEntries>
+        <selectionEntry type="model" import="true" name="Optional Servitor" id="model-1">
+          <costs>
+            <cost name="pts" value="30"/>
+          </costs>
+        </selectionEntry>
+      </selectionEntries>
+    </selectionEntry>
+  </selectionEntries>
+</catalogue>
+""",
+        encoding="utf-8",
+    )
+
+    units, _weapons, _abilities, _keywords, _unit_keywords = import_catalogues([catalogue])
+
+    assert units[0].points == 410
+
+
+def test_importer_skips_nested_model_profiles_without_direct_points(tmp_path):
+    catalogue = tmp_path / "test.cat"
+    catalogue.write_text(
+        """<?xml version="1.0" encoding="UTF-8"?>
+<catalogue name="Test Faction">
+  <selectionEntries>
+    <selectionEntry type="unit" import="true" name="Veteran Squad" id="unit-1">
+      <costs>
+        <cost name="pts" value="100"/>
+      </costs>
+      <profiles>
+        <profile name="Veteran Squad" typeName="Unit">
+          <characteristics>
+            <characteristic name="T">4</characteristic>
+            <characteristic name="SV">3+</characteristic>
+            <characteristic name="W">2</characteristic>
+          </characteristics>
+        </profile>
+      </profiles>
+      <selectionEntries>
+        <selectionEntry type="model" import="true" name="Veteran Sergeant" id="model-1">
+          <profiles>
+            <profile name="Veteran Sergeant" typeName="Unit">
+              <characteristics>
+                <characteristic name="T">4</characteristic>
+                <characteristic name="SV">3+</characteristic>
+                <characteristic name="W">2</characteristic>
+              </characteristics>
+            </profile>
+            <profile name="Power sword" typeName="Melee Weapons">
+              <characteristics>
+                <characteristic name="A">4</characteristic>
+                <characteristic name="WS">3+</characteristic>
+                <characteristic name="S">5</characteristic>
+                <characteristic name="AP">-2</characteristic>
+                <characteristic name="D">1</characteristic>
+                <characteristic name="Keywords">-</characteristic>
+              </characteristics>
+            </profile>
+          </profiles>
+        </selectionEntry>
+      </selectionEntries>
+    </selectionEntry>
+  </selectionEntries>
+</catalogue>
+""",
+        encoding="utf-8",
+    )
+
+    units, weapons, _abilities, _keywords, _unit_keywords = import_catalogues([catalogue])
+
+    assert [unit.name for unit in units] == ["Veteran Squad"]
+    assert [weapon.name for weapon in weapons] == ["Power sword"]
+    assert weapons[0].unit_id == units[0].unit_id
+
+
+def test_importer_skips_shared_child_model_refs_without_direct_points(tmp_path):
+    catalogue = tmp_path / "test.cat"
+    catalogue.write_text(
+        """<?xml version="1.0" encoding="UTF-8"?>
+<catalogue name="Test Faction">
+  <sharedSelectionEntries>
+    <selectionEntry type="model" import="true" name="Shared Specialist" id="model-1">
+      <profiles>
+        <profile name="Shared Specialist" typeName="Unit">
+          <characteristics>
+            <characteristic name="T">4</characteristic>
+            <characteristic name="SV">3+</characteristic>
+            <characteristic name="W">2</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Special rifle" typeName="Ranged Weapons">
+          <characteristics>
+            <characteristic name="A">2</characteristic>
+            <characteristic name="BS">3+</characteristic>
+            <characteristic name="S">4</characteristic>
+            <characteristic name="AP">-1</characteristic>
+            <characteristic name="D">1</characteristic>
+            <characteristic name="Keywords">-</characteristic>
+          </characteristics>
+        </profile>
+      </profiles>
+    </selectionEntry>
+  </sharedSelectionEntries>
+  <selectionEntries>
+    <selectionEntry type="unit" import="true" name="Kill Team" id="unit-1">
+      <costs>
+        <cost name="pts" value="100"/>
+      </costs>
+      <profiles>
+        <profile name="Kill Team" typeName="Unit">
+          <characteristics>
+            <characteristic name="T">4</characteristic>
+            <characteristic name="SV">3+</characteristic>
+            <characteristic name="W">2</characteristic>
+          </characteristics>
+        </profile>
+      </profiles>
+      <selectionEntries>
+        <selectionEntry type="upgrade" import="true" name="5 models" id="option-1">
+          <entryLinks>
+            <entryLink type="selectionEntry" name="Shared Specialist" targetId="model-1"/>
+          </entryLinks>
+        </selectionEntry>
+      </selectionEntries>
+    </selectionEntry>
+  </selectionEntries>
+</catalogue>
+""",
+        encoding="utf-8",
+    )
+
+    units, weapons, _abilities, _keywords, _unit_keywords = import_catalogues([catalogue])
+
+    assert [unit.name for unit in units] == ["Kill Team"]
+    assert [weapon.name for weapon in weapons] == ["Special rifle"]
+    assert weapons[0].unit_id == units[0].unit_id
+
+
 def test_importer_does_not_attach_crusade_weapon_modifications_to_units(tmp_path):
     catalogue = tmp_path / "test.cat"
     catalogue.write_text(

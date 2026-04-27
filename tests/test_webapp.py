@@ -1,6 +1,13 @@
 import pytest
 
 from warhammer import webapp
+from warhammer import api_payloads
+from warhammer import data_review
+from warhammer import matchup_payloads
+from warhammer import unit_search
+from warhammer import web_state
+from warhammer.context import EngagementContext
+from warhammer.matchups import evaluate_unit_with_weapon_filter
 from warhammer.profiles import UnitProfile
 
 
@@ -31,7 +38,7 @@ def _unit(name, weapon_type="ranged", faction="", keywords=None, weapons=None):
 
 
 def test_context_from_payload_normalises_values():
-    context = webapp._context_from_payload(
+    context = api_payloads.context_from_payload(
         {
             "attacker_advanced": True,
             "target_model_count": "10",
@@ -46,7 +53,7 @@ def test_context_from_payload_normalises_values():
 
 
 def test_context_from_payload_parses_string_booleans():
-    context = webapp._context_from_payload(
+    context = api_payloads.context_from_payload(
         {
             "attacker_moved": "false",
             "attacker_advanced": "true",
@@ -63,31 +70,31 @@ def test_context_from_payload_parses_string_booleans():
 
 def test_context_from_payload_rejects_invalid_target_model_count():
     with pytest.raises(ValueError, match="target_model_count"):
-        webapp._context_from_payload({"target_model_count": "0"})
+        api_payloads.context_from_payload({"target_model_count": "0"})
 
 
 def test_context_from_payload_rejects_invalid_booleans():
     with pytest.raises(ValueError, match="attacker_moved"):
-        webapp._context_from_payload({"attacker_moved": "sometimes"})
+        api_payloads.context_from_payload({"attacker_moved": "sometimes"})
 
 
 def test_optional_weapon_name_normalises_blank_and_all_values():
-    assert webapp._optional_weapon_name("") is None
-    assert webapp._optional_weapon_name("__all__") is None
-    assert webapp._optional_weapon_name("  Bolt rifle ") == "Bolt rifle"
+    assert api_payloads.optional_weapon_name("") is None
+    assert api_payloads.optional_weapon_name("__all__") is None
+    assert api_payloads.optional_weapon_name("  Bolt rifle ") == "Bolt rifle"
     with pytest.raises(ValueError, match="weapon filters"):
-        webapp._optional_weapon_name(12)
+        api_payloads.optional_weapon_name(12)
 
 
 def test_optional_unit_id_normalises_blank_values():
-    assert webapp._optional_unit_id("") is None
-    assert webapp._optional_unit_id("  abc ") == "abc"
+    assert api_payloads.optional_unit_id("") is None
+    assert api_payloads.optional_unit_id("  abc ") == "abc"
     with pytest.raises(ValueError, match="unit ids"):
-        webapp._optional_unit_id(12)
+        api_payloads.optional_unit_id(12)
 
 
 def test_contexts_from_payload_keeps_return_strike_independent():
-    outgoing, incoming = webapp._contexts_from_payload(
+    outgoing, incoming = api_payloads.contexts_from_payload(
         {
             "context": {
                 "attacker_advanced": True,
@@ -103,7 +110,7 @@ def test_contexts_from_payload_keeps_return_strike_independent():
 
 
 def test_contexts_from_payload_accepts_explicit_return_context():
-    outgoing, incoming = webapp._contexts_from_payload(
+    outgoing, incoming = api_payloads.contexts_from_payload(
         {
             "outgoing_context": {"target_within_half_range": True},
             "incoming_context": {"attacker_moved": True, "target_model_count": 3},
@@ -125,11 +132,11 @@ def test_evaluate_unit_with_weapon_filter_limits_results_to_matching_weapon():
     )
     defender = _unit("Target")
 
-    result = webapp._evaluate_unit_with_weapon_filter(
+    result = evaluate_unit_with_weapon_filter(
         attacker,
         defender,
         "ranged",
-        context=webapp.EngagementContext(),
+        context=EngagementContext(),
         weapon_name="Heavy gun",
         multiplier=1,
     )
@@ -142,11 +149,11 @@ def test_evaluate_unit_with_weapon_filter_rejects_missing_weapon():
     defender = _unit("Target")
 
     with pytest.raises(ValueError, match="no ranged weapon"):
-        webapp._evaluate_unit_with_weapon_filter(
+        evaluate_unit_with_weapon_filter(
             attacker,
             defender,
             "ranged",
-            context=webapp.EngagementContext(),
+            context=EngagementContext(),
             weapon_name="Missing",
             multiplier=1,
         )
@@ -156,19 +163,19 @@ def test_evaluate_unit_with_weapon_filter_applies_multiplier():
     attacker = _unit("Shooter")
     defender = _unit("Target")
 
-    base = webapp._evaluate_unit_with_weapon_filter(
+    base = evaluate_unit_with_weapon_filter(
         attacker,
         defender,
         "ranged",
-        context=webapp.EngagementContext(),
+        context=EngagementContext(),
         weapon_name=None,
         multiplier=1,
     )
-    scaled = webapp._evaluate_unit_with_weapon_filter(
+    scaled = evaluate_unit_with_weapon_filter(
         attacker,
         defender,
         "ranged",
-        context=webapp.EngagementContext(),
+        context=EngagementContext(),
         weapon_name=None,
         multiplier=4,
     )
@@ -180,7 +187,7 @@ def test_evaluate_unit_with_weapon_filter_applies_multiplier():
 def test_unit_and_weapon_serializers_are_json_ready():
     unit = _unit("Serializer")
 
-    payload = webapp._unit_detail(unit)
+    payload = matchup_payloads.unit_detail(unit)
 
     assert payload["name"] == "Serializer"
     assert payload["source_file"] == "Test.cat"
@@ -204,15 +211,15 @@ def test_result_serializers_include_estimated_points_removed():
         }
     )
 
-    result = webapp._evaluate_unit_with_weapon_filter(
+    result = evaluate_unit_with_weapon_filter(
         attacker,
         defender,
         "ranged",
-        context=webapp.EngagementContext(),
+        context=EngagementContext(),
         weapon_name=None,
         multiplier=1,
     )
-    payload = webapp._unit_result(result, target=defender)
+    payload = matchup_payloads.unit_result(result, target=defender)
 
     assert payload["points_per_model"] == pytest.approx(10)
     assert payload["estimated_points_removed"] == pytest.approx(payload["expected_models_destroyed"] * 10)
@@ -247,7 +254,7 @@ def test_matchup_judgement_prefers_points_removed_when_available():
         }
     )
 
-    judgement = webapp._matchup_judgement(
+    judgement = matchup_payloads.matchup_judgement(
         attacker,
         defender,
         outgoing={"total_damage": 2.0, "estimated_points_removed": 120.0},
@@ -264,7 +271,7 @@ def test_matchup_judgement_falls_back_to_damage_without_points():
     attacker = _unit("Attacker")
     defender = _unit("Defender")
 
-    judgement = webapp._matchup_judgement(
+    judgement = matchup_payloads.matchup_judgement(
         attacker,
         defender,
         outgoing={"total_damage": 1.0, "estimated_points_removed": None},
@@ -278,9 +285,9 @@ def test_matchup_judgement_falls_back_to_damage_without_points():
 def test_app_state_requires_exact_unit_name(tmp_path, monkeypatch):
     units = {"alpha": _unit("Alpha")}
 
-    monkeypatch.setattr(webapp, "load_units_from_json", lambda path: units)
+    monkeypatch.setattr(web_state, "load_units_from_json", lambda path: units)
 
-    state = webapp.AppState(csv_dir=None, json_path=tmp_path / "units.json")
+    state = web_state.AppState(csv_dir=None, json_path=tmp_path / "units.json")
 
     assert state.require_unit("Alpha").name == "Alpha"
     with pytest.raises(KeyError):
@@ -306,11 +313,28 @@ def test_app_state_preserves_duplicate_csv_unit_names(tmp_path):
     }.items():
         (tmp_path / filename).write_text(header + "\n", encoding="utf-8")
 
-    state = webapp.AppState(csv_dir=tmp_path, json_path=None)
+    state = web_state.AppState(csv_dir=tmp_path, json_path=None)
 
     assert len(state.units) == 2
     assert state.require_unit("Shared Name", unit_id="u2").faction == "Faction B"
-    assert webapp._unit_summary(state.require_unit("Shared Name", unit_id="u1"))["id"] == "u1"
+    assert matchup_payloads.unit_summary(state.require_unit("Shared Name", unit_id="u1"))["id"] == "u1"
+
+
+def test_app_state_loads_explicit_model_path_for_active_edition(tmp_path, monkeypatch):
+    units = {"alpha": _unit("Alpha")}
+    selected_model = tmp_path / "selected_model.json"
+    selected_model.write_text('{"model_type": "custom"}', encoding="utf-8")
+    loaded_paths = []
+
+    monkeypatch.setattr(web_state, "load_units_from_json", lambda path: units)
+    monkeypatch.setattr(web_state, "load_advisory_model", lambda path: loaded_paths.append(path) or {"model_type": "custom"})
+
+    state = web_state.AppState(csv_dir=None, json_path=tmp_path / "units.json", model_path=selected_model)
+
+    assert state.ml_model_path_for_edition("10e") == selected_model
+    assert state.ml_model_dir_for_edition("10e") == tmp_path
+    assert state.ml_model_for_edition("10e") == {"model_type": "custom"}
+    assert loaded_paths[0] == selected_model
 
 
 def test_unit_search_filters_by_faction_keywords_and_limit():
@@ -320,9 +344,9 @@ def test_unit_search_filters_by_faction_keywords_and_limit():
         _unit("Rhino", faction="Imperium - Space Marines", keywords=["Vehicle"]),
     ]
 
-    assert [unit.name for unit in webapp._search_units(units, text="vehicle")] == ["Rhino"]
-    assert [unit.name for unit in webapp._search_units(units, faction="Imperium - Space Marines", limit=1)] == ["Intercessor"]
-    assert webapp._unit_factions(units) == ["Imperium - Space Marines", "Xenos - Orks"]
+    assert [unit.name for unit in unit_search.search_units(units, text="vehicle")] == ["Rhino"]
+    assert [unit.name for unit in unit_search.search_units(units, faction="Imperium - Space Marines", limit=1)] == ["Intercessor"]
+    assert unit_search.unit_factions(units) == ["Imperium - Space Marines", "Xenos - Orks"]
 
 
 def test_data_review_payload_loads_generated_reports(tmp_path):
@@ -330,40 +354,59 @@ def test_data_review_payload_loads_generated_reports(tmp_path):
     (tmp_path / "import_diff.json").write_text('{"tables": {"units": {"delta": 2}}}', encoding="utf-8")
     (tmp_path / "metadata.json").write_text('{"counts": {"units": 3}}', encoding="utf-8")
     (tmp_path / "edition_status.json").write_text('{"edition": "10e", "status": "ready"}', encoding="utf-8")
+    (tmp_path / "edition_readiness.md").write_text("# Edition Readiness Report\n", encoding="utf-8")
     (tmp_path / "update_report.md").write_text("# Update\n\nStatus: PASS\n", encoding="utf-8")
     (tmp_path / "profile_review.md").write_text("# Imported Profile Review\n\nWeapon profiles: 1\n", encoding="utf-8")
     (tmp_path / "weapon_profile_review.csv").write_text("unit_name,weapon_name\nBoyz,Choppa\n", encoding="utf-8")
 
-    payload = webapp._data_review_payload(tmp_path)
+    payload = data_review.data_review_payload(tmp_path)
 
     assert payload["audit_report"]["summary"]["error"] == 1
     assert payload["import_diff"]["tables"]["units"]["delta"] == 2
     assert payload["metadata"]["counts"]["units"] == 3
     assert payload["edition_status"]["status"] == "ready"
+    assert payload["artifact_manifest"] is None
+    assert payload["verification_report"] is None
+    assert payload["suspicious_weapon_summary"] is None
     assert "Status: PASS" in payload["update_report"]
     assert "Imported Profile Review" in payload["profile_review"]
+    assert payload["edition_readiness"] == "# Edition Readiness Report\n"
     assert payload["model_audit"] is None
+    assert payload["model_comparison"] is None
     assert payload["model_files"] == []
     assert payload["review_files"][0]["href"].startswith("/api/review-files/10e/")
     assert {file["filename"] for file in payload["review_files"]} == {
         "weapon_profile_review.csv",
         "edition_status.json",
+        "edition_readiness.md",
         "profile_review.md",
         "update_report.md",
     }
 
 
 def test_data_review_payload_tolerates_missing_data_dir():
-    payload = webapp._data_review_payload(None)
+    payload = data_review.data_review_payload(None)
 
     assert payload == {
         "audit_report": None,
         "import_diff": None,
         "metadata": None,
         "edition_status": None,
+        "artifact_manifest": None,
+        "verification_report": None,
+        "suspicious_weapon_summary": None,
+        "unit_profile_summary": None,
+        "loadout_summary": None,
+        "source_catalogue_summary": None,
+        "unit_variant_summary": None,
+        "weapon_coverage_summary": None,
+        "ability_modifier_summary": None,
+        "schema_summary": None,
         "update_report": None,
         "profile_review": None,
+        "edition_readiness": None,
         "model_audit": None,
+        "model_comparison": None,
         "review_files": [],
         "model_files": [],
         "edition": "10e",
@@ -371,12 +414,12 @@ def test_data_review_payload_tolerates_missing_data_dir():
 
 
 def test_review_file_content_type():
-    assert webapp._review_file_content_type("weapon_profile_review.csv").startswith("text/csv")
-    assert webapp._review_file_content_type("profile_review.md").startswith("text/markdown")
+    assert data_review.review_file_content_type("weapon_profile_review.csv").startswith("text/csv")
+    assert data_review.review_file_content_type("profile_review.md").startswith("text/markdown")
 
 
 def test_source_info_from_metadata_summarizes_commit_and_generation():
-    payload = webapp._source_info_from_metadata(
+    payload = data_review.source_info_from_metadata(
         {
             "generated_at": "2026-04-25T12:00:00Z",
             "github_ref": "main",
@@ -418,7 +461,7 @@ def test_discover_edition_data_dirs_lists_available_latest_folders(tmp_path):
         encoding="utf-8",
     )
 
-    rows = webapp._discover_edition_data_dirs(tmp_path, active_data_dir=latest)
+    rows = web_state.discover_edition_data_dirs(tmp_path, active_data_dir=latest)
 
     assert rows == [
         {
@@ -452,7 +495,7 @@ def test_discover_edition_data_dirs_reports_blocked_unimplemented_ruleset(tmp_pa
         encoding="utf-8",
     )
 
-    rows = webapp._discover_edition_data_dirs(tmp_path)
+    rows = web_state.discover_edition_data_dirs(tmp_path)
 
     assert rows[0]["edition"] == "11e"
     assert rows[0]["label"] == "11th Edition"
@@ -463,7 +506,7 @@ def test_discover_edition_data_dirs_reports_blocked_unimplemented_ruleset(tmp_pa
 
 def test_available_edition_rows_preserve_blocked_discovered_editions(tmp_path):
     unit = _unit("Loaded")
-    dataset = webapp.EditionDataset(
+    dataset = web_state.EditionDataset(
         edition="10e",
         data_dir=tmp_path / "10e" / "latest",
         source="test",
@@ -485,7 +528,7 @@ def test_available_edition_rows_preserve_blocked_discovered_editions(tmp_path):
         "unavailable_reason": "Ruleset not implemented",
     }
 
-    rows = webapp._available_edition_rows({"10e": dataset}, active_edition="10e", discovered_rows=[blocked])
+    rows = web_state.available_edition_rows({"10e": dataset}, active_edition="10e", discovered_rows=[blocked])
 
     assert [row["edition"] for row in rows] == ["10e", "11e"]
     loaded = next(row for row in rows if row["edition"] == "10e")
@@ -507,7 +550,7 @@ def test_requested_rules_edition_validates_dataset_support():
 
             return Dataset()
 
-    assert webapp._requested_rules_edition(None, state=State()) == "10e"
-    assert webapp._requested_rules_edition("10e", state=State()) == "10e"
+    assert web_state.requested_rules_edition(None, state=State()) == "10e"
+    assert web_state.requested_rules_edition("10e", state=State()) == "10e"
     with pytest.raises(ValueError, match="not loaded"):
-        webapp._requested_rules_edition("11e", state=State())
+        web_state.requested_rules_edition("11e", state=State())

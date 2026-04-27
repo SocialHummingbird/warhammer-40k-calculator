@@ -33,6 +33,9 @@ def test_render_model_audit_report_flags_synthetic_labels_and_calculator_feature
     report = render_model_audit_report(_model(), feature_rows=rows)
 
     assert "Labels are generated from deterministic calculator outputs" in report
+    assert "Confidence basis: distance-based" in report
+    assert "Nearest-centroid classification is dependency-free" in report
+    assert "Centroids: 0" in report
     assert "Feature set: `full`" in report
     assert "Saved feature rows: 3" in report
     assert "Saved feature SHA-256: `abc123`" in report
@@ -43,6 +46,25 @@ def test_render_model_audit_report_flags_synthetic_labels_and_calculator_feature
     assert "| Expected \\ Predicted | `attacker` | `defender` |" in report
     assert "`outgoing_damage`" in report
     assert "outgoing_damage" in CALCULATOR_OUTPUT_FEATURES
+
+
+def test_render_model_audit_report_describes_logistic_regression_parameters():
+    model = _model()
+    model.update(
+        {
+            "model_type": "logistic_regression_classifier",
+            "coefficients": [[0.1, -0.2, 0.3], [-0.1, 0.2, -0.3]],
+            "intercepts": [0.0, 0.1],
+        }
+    )
+
+    report = render_model_audit_report(model)
+
+    assert "Confidence basis: probability-based" in report
+    assert "scikit-learn is only needed for training" in report
+    assert "Coefficient rows: 2" in report
+    assert "Coefficients per row: 3" in report
+    assert "Intercepts: 2" in report
 
 
 def test_write_model_audit_report_creates_parent_directory(tmp_path):

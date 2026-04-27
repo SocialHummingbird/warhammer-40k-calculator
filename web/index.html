@@ -136,16 +136,16 @@
 
     .combo-menu {
       position: absolute;
-      z-index: 20;
+      z-index: 40;
       left: 0;
       right: 0;
       top: calc(100% + 4px);
-      max-height: 280px;
+      max-height: min(280px, 42vh);
       overflow: auto;
-      border: 1px solid var(--line);
-      border-radius: 6px;
+      border: 1px solid #b9c7d6;
+      border-radius: 8px;
       background: #fff;
-      box-shadow: var(--shadow);
+      box-shadow: 0 16px 40px rgba(23, 27, 33, .18);
       display: none;
     }
 
@@ -171,8 +171,14 @@
     }
 
     .combo-option:hover,
-    .combo-option:focus-visible {
+    .combo-option:focus-visible,
+    .combo-option.active {
       background: #eef5fb;
+    }
+
+    .combo-option[aria-selected="true"] {
+      border-left: 3px solid var(--blue);
+      padding-left: 7px;
     }
 
     .combo-option span {
@@ -188,6 +194,22 @@
       color: var(--muted);
       font-size: 12px;
       overflow-wrap: anywhere;
+    }
+
+    .selected-unit-info details {
+      display: inline;
+      margin-left: 4px;
+    }
+
+    .selected-unit-info summary {
+      display: inline;
+      color: var(--blue);
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .selected-unit-info summary::-webkit-details-marker {
+      display: none;
     }
 
     input:focus,
@@ -226,6 +248,27 @@
       margin-top: 14px;
     }
 
+    .options-group {
+      margin-top: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcfd;
+      padding: 0 12px 12px;
+    }
+
+    .options-group summary {
+      margin: 0 -12px;
+      padding: 11px 12px;
+      cursor: pointer;
+      color: var(--ink);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .options-group:not([open]) {
+      padding-bottom: 0;
+    }
+
     .context-title {
       margin-top: 16px;
       color: var(--ink);
@@ -254,6 +297,11 @@
       display: flex;
       gap: 8px;
       margin-top: 16px;
+      position: sticky;
+      bottom: 0;
+      z-index: 15;
+      padding: 12px 0 0;
+      background: linear-gradient(to bottom, rgba(255,255,255,.78), #fff 34%);
     }
 
     button {
@@ -286,7 +334,7 @@
 
     .summary {
       display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       border-bottom: 1px solid var(--line);
       background: #fff;
     }
@@ -323,6 +371,11 @@
       padding: 16px;
       border-bottom: 1px solid var(--line);
       background: #f7f9fb;
+    }
+
+    .judgement.primary {
+      background: #fff;
+      border-left: 4px solid var(--red);
     }
 
     .judgement h3 {
@@ -440,6 +493,26 @@
       gap: 8px;
     }
 
+    .review-nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--line);
+      background: #f7fafc;
+    }
+
+    .review-nav a {
+      padding: 7px 10px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fff;
+      color: var(--blue);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
     .review-link {
       display: inline-flex;
       align-items: center;
@@ -462,6 +535,70 @@
     .review-link:hover {
       border-color: var(--blue);
       color: var(--blue);
+    }
+
+    .provenance-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .provenance-card {
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fff;
+      padding: 10px;
+      min-width: 0;
+    }
+
+    .provenance-card b {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 13px;
+    }
+
+    .provenance-card span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      overflow-wrap: anywhere;
+    }
+
+    .check-list {
+      display: grid;
+      gap: 6px;
+    }
+
+    .check-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 92px minmax(90px, .35fr);
+      align-items: center;
+      gap: 8px;
+      padding: 7px 8px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fff;
+      font-size: 12px;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 24px;
+      border-radius: 999px;
+      padding: 2px 8px;
+      background: #e9f5ef;
+      color: var(--green);
+      font-weight: 800;
+      text-transform: uppercase;
+      font-size: 11px;
+    }
+
+    .status-pill.fail {
+      background: #fbe9ea;
+      color: var(--red);
     }
 
     .issue-list {
@@ -672,6 +809,10 @@
       .diff-row { display: block; }
       .diff-head { display: none; }
       .diff-row > div { border-right: 0; }
+      .provenance-grid { grid-template-columns: 1fr; }
+      .check-row { grid-template-columns: 1fr; }
+      .combo-menu { max-height: 240px; }
+      .actions { flex-wrap: wrap; }
     }
   </style>
 </head>
@@ -689,7 +830,7 @@
       <label for="attacker">Attacker</label>
       <div class="unit-combo" data-field="attacker">
         <div class="combo-row">
-          <input id="attacker" data-testid="attacker-input" autocomplete="off" aria-autocomplete="list" aria-expanded="false">
+          <input id="attacker" data-testid="attacker-input" autocomplete="off" role="combobox" aria-autocomplete="list" aria-haspopup="listbox" aria-controls="attacker-menu" aria-expanded="false">
           <button class="combo-toggle" type="button" data-target="attacker" aria-label="Open attacker menu">▼</button>
         </div>
         <div class="combo-menu" id="attacker-menu" role="listbox"></div>
@@ -699,7 +840,7 @@
       <label for="defender">Defender</label>
       <div class="unit-combo" data-field="defender">
         <div class="combo-row">
-          <input id="defender" data-testid="defender-input" autocomplete="off" aria-autocomplete="list" aria-expanded="false">
+          <input id="defender" data-testid="defender-input" autocomplete="off" role="combobox" aria-autocomplete="list" aria-haspopup="listbox" aria-controls="defender-menu" aria-expanded="false">
           <button class="combo-toggle" type="button" data-target="defender" aria-label="Open defender menu">▼</button>
         </div>
         <div class="combo-menu" id="defender-menu" role="listbox"></div>
@@ -723,45 +864,52 @@
         <button class="segment" type="button" data-mode="melee" data-testid="mode-melee" aria-pressed="false">Melee</button>
       </div>
 
-      <label for="outgoing-weapon">Attacker weapon</label>
-      <select id="outgoing-weapon" data-testid="outgoing-weapon-select">
-        <option value="__all__">All matching weapons</option>
-      </select>
-      <label for="outgoing-multiplier">Attacker weapon count</label>
-      <input id="outgoing-multiplier" type="number" min="1" step="1" value="1" data-testid="outgoing-multiplier">
-
-      <label for="incoming-weapon">Return weapon</label>
-      <select id="incoming-weapon" data-testid="incoming-weapon-select">
-        <option value="__all__">All matching weapons</option>
-      </select>
-      <label for="incoming-multiplier">Return weapon count</label>
-      <input id="incoming-multiplier" type="number" min="1" step="1" value="1" data-testid="incoming-multiplier">
-
-      <div class="context-title">Attacker Attack</div>
-      <label for="attacker-target-model-count">Target models</label>
-      <input id="attacker-target-model-count" type="number" min="1" step="1" placeholder="Auto">
-      <div class="switches">
-        <label class="check"><input id="attacker-moved" type="checkbox"> Attacker moved</label>
-        <label class="check"><input id="attacker-advanced" type="checkbox"> Attacker advanced</label>
-        <label class="check"><input id="attacker-half-range" type="checkbox"> Target within half range</label>
-        <label class="check"><input id="attacker-cover" type="checkbox"> Target in cover</label>
-      </div>
-
-      <div class="context-title">Return Strike</div>
-      <label for="return-target-model-count">Target models</label>
-      <input id="return-target-model-count" type="number" min="1" step="1" placeholder="Auto">
-      <div class="switches">
-        <label class="check"><input id="return-moved" type="checkbox"> Attacker moved</label>
-        <label class="check"><input id="return-advanced" type="checkbox"> Attacker advanced</label>
-        <label class="check"><input id="return-half-range" type="checkbox"> Target within half range</label>
-        <label class="check"><input id="return-cover" type="checkbox"> Target in cover</label>
-      </div>
-
       <div class="actions">
         <button id="calculate" type="button" data-testid="calculate-button">Calculate</button>
         <button id="swap" class="secondary" type="button" data-testid="swap-button">Swap</button>
         <button id="data-review" class="tertiary" type="button" data-testid="data-review-button">Data Review</button>
       </div>
+
+      <details class="options-group" open>
+        <summary>Weapon scope</summary>
+        <label for="outgoing-weapon">Attacker weapon</label>
+        <select id="outgoing-weapon" data-testid="outgoing-weapon-select">
+          <option value="__all__">All matching weapons</option>
+        </select>
+        <label for="outgoing-multiplier">Attacker weapon count</label>
+        <input id="outgoing-multiplier" type="number" min="1" step="1" value="1" data-testid="outgoing-multiplier">
+
+        <label for="incoming-weapon">Return weapon</label>
+        <select id="incoming-weapon" data-testid="incoming-weapon-select">
+          <option value="__all__">All matching weapons</option>
+        </select>
+        <label for="incoming-multiplier">Return weapon count</label>
+        <input id="incoming-multiplier" type="number" min="1" step="1" value="1" data-testid="incoming-multiplier">
+      </details>
+
+      <details class="options-group">
+        <summary>Attacker context</summary>
+        <label for="attacker-target-model-count">Target models</label>
+        <input id="attacker-target-model-count" type="number" min="1" step="1" placeholder="Auto">
+        <div class="switches">
+          <label class="check"><input id="attacker-moved" type="checkbox"> Attacker moved</label>
+          <label class="check"><input id="attacker-advanced" type="checkbox"> Attacker advanced</label>
+          <label class="check"><input id="attacker-half-range" type="checkbox"> Target within half range</label>
+          <label class="check"><input id="attacker-cover" type="checkbox"> Target in cover</label>
+        </div>
+      </details>
+
+      <details class="options-group">
+        <summary>Return strike context</summary>
+        <label for="return-target-model-count">Target models</label>
+        <input id="return-target-model-count" type="number" min="1" step="1" placeholder="Auto">
+        <div class="switches">
+          <label class="check"><input id="return-moved" type="checkbox"> Attacker moved</label>
+          <label class="check"><input id="return-advanced" type="checkbox"> Attacker advanced</label>
+          <label class="check"><input id="return-half-range" type="checkbox"> Target within half range</label>
+          <label class="check"><input id="return-cover" type="checkbox"> Target in cover</label>
+        </div>
+      </details>
       <div class="error" id="error" aria-live="assertive"></div>
     </aside>
 
@@ -776,11 +924,13 @@
       factions: [],
       unitDetails: {},
       selectedUnitIds: { attacker: null, defender: null },
+      activeOptionIndex: { attacker: -1, defender: -1 },
       searchTimer: null,
       openMenu: null,
       rulesEdition: "10e",
       supportedRulesEditions: ["10e"],
-      availableEditions: []
+      availableEditions: [],
+      rulesets: {}
     };
 
     const el = (id) => document.getElementById(id);
@@ -806,13 +956,14 @@
       const health = await api("/api/health");
       const sourceInfo = health.source_info || {};
       state.availableEditions = health.available_editions || [];
+      state.rulesets = health.rulesets || {};
       state.mlModels = health.ml_models || {};
       state.rulesEdition = sourceInfo.rules_edition || "10e";
       state.supportedRulesEditions = state.availableEditions.length
         ? state.availableEditions.filter((row) => row.rules_available && row.loaded).map((row) => row.edition)
         : (sourceInfo.supported_rules_editions || [state.rulesEdition]);
       renderEditionSelect();
-      setStatus(health.units, sourceInfo, false, state.mlModels);
+      setStatus(health.units, sourceInfo, false, state.mlModels, state.rulesets);
     }
 
     function renderEditionSelect() {
@@ -840,11 +991,12 @@
       return String(edition).toUpperCase();
     }
 
-    function setStatus(unitCount, sourceInfo = {}, locally = false, mlModels = {}) {
+    function setStatus(unitCount, sourceInfo = {}, locally = false, mlModels = {}, rulesets = {}) {
       const parts = [`${unitCount} units loaded${locally ? " locally" : ""}`];
       if (sourceInfo.rules_edition) parts.push(`${String(sourceInfo.rules_edition).toUpperCase()} rules`);
       if (sourceInfo.commit_short) parts.push(`BSData ${sourceInfo.commit_short}`);
       const mlStatus = mlModels[sourceInfo.rules_edition || state.rulesEdition] || null;
+      const ruleset = rulesets[sourceInfo.rules_edition || state.rulesEdition] || null;
       if (mlStatus && mlStatus.available) {
         const accuracy = hasNumber(mlStatus.validation_accuracy)
           ? `${Math.round(Number(mlStatus.validation_accuracy) * 100)}%`
@@ -858,8 +1010,12 @@
       if (sourceInfo.remote_origin) titleParts.push(sourceInfo.remote_origin);
       if (sourceInfo.branch) titleParts.push(`branch ${sourceInfo.branch}`);
       if (sourceInfo.commit) titleParts.push(sourceInfo.commit);
+      if (ruleset && ruleset.capability_count) {
+        const capabilityNames = (ruleset.capabilities || []).map((item) => item.label || item.key).filter(Boolean).slice(0, 8);
+        titleParts.push(`Ruleset capabilities ${ruleset.capability_count}: ${capabilityNames.join(", ")}`);
+      }
       if (mlStatus && mlStatus.available) {
-        titleParts.push(`ML ${mlStatus.model_type || "model"}; feature set ${mlStatus.feature_set || "custom"}; training rows ${mlStatus.training_rows || 0}`);
+        titleParts.push(`ML ${mlStatus.model_type || "model"}; feature set ${mlStatus.feature_set || "custom"}; training rows ${mlStatus.training_rows || 0}; feature rows ${mlStatus.feature_rows || 0}; feature hash ${mlStatus.feature_sha256_short || "unknown"}`);
       }
       el("status").title = titleParts.join(" | ");
     }
@@ -1239,7 +1395,7 @@
         <div class="judgement ml">
           <h3>${escapeHtml(judgement.title || "ML advisory")}</h3>
           <p>${escapeHtml(judgement.body || "")}</p>
-          <p class="small">Model: ${escapeHtml(judgement.model_type || "unknown")} | Feature set: ${escapeHtml(judgement.feature_set || "custom")} | Training rows: ${escapeHtml(judgement.training_rows || 0)} | Validation accuracy: ${escapeHtml(accuracy)}</p>
+          <p class="small">Model: ${escapeHtml(judgement.model_type || "unknown")} | Feature set: ${escapeHtml(judgement.feature_set || "custom")} | Training rows: ${escapeHtml(judgement.training_rows || 0)} | Feature rows: ${escapeHtml(judgement.feature_rows || 0)} | Feature hash: ${escapeHtml(judgement.feature_sha256_short || "unknown")} | Validation accuracy: ${escapeHtml(accuracy)}</p>
         </div>
       `;
     }
@@ -1293,12 +1449,24 @@
       const diff = payload.import_diff;
       const metadata = payload.metadata;
       const editionStatus = payload.edition_status;
+      const artifactManifest = payload.artifact_manifest;
+      const verificationReport = payload.verification_report;
+      const suspiciousWeapons = payload.suspicious_weapon_summary;
+      const unitProfiles = payload.unit_profile_summary;
+      const loadouts = payload.loadout_summary;
+      const sourceCatalogues = payload.source_catalogue_summary;
+      const unitVariants = payload.unit_variant_summary;
+      const weaponCoverage = payload.weapon_coverage_summary;
+      const abilityModifiers = payload.ability_modifier_summary;
+      const schema = payload.schema_summary;
       const updateReport = payload.update_report;
       const profileReview = payload.profile_review;
+      const editionReadiness = payload.edition_readiness;
       const modelAudit = payload.model_audit;
+      const modelComparison = payload.model_comparison;
       const reviewFiles = payload.review_files || [];
       const modelFiles = payload.model_files || [];
-      if (!audit && !diff && !metadata && !editionStatus && !updateReport && !profileReview && !modelAudit) {
+      if (!audit && !diff && !metadata && !editionStatus && !artifactManifest && !verificationReport && !suspiciousWeapons && !unitProfiles && !loadouts && !sourceCatalogues && !unitVariants && !weaponCoverage && !abilityModifiers && !schema && !updateReport && !profileReview && !editionReadiness && !modelAudit && !modelComparison) {
         el("results").innerHTML = `<div class="empty">No generated audit or import diff files were found.</div>`;
         return;
       }
@@ -1322,14 +1490,361 @@
           ${metric("Info", summary.info || 0)}
           ${metric("Rows checked", audit && audit.row_counts ? Object.values(audit.row_counts).reduce((total, value) => total + Number(value || 0), 0) : 0)}
           ${editionStatus ? metric("Edition status", escapeHtml(editionStatus.status || "unknown")) : ""}
+          ${verificationReport ? metric("Verified checks", `${verificationReport.ok_count || 0}/${verificationReport.artifact_count || 0}`) : ""}
         </div>
+        ${renderProvenance(artifactManifest, verificationReport, metadata)}
         ${renderEditionStatus(editionStatus)}
+        ${renderEditionReadiness(editionReadiness)}
+        ${renderSchemaReview(schema)}
+        ${renderSuspiciousWeapons(suspiciousWeapons)}
+        ${renderUnitProfiles(unitProfiles)}
+        ${renderLoadouts(loadouts)}
+        ${renderSourceCatalogues(sourceCatalogues)}
+        ${renderUnitVariants(unitVariants)}
+        ${renderWeaponCoverage(weaponCoverage)}
+        ${renderAbilityModifiers(abilityModifiers)}
         ${renderReviewFiles([...reviewFiles, ...modelFiles])}
+        ${renderModelComparison(modelComparison)}
         ${renderModelAudit(modelAudit)}
         ${renderUpdateReport(updateReport)}
         ${renderProfileReview(profileReview)}
         ${renderDiff(diff)}
         ${renderAuditSections(audit)}
+      `;
+    }
+
+    function renderSuspiciousWeapons(summary) {
+      if (!summary) return "";
+      const severityCards = Object.entries(summary.by_severity || {}).map(([key, value]) => provenanceCard(`Severity: ${key}`, value, ""));
+      const categoryCards = Object.entries(summary.by_category || {}).map(([key, value]) => provenanceCard(`Category: ${key}`, value, ""));
+      const reasonRows = Object.entries(summary.by_reason || {}).slice(0, 8).map(([reason, count]) => `
+        <div class="check-row">
+          <div>${escapeHtml(reason)}</div>
+          <div><span class="status-pill">${escapeHtml(count)}</span></div>
+          <div></div>
+        </div>
+      `).join("");
+      const weaponRows = (summary.rows || []).map((row) => `
+        <tr>
+          <td>${escapeHtml(row.severity || "")}</td>
+          <td>${escapeHtml(row.category || "")}</td>
+          <td>${escapeHtml(row.unit_name || "")}</td>
+          <td>${escapeHtml(row.weapon_name || "")}</td>
+          <td>${escapeHtml(`A${row.attacks || "?"} S${row.strength || "?"} AP${row.ap || "?"} D${row.damage || "?"}`)}</td>
+          <td>${escapeHtml(row.raw_damage_throughput || "")}</td>
+          <td>${escapeHtml(row.review_reason || "")}</td>
+        </tr>
+      `).join("");
+      return `
+        <div class="review-section">
+          <h3>Suspicious Weapon Profiles</h3>
+          <div class="provenance-grid">
+            ${provenanceCard("Rows needing review", summary.total || 0, `Showing first ${Math.min((summary.rows || []).length, summary.row_limit || 0)} rows`)}
+            ${severityCards.join("")}
+            ${categoryCards.join("")}
+          </div>
+          ${reasonRows ? `<p class="small">Most common review reasons</p><div class="check-list">${reasonRows}</div>` : ""}
+          <table class="report-table">
+            <thead><tr><th>Severity</th><th>Category</th><th>Unit</th><th>Weapon</th><th>Profile</th><th>Raw</th><th>Reason</th></tr></thead>
+            <tbody>${weaponRows || `<tr><td colspan="7">No suspicious weapon profiles were generated.</td></tr>`}</tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    function renderSchemaReview(summary) {
+      if (!summary) return "";
+      const statusCards = Object.entries(summary.by_status || {}).map(([key, value]) => provenanceCard(`Status: ${key}`, value, ""));
+      const rows = (summary.rows || []).map((row) => `
+        <tr>
+          <td>${escapeHtml(row.status || "")}</td>
+          <td>${escapeHtml(row.table || "")}</td>
+          <td>${escapeHtml(row.file || "")}</td>
+          <td>${escapeHtml(`${row.required_count || "0"} / ${row.actual_count || "0"}`)}</td>
+          <td>${escapeHtml(row.missing_columns || "")}</td>
+          <td>${escapeHtml(row.extra_columns || "")}</td>
+        </tr>
+      `).join("");
+      return `
+        <div class="review-section">
+          <h3>Schema Review</h3>
+          <div class="provenance-grid">
+            ${provenanceCard("Tables reviewed", summary.total || 0, `Showing first ${Math.min((summary.rows || []).length, summary.row_limit || 0)} rows`)}
+            ${statusCards.join("")}
+          </div>
+          <table class="report-table">
+            <thead><tr><th>Status</th><th>Table</th><th>File</th><th>Required / Actual</th><th>Missing</th><th>Extra</th></tr></thead>
+            <tbody>${rows || `<tr><td colspan="6">No schema review rows were generated.</td></tr>`}</tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    function renderUnitProfiles(summary) {
+      if (!summary) return "";
+      const severityCards = Object.entries(summary.by_severity || {}).map(([key, value]) => provenanceCard(`Severity: ${key}`, value, ""));
+      const categoryCards = Object.entries(summary.by_category || {}).map(([key, value]) => provenanceCard(`Category: ${key}`, value, ""));
+      const reasonRows = Object.entries(summary.by_reason || {}).slice(0, 8).map(([reason, count]) => `
+        <div class="check-row">
+          <div>${escapeHtml(reason)}</div>
+          <div><span class="status-pill">${escapeHtml(count)}</span></div>
+          <div></div>
+        </div>
+      `).join("");
+      const unitRows = (summary.rows || []).map((row) => `
+        <tr>
+          <td>${escapeHtml(row.severity || "")}</td>
+          <td>${escapeHtml(row.category || "")}</td>
+          <td>${escapeHtml(row.unit_name || "")}</td>
+          <td>${escapeHtml(row.faction || "")}</td>
+          <td>${escapeHtml(`T${row.toughness || "?"} Sv${row.save || "?"} W${row.wounds || "?"}`)}</td>
+          <td>${escapeHtml(row.points || "")}</td>
+          <td>${escapeHtml(`${row.models_min || "?"}-${row.models_max || "?"}`)}</td>
+          <td>${escapeHtml(row.review_reason || "")}</td>
+        </tr>
+      `).join("");
+      return `
+        <div class="review-section">
+          <h3>Unit Profile Validation</h3>
+          <div class="provenance-grid">
+            ${provenanceCard("Units reviewed", summary.total || 0, `${summary.issue_total || 0} rows need review`)}
+            ${severityCards.join("")}
+            ${categoryCards.join("")}
+          </div>
+          ${reasonRows ? `<p class="small">Most common review reasons</p><div class="check-list">${reasonRows}</div>` : ""}
+          <table class="report-table">
+            <thead><tr><th>Severity</th><th>Category</th><th>Unit</th><th>Faction</th><th>Profile</th><th>Points</th><th>Models</th><th>Reason</th></tr></thead>
+            <tbody>${unitRows || `<tr><td colspan="8">No unit profile issues were generated.</td></tr>`}</tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    function renderLoadouts(summary) {
+      if (!summary) return "";
+      const severityCards = Object.entries(summary.by_severity || {}).map(([key, value]) => provenanceCard(`Severity: ${key}`, value, ""));
+      const categoryCards = Object.entries(summary.by_category || {}).map(([key, value]) => provenanceCard(`Category: ${key}`, value, ""));
+      const reasonRows = Object.entries(summary.by_reason || {}).slice(0, 8).map(([reason, count]) => `
+        <div class="check-row">
+          <div>${escapeHtml(reason)}</div>
+          <div><span class="status-pill">${escapeHtml(count)}</span></div>
+          <div></div>
+        </div>
+      `).join("");
+      const loadoutRows = (summary.rows || []).map((row) => `
+        <tr>
+          <td>${escapeHtml(row.severity || "")}</td>
+          <td>${escapeHtml(row.category || "")}</td>
+          <td>${escapeHtml(row.unit_name || "")}</td>
+          <td>${escapeHtml(row.faction || "")}</td>
+          <td>${escapeHtml(`${row.total_weapons || "0"} total / ${row.ranged_weapons || "0"} ranged / ${row.melee_weapons || "0"} melee`)}</td>
+          <td>${escapeHtml(row.points || "")}</td>
+          <td>${escapeHtml(row.review_reason || "")}</td>
+        </tr>
+      `).join("");
+      return `
+        <div class="review-section">
+          <h3>Loadout Complexity</h3>
+          <div class="provenance-grid">
+            ${provenanceCard("Rows reviewed", summary.total || 0, `Showing first ${Math.min((summary.rows || []).length, summary.row_limit || 0)} rows`)}
+            ${severityCards.join("")}
+            ${categoryCards.join("")}
+          </div>
+          ${reasonRows ? `<p class="small">Most common review reasons</p><div class="check-list">${reasonRows}</div>` : ""}
+          <table class="report-table">
+            <thead><tr><th>Severity</th><th>Category</th><th>Unit</th><th>Faction</th><th>Weapons</th><th>Points</th><th>Reason</th></tr></thead>
+            <tbody>${loadoutRows || `<tr><td colspan="7">No loadout complexity rows were generated.</td></tr>`}</tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    function renderSourceCatalogues(summary) {
+      if (!summary) return "";
+      const totals = summary.totals || {};
+      const rows = (summary.rows || []).map((row) => {
+        const source = row.source_url
+          ? `<a href="${escapeAttr(row.source_url)}" target="_blank" rel="noreferrer">${escapeHtml(row.source_file || "")}</a>`
+          : escapeHtml(row.source_file || "");
+        return `
+          <tr>
+            <td>${source}</td>
+            <td>${escapeHtml(row.units || "0")}</td>
+            <td>${escapeHtml(row.weapon_profiles || "0")}</td>
+            <td>${escapeHtml(row.suspicious_weapon_profiles || "0")}</td>
+            <td>${escapeHtml(row.unit_profile_issue_rows || "0")}</td>
+            <td>${escapeHtml(row.loadout_review_rows || "0")}</td>
+            <td>${escapeHtml(row.no_weapon_units || "0")}</td>
+          </tr>
+        `;
+      }).join("");
+      return `
+        <div class="review-section">
+          <h3>Source Catalogue Coverage</h3>
+          <div class="provenance-grid">
+            ${provenanceCard("Catalogues", summary.total || 0, `Showing first ${Math.min((summary.rows || []).length, summary.row_limit || 0)} rows`)}
+            ${provenanceCard("Units", totals.units || 0, "")}
+            ${provenanceCard("Weapon profiles", totals.weapon_profiles || 0, "")}
+            ${provenanceCard("Suspicious weapons", totals.suspicious_weapon_profiles || 0, "")}
+            ${provenanceCard("Unit profile issues", totals.unit_profile_issue_rows || 0, "")}
+            ${provenanceCard("Loadout rows", totals.loadout_review_rows || 0, "")}
+          </div>
+          <table class="report-table">
+            <thead><tr><th>Source</th><th>Units</th><th>Weapons</th><th>Suspicious</th><th>Unit Issues</th><th>Loadouts</th><th>No Weapons</th></tr></thead>
+            <tbody>${rows || `<tr><td colspan="7">No source catalogue review rows were generated.</td></tr>`}</tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    function renderUnitVariants(summary) {
+      if (!summary) return "";
+      const rows = (summary.rows || []).map((row) => `
+        <tr>
+          <td>${escapeHtml(row.unit_name || "")}</td>
+          <td>${escapeHtml(row.variant_count || "0")}</td>
+          <td>${escapeHtml(row.factions || "")}</td>
+          <td>${escapeHtml(row.points || "")}</td>
+          <td>${escapeHtml(row.source_files || "")}</td>
+        </tr>
+      `).join("");
+      return `
+        <div class="review-section">
+          <h3>Duplicate Unit Names</h3>
+          <div class="provenance-grid">
+            ${provenanceCard("Duplicate names", summary.duplicate_names || 0, `${summary.total_rows || 0} variant rows`)}
+            ${provenanceCard("Largest variant set", summary.max_variant_count || 0, "")}
+          </div>
+          <table class="report-table">
+            <thead><tr><th>Unit</th><th>Variants</th><th>Factions</th><th>Points</th><th>Sources</th></tr></thead>
+            <tbody>${rows || `<tr><td colspan="5">No duplicate unit names were generated.</td></tr>`}</tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    function renderWeaponCoverage(summary) {
+      if (!summary) return "";
+      const coverageCards = Object.entries(summary.by_coverage || {}).map(([key, value]) => provenanceCard(`Coverage: ${key}`, value, ""));
+      const rows = (summary.rows || []).map((row) => `
+        <tr>
+          <td>${escapeHtml(row.unit_name || "")}</td>
+          <td>${escapeHtml(row.faction || "")}</td>
+          <td>${escapeHtml(row.selection_type || "")}</td>
+          <td>${escapeHtml(row.points || "")}</td>
+          <td>${escapeHtml(`${row.models_min || "?"}-${row.models_max || "?"}`)}</td>
+          <td>${escapeHtml(row.source_file || "")}</td>
+        </tr>
+      `).join("");
+      return `
+        <div class="review-section">
+          <h3>Unit Weapon Coverage</h3>
+          <div class="provenance-grid">
+            ${provenanceCard("Units reviewed", summary.total || 0, `${summary.no_weapon_total || 0} without imported weapons`)}
+            ${coverageCards.join("")}
+          </div>
+          <table class="report-table">
+            <thead><tr><th>Unit</th><th>Faction</th><th>Type</th><th>Points</th><th>Models</th><th>Source</th></tr></thead>
+            <tbody>${rows || `<tr><td colspan="6">No units without imported weapons were generated.</td></tr>`}</tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    function renderAbilityModifiers(summary) {
+      if (!summary) return "";
+      const typeCards = Object.entries(summary.by_type || {}).map(([key, value]) => provenanceCard(`Type: ${key}`, value, ""));
+      const grantCards = Object.entries(summary.by_grant || {}).map(([key, value]) => provenanceCard(`Grants: ${key}`, value, ""));
+      const rows = (summary.rows || []).map((row) => `
+        <tr>
+          <td>${escapeHtml(row.modifier_type || "")}</td>
+          <td>${escapeHtml(row.unit_name || "")}</td>
+          <td>${escapeHtml(row.faction || "")}</td>
+          <td>${escapeHtml(row.source || "")}</td>
+          <td>${escapeHtml(`Hit ${row.hit_modifier || "0"} / Wound ${row.wound_modifier || "0"}`)}</td>
+          <td>${escapeHtml(row.reroll_hits || row.reroll_wounds || row.grants || row.anti_rules || row.damage_reduction || "")}</td>
+        </tr>
+      `).join("");
+      return `
+        <div class="review-section">
+          <h3>Derived Ability Modifiers</h3>
+          <div class="provenance-grid">
+            ${provenanceCard("Rows reviewed", summary.total || 0, `Showing first ${Math.min((summary.rows || []).length, summary.row_limit || 0)} rows`)}
+            ${typeCards.join("")}
+            ${grantCards.join("")}
+          </div>
+          <table class="report-table">
+            <thead><tr><th>Type</th><th>Unit</th><th>Faction</th><th>Source</th><th>Modifiers</th><th>Rules</th></tr></thead>
+            <tbody>${rows || `<tr><td colspan="6">No derived ability modifier rows were generated.</td></tr>`}</tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    function renderProvenance(manifest, verification, metadata) {
+      if (!manifest && !verification && !metadata) return "";
+      const source = manifest && manifest.source ? manifest.source : {};
+      const metadataSource = metadata && metadata.source_revisions && metadata.source_revisions[0] ? metadata.source_revisions[0] : {};
+      const linked = manifest && manifest.linked_ml_artifacts ? manifest.linked_ml_artifacts : {};
+      const artifacts = manifest && manifest.artifacts ? manifest.artifacts : {};
+      const linkedArtifacts = linked.artifacts || {};
+      const featureCsv = linkedArtifacts.feature_csv || {};
+      const modelJson = linkedArtifacts.model_json || {};
+      const auditJson = linkedArtifacts.model_audit || {};
+      const comparisonJson = linkedArtifacts.model_comparison || {};
+      const commit = source.commit || metadataSource.commit || "";
+      const generatedAt = manifest && manifest.generated_at ? manifest.generated_at : (metadata && metadata.generated_at ? metadata.generated_at : "");
+      return `
+        <div class="review-section">
+          <h3>Data & ML Provenance</h3>
+          <div class="provenance-grid">
+            ${provenanceCard("Source commit", commit ? commit.slice(0, 12) : "unknown", source.remote_origin || metadataSource.remote_origin || "")}
+            ${provenanceCard("Generated", generatedAt || "unknown", source.branch ? `Branch ${source.branch}` : "")}
+            ${provenanceCard("Artifact checks", verification ? `${verification.ok_count || 0}/${verification.artifact_count || 0} passing` : "not run", verification && verification.ok ? "All generated checks passed." : "Review failures below.")}
+            ${provenanceCard("Generated artifacts", manifest ? (manifest.artifact_count || Object.keys(artifacts).length || 0) : "unknown", "Manifest-tracked data files")}
+            ${provenanceCard("Linked ML artifacts", Object.keys(linkedArtifacts).length || 0, linked.model_type ? `Model type ${linked.model_type}` : "")}
+            ${linked.model_type ? provenanceCard("ML model type", linked.model_type, linked.feature_set ? `Feature set ${linked.feature_set}` : "") : ""}
+            ${provenanceCard("ML feature set", linked.feature_set || "unknown", `${linked.feature_rows || 0} feature rows`)}
+            ${provenanceCard("Feature CSV", shortHash(featureCsv.sha256), featureCsv.path || "not linked")}
+            ${provenanceCard("Model JSON", shortHash(modelJson.sha256), modelJson.path || "not linked")}
+            ${auditJson.path ? provenanceCard("Model audit", shortHash(auditJson.sha256), auditJson.path) : ""}
+            ${comparisonJson.path ? provenanceCard("Model comparison", shortHash(comparisonJson.sha256), comparisonJson.path) : ""}
+          </div>
+          ${renderVerificationChecks(verification)}
+        </div>
+      `;
+    }
+
+    function provenanceCard(title, value, detail = "") {
+      return `
+        <div class="provenance-card">
+          <b>${escapeHtml(title)}</b>
+          <span>${escapeHtml(value || "unknown")}</span>
+          ${detail ? `<span>${escapeHtml(detail)}</span>` : ""}
+        </div>
+      `;
+    }
+
+    function shortHash(hash) {
+      return hash ? String(hash).slice(0, 12) : "unknown";
+    }
+
+    function renderVerificationChecks(verification) {
+      if (!verification || !verification.results || !verification.results.length) return `<div class="empty">No artifact verification report is available.</div>`;
+      const failed = verification.results.filter((item) => !item.ok);
+      const rows = (failed.length ? failed : verification.results).map((item) => `
+        <div class="check-row">
+          <div>${escapeHtml(item.filename || "unknown")}</div>
+          <div><span class="status-pill ${item.ok ? "" : "fail"}">${escapeHtml(item.status || (item.ok ? "ok" : "failed"))}</span></div>
+          <div>${escapeHtml(shortHash(item.actual_sha256 || item.expected_sha256 || ""))}</div>
+        </div>
+      `).join("");
+      const intro = failed.length
+        ? `${failed.length} failed verification checks need attention.`
+        : "All generated artifact and linked ML checks passed.";
+      return `
+        <p class="small">${escapeHtml(intro)}</p>
+        <div class="check-list">${rows}</div>
       `;
     }
 
@@ -1344,7 +1859,29 @@
           <p><b>${escapeHtml(String(status.edition || "unknown").toUpperCase())}</b> calculations are ${status.calculations_enabled ? "enabled" : "blocked"}.</p>
           <p>Ruleset available: ${status.rules_available ? "yes" : "no"} | supported rulesets: ${escapeHtml((status.supported_rules_editions || []).join(", ") || "none")}</p>
           ${blockers}
+          ${renderRuleCapabilities(status.rule_capabilities)}
         </div>
+      `;
+    }
+
+    function renderRuleCapabilities(capabilities) {
+      if (!capabilities || !capabilities.length) return "";
+      const rows = capabilities.map((capability) => {
+        const notes = Array.isArray(capability.notes) ? capability.notes.join("; ") : "";
+        return `
+          <tr>
+            <td>${escapeHtml(capability.label || capability.key || "unknown")}</td>
+            <td>${escapeHtml(capability.status || "unknown")}</td>
+            <td>${escapeHtml(notes)}</td>
+          </tr>
+        `;
+      }).join("");
+      return `
+        <h4>Ruleset Capability Coverage</h4>
+        <table class="report-table">
+          <thead><tr><th>Capability</th><th>Status</th><th>Notes</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
       `;
     }
 
@@ -1377,6 +1914,11 @@
       return renderMarkdownReport("Profile Review", profileReview);
     }
 
+    function renderEditionReadiness(editionReadiness) {
+      if (!editionReadiness) return "";
+      return renderMarkdownReport("Edition Readiness Report", editionReadiness);
+    }
+
     function renderUpdateReport(updateReport) {
       if (!updateReport) return "";
       return renderMarkdownReport("Update Report", updateReport);
@@ -1385,6 +1927,11 @@
     function renderModelAudit(modelAudit) {
       if (!modelAudit) return "";
       return renderMarkdownReport("ML Model Audit", modelAudit);
+    }
+
+    function renderModelComparison(modelComparison) {
+      if (!modelComparison) return "";
+      return renderMarkdownReport("ML Model Comparison", modelComparison);
     }
 
     function renderMarkdownReport(title, markdown) {

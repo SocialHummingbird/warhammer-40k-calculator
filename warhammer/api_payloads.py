@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any, Dict, Optional
 
-from .calculator import EngagementContext
+from .context import EngagementContext
 
 
 def contexts_from_payload(payload: Dict[str, Any]) -> tuple[EngagementContext, EngagementContext]:

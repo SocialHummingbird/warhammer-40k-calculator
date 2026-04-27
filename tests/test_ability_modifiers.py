@@ -149,6 +149,21 @@ def test_weapon_keywords_enable_twin_linked_and_anti():
     assert any("Assault" in note for note in notes)
 
 
+def test_weapon_keyword_text_populates_hit_special_rules():
+    weapon_dict = _weapon_dict(
+        attacks="6",
+        skill="4+",
+        keywords="Lethal Hits, Sustained Hits 2, Devastating Wounds",
+    )
+    attacker = _build_unit(weapon_dict)
+
+    weapon = attacker.weapons[0]
+
+    assert weapon.lethal_hits is True
+    assert weapon.sustained_hits == 2
+    assert weapon.devastating_wounds is True
+
+
 def test_ability_grants_anti_keyword_increases_wound_probability():
     weapon_dict = _weapon_dict()
     ability = (

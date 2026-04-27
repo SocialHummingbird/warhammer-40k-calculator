@@ -7,6 +7,17 @@ from pathlib import Path
 from typing import Any
 
 from warhammer.dice import quantity_distribution
+from warhammer.data_review import (
+    ability_modifier_summary,
+    artifact_verification_report,
+    loadout_summary,
+    schema_summary,
+    source_catalogue_summary,
+    suspicious_weapon_summary,
+    unit_profile_summary,
+    unit_variant_summary,
+    weapon_coverage_summary,
+)
 from warhammer.importers.csv_loader import load_units_from_directory
 from warhammer.profiles import UnitProfile, WeaponProfile
 
@@ -98,9 +109,15 @@ def _local_script(data: dict[str, Any]) -> str:
       importDiff: LOCAL_DATA.importDiff || null,
       metadata: LOCAL_DATA.metadata || null,
       editionStatus: LOCAL_DATA.editionStatus || null,
+      artifactManifest: LOCAL_DATA.artifactManifest || null,
+      verificationReport: LOCAL_DATA.verificationReport || null,
+      suspiciousWeaponSummary: LOCAL_DATA.suspiciousWeaponSummary || null,
+      unitProfileSummary: LOCAL_DATA.unitProfileSummary || null,
       updateReport: LOCAL_DATA.updateReport || null,
       profileReview: LOCAL_DATA.profileReview || null,
+      editionReadiness: LOCAL_DATA.editionReadiness || null,
       modelAudit: LOCAL_DATA.modelAudit || null,
+      modelComparison: LOCAL_DATA.modelComparison || null,
       reviewFiles: LOCAL_DATA.reviewFiles || [],
       modelFiles: LOCAL_DATA.modelFiles || [],
       mlModel: LOCAL_DATA.mlModel || null,
@@ -160,6 +177,7 @@ def _local_script(data: dict[str, Any]) -> str:
       const sourceInfo = sourceInfoFromMetadata(state.metadata);
       state.rulesEdition = sourceInfo.rules_edition || "10e";
       state.mlModels = state.mlModel ? {{ [state.rulesEdition]: modelStatus(state.mlModel) }} : {{}};
+      state.rulesets = state.editionStatus ? {{ [state.rulesEdition]: rulesetStatus(state.editionStatus) }} : {{}};
       state.supportedRulesEditions = sourceInfo.supported_rules_editions || [state.rulesEdition];
       state.availableEditions = [{{
         edition: state.rulesEdition,
@@ -172,12 +190,23 @@ def _local_script(data: dict[str, Any]) -> str:
         unavailable_reason: ""
       }}];
       renderEditionSelect();
-      setStatus(LOCAL_DATA.units.length, sourceInfo, true, state.mlModels);
+      setStatus(LOCAL_DATA.units.length, sourceInfo, true, state.mlModels, state.rulesets);
       return Promise.resolve();
+    }}
+
+    function rulesetStatus(status) {{
+      const capabilities = status && Array.isArray(status.rule_capabilities) ? status.rule_capabilities : [];
+      return {{
+        label: editionLabel(status && status.edition ? status.edition : state.rulesEdition),
+        capability_count: capabilities.length,
+        capabilities
+      }};
     }}
 
     function modelStatus(model) {{
       const validation = model && model.validation ? model.validation : {{}};
+      const trainingSource = model && model.training_source ? model.training_source : {{}};
+      const featureHash = trainingSource.sha256 || "";
       return {{
         available: Boolean(model),
         model_type: model ? model.model_type : "",
@@ -186,7 +215,10 @@ def _local_script(data: dict[str, Any]) -> str:
         labels: model ? (model.labels || []) : [],
         training_rows: model ? (model.training_rows || 0) : 0,
         validation_rows: model ? (model.validation_rows || 0) : 0,
-        validation_accuracy: validation.accuracy
+        validation_accuracy: validation.accuracy,
+        feature_rows: trainingSource.rows || 0,
+        feature_sha256: featureHash,
+        feature_sha256_short: featureHash ? String(featureHash).slice(0, 12) : ""
       }};
     }}
 
@@ -231,11 +263,12 @@ def _local_script(data: dict[str, Any]) -> str:
       }};
     }}
 
-    function setStatus(unitCount, sourceInfo = {{}}, locally = false, mlModels = {{}}) {{
+    function setStatus(unitCount, sourceInfo = {{}}, locally = false, mlModels = {{}}, rulesets = {{}}) {{
       const parts = [`${{unitCount}} units loaded${{locally ? " locally" : ""}}`];
       if (sourceInfo.rules_edition) parts.push(`${{String(sourceInfo.rules_edition).toUpperCase()}} rules`);
       if (sourceInfo.commit_short) parts.push(`BSData ${{sourceInfo.commit_short}}`);
       const mlStatus = mlModels[sourceInfo.rules_edition || state.rulesEdition] || null;
+      const ruleset = rulesets[sourceInfo.rules_edition || state.rulesEdition] || null;
       if (mlStatus && mlStatus.available) {{
         const accuracy = hasNumber(mlStatus.validation_accuracy)
           ? `${{Math.round(Number(mlStatus.validation_accuracy) * 100)}}%`
@@ -249,8 +282,12 @@ def _local_script(data: dict[str, Any]) -> str:
       if (sourceInfo.remote_origin) titleParts.push(sourceInfo.remote_origin);
       if (sourceInfo.branch) titleParts.push(`branch ${{sourceInfo.branch}}`);
       if (sourceInfo.commit) titleParts.push(sourceInfo.commit);
+      if (ruleset && ruleset.capability_count) {{
+        const capabilityNames = (ruleset.capabilities || []).map((item) => item.label || item.key).filter(Boolean).slice(0, 8);
+        titleParts.push(`Ruleset capabilities ${{ruleset.capability_count}}: ${{capabilityNames.join(", ")}}`);
+      }}
       if (mlStatus && mlStatus.available) {{
-        titleParts.push(`ML ${{mlStatus.model_type || "model"}}; feature set ${{mlStatus.feature_set || "custom"}}; training rows ${{mlStatus.training_rows || 0}}`);
+        titleParts.push(`ML ${{mlStatus.model_type || "model"}}; feature set ${{mlStatus.feature_set || "custom"}}; training rows ${{mlStatus.training_rows || 0}}; feature rows ${{mlStatus.feature_rows || 0}}; feature hash ${{mlStatus.feature_sha256_short || "unknown"}}`);
       }}
       el("status").title = titleParts.join(" | ");
     }}
@@ -294,9 +331,21 @@ def _local_script(data: dict[str, Any]) -> str:
         import_diff: state.importDiff,
         metadata: state.metadata,
         edition_status: state.editionStatus,
+        artifact_manifest: state.artifactManifest,
+        verification_report: state.verificationReport,
+        suspicious_weapon_summary: state.suspiciousWeaponSummary,
+        unit_profile_summary: state.unitProfileSummary,
+        loadout_summary: state.loadoutSummary,
+        source_catalogue_summary: state.sourceCatalogueSummary,
+        unit_variant_summary: state.unitVariantSummary,
+        weapon_coverage_summary: state.weaponCoverageSummary,
+        ability_modifier_summary: state.abilityModifierSummary,
+        schema_summary: state.schemaSummary,
         update_report: state.updateReport,
         profile_review: state.profileReview,
+        edition_readiness: state.editionReadiness,
         model_audit: state.modelAudit,
+        model_comparison: state.modelComparison,
         review_files: state.reviewFiles,
         model_files: state.modelFiles
       }});
@@ -827,21 +876,24 @@ def _local_script(data: dict[str, Any]) -> str:
 
     function attachMlJudgement(result, attacker, defender) {{
       const model = state.mlModel;
-      if (!model || !model.centroids || !model.feature_stats) return result;
+      if (!model || !model.feature_columns || !model.feature_stats) return result;
       const row = mlFeatureRow(result, attacker, defender);
       const prediction = predictMlRow(model, row);
       if (!prediction) return result;
       const label = prediction.label;
       const winner = label === "attacker" ? attacker.name : (label === "defender" ? defender.name : "");
       const accuracy = model.validation && hasNumber(model.validation.accuracy) ? Number(model.validation.accuracy) : null;
+      const trainingSource = model.training_source || {{}};
+      const featureHash = trainingSource.sha256 ? String(trainingSource.sha256).slice(0, 12) : "";
       const accuracyText = accuracy === null ? "unknown validation accuracy" : `${{Math.round(accuracy * 100)}}% validation accuracy`;
       const outcome = winner
-        ? `The baseline model classifies ${{winner}} as favoured.`
-        : "The baseline model classifies this as close.";
+        ? `The advisory model classifies ${{winner}} as favoured.`
+        : "The advisory model classifies this as close.";
+      const confidenceBasis = prediction.probabilities ? "probability-based" : "distance-based";
       result.ml_judgement = {{
         available: true,
         title: winner ? `ML advisory: ${{winner}} (${{Math.round(prediction.confidence * 100)}}%)` : `ML advisory: close matchup (${{Math.round(prediction.confidence * 100)}}%)`,
-        body: `${{outcome}} Confidence is distance-based at ${{Math.round(prediction.confidence * 100)}}%; model has ${{accuracyText}}. Use this as an advisory signal only, not a rules result.`,
+        body: `${{outcome}} Confidence is ${{confidenceBasis}} at ${{Math.round(prediction.confidence * 100)}}%; model has ${{accuracyText}}. Use this as an advisory signal only, not a rules result.`,
         winner_label: label,
         winner,
         confidence: prediction.confidence,
@@ -849,6 +901,8 @@ def _local_script(data: dict[str, Any]) -> str:
         feature_set: model.feature_set || "custom",
         label_source: model.label_source || "",
         training_rows: model.training_rows || 0,
+        feature_rows: trainingSource.rows || 0,
+        feature_sha256_short: featureHash,
         validation_accuracy: accuracy
       }};
       return result;
@@ -943,6 +997,12 @@ def _local_script(data: dict[str, Any]) -> str:
         const stat = stats[column] || {{ mean: 0, std: 1 }};
         return (numberValue(row[column]) - Number(stat.mean || 0)) / (Number(stat.std || 1) || 1);
       }});
+      if (model.model_type === "logistic_regression_classifier") {{
+        const probabilities = logisticProbabilities(model, values);
+        const entries = Object.entries(probabilities).sort((a, b) => b[1] - a[1]);
+        if (!entries.length) return null;
+        return {{ label: entries[0][0], confidence: entries[0][1], probabilities }};
+      }}
       const distances = {{}};
       for (const [label, centroid] of Object.entries(model.centroids || {{}})) {{
         distances[label] = Math.sqrt(values.reduce((sum, value, index) => sum + Math.pow(value - Number(centroid[index] || 0), 2), 0));
@@ -953,6 +1013,36 @@ def _local_script(data: dict[str, Any]) -> str:
       const next = entries[1] ? entries[1][1] : nearest[1];
       const confidence = next > 0 ? Math.max(0, Math.min(1, (next - nearest[1]) / next)) : 1;
       return {{ label: nearest[0], confidence, distances }};
+    }}
+
+    function logisticProbabilities(model, values) {{
+      const labels = (model.labels || []).map(String);
+      const coefficients = model.coefficients || [];
+      const intercepts = model.intercepts || [];
+      if (labels.length === 2 && coefficients.length === 1) {{
+        const logit = linearScore(values, coefficients[0], numberValue(intercepts[0]));
+        const positive = 1 / (1 + Math.exp(-clipLogit(logit)));
+        return {{ [labels[0]]: 1 - positive, [labels[1]]: positive }};
+      }}
+      const scores = labels.map((_, index) => linearScore(values, coefficients[index] || [], numberValue(intercepts[index])));
+      const probabilities = softmax(scores);
+      return Object.fromEntries(labels.map((label, index) => [label, probabilities[index] || 0]));
+    }}
+
+    function linearScore(values, coefficients, intercept) {{
+      return values.reduce((sum, value, index) => sum + value * numberValue(coefficients[index]), intercept || 0);
+    }}
+
+    function softmax(scores) {{
+      if (!scores.length) return [];
+      const maxScore = Math.max(...scores);
+      const exponents = scores.map((score) => Math.exp(clipLogit(score - maxScore)));
+      const total = exponents.reduce((sum, value) => sum + value, 0) || 1;
+      return exponents.map((value) => value / total);
+    }}
+
+    function clipLogit(value) {{
+      return Math.max(-60, Math.min(60, numberValue(value)));
     }}
 
     function numberValue(value) {{
@@ -1139,7 +1229,7 @@ def _local_script(data: dict[str, Any]) -> str:
         <div class="judgement ml">
           <h3>${{escapeHtml(judgement.title || "ML advisory")}}</h3>
           <p>${{escapeHtml(judgement.body || "")}}</p>
-          <p class="small">Model: ${{escapeHtml(judgement.model_type || "unknown")}} | Feature set: ${{escapeHtml(judgement.feature_set || "custom")}} | Training rows: ${{escapeHtml(judgement.training_rows || 0)}} | Validation accuracy: ${{escapeHtml(accuracy)}}</p>
+          <p class="small">Model: ${{escapeHtml(judgement.model_type || "unknown")}} | Feature set: ${{escapeHtml(judgement.feature_set || "custom")}} | Training rows: ${{escapeHtml(judgement.training_rows || 0)}} | Feature rows: ${{escapeHtml(judgement.feature_rows || 0)}} | Feature hash: ${{escapeHtml(judgement.feature_sha256_short || "unknown")}} | Validation accuracy: ${{escapeHtml(accuracy)}}</p>
         </div>
       `;
     }}
@@ -1192,12 +1282,24 @@ def _local_script(data: dict[str, Any]) -> str:
       const diff = payload.import_diff;
       const metadata = payload.metadata;
       const editionStatus = payload.edition_status;
+      const artifactManifest = payload.artifact_manifest;
+      const verificationReport = payload.verification_report;
+      const suspiciousWeapons = payload.suspicious_weapon_summary;
+      const unitProfiles = payload.unit_profile_summary;
+      const loadouts = payload.loadout_summary;
+      const sourceCatalogues = payload.source_catalogue_summary;
+      const unitVariants = payload.unit_variant_summary;
+      const weaponCoverage = payload.weapon_coverage_summary;
+      const abilityModifiers = payload.ability_modifier_summary;
+      const schema = payload.schema_summary;
       const updateReport = payload.update_report;
       const profileReview = payload.profile_review;
+      const editionReadiness = payload.edition_readiness;
       const modelAudit = payload.model_audit;
+      const modelComparison = payload.model_comparison;
       const reviewFiles = payload.review_files || [];
       const modelFiles = payload.model_files || [];
-      if (!audit && !diff && !metadata && !editionStatus && !updateReport && !profileReview && !modelAudit) {{
+      if (!audit && !diff && !metadata && !editionStatus && !artifactManifest && !verificationReport && !suspiciousWeapons && !unitProfiles && !loadouts && !sourceCatalogues && !unitVariants && !weaponCoverage && !abilityModifiers && !schema && !updateReport && !profileReview && !editionReadiness && !modelAudit && !modelComparison) {{
         el("results").innerHTML = `<div class="empty">No generated audit or import diff files were found.</div>`;
         return;
       }}
@@ -1219,14 +1321,361 @@ def _local_script(data: dict[str, Any]) -> str:
           ${{metric("Info", summary.info || 0)}}
           ${{metric("Rows checked", audit && audit.row_counts ? Object.values(audit.row_counts).reduce((total, value) => total + Number(value || 0), 0) : 0)}}
           ${{editionStatus ? metric("Edition status", escapeHtml(editionStatus.status || "unknown")) : ""}}
+          ${{verificationReport ? metric("Verified checks", `${{verificationReport.ok_count || 0}}/${{verificationReport.artifact_count || 0}}`) : ""}}
         </div>
+        ${{renderProvenance(artifactManifest, verificationReport, metadata)}}
         ${{renderEditionStatus(editionStatus)}}
+        ${{renderEditionReadiness(editionReadiness)}}
+        ${{renderSchemaReview(schema)}}
+        ${{renderSuspiciousWeapons(suspiciousWeapons)}}
+        ${{renderUnitProfiles(unitProfiles)}}
+        ${{renderLoadouts(loadouts)}}
+        ${{renderSourceCatalogues(sourceCatalogues)}}
+        ${{renderUnitVariants(unitVariants)}}
+        ${{renderWeaponCoverage(weaponCoverage)}}
+        ${{renderAbilityModifiers(abilityModifiers)}}
         ${{renderReviewFiles([...reviewFiles, ...modelFiles])}}
+        ${{renderModelComparison(modelComparison)}}
         ${{renderModelAudit(modelAudit)}}
         ${{renderUpdateReport(updateReport)}}
         ${{renderProfileReview(profileReview)}}
         ${{renderDiff(diff)}}
         ${{renderAuditSections(audit)}}
+      `;
+    }}
+
+    function renderSuspiciousWeapons(summary) {{
+      if (!summary) return "";
+      const severityCards = Object.entries(summary.by_severity || {{}}).map(([key, value]) => provenanceCard(`Severity: ${{key}}`, value, ""));
+      const categoryCards = Object.entries(summary.by_category || {{}}).map(([key, value]) => provenanceCard(`Category: ${{key}}`, value, ""));
+      const reasonRows = Object.entries(summary.by_reason || {{}}).slice(0, 8).map(([reason, count]) => `
+        <div class="check-row">
+          <div>${{escapeHtml(reason)}}</div>
+          <div><span class="status-pill">${{escapeHtml(count)}}</span></div>
+          <div></div>
+        </div>
+      `).join("");
+      const weaponRows = (summary.rows || []).map((row) => `
+        <tr>
+          <td>${{escapeHtml(row.severity || "")}}</td>
+          <td>${{escapeHtml(row.category || "")}}</td>
+          <td>${{escapeHtml(row.unit_name || "")}}</td>
+          <td>${{escapeHtml(row.weapon_name || "")}}</td>
+          <td>${{escapeHtml(`A${{row.attacks || "?"}} S${{row.strength || "?"}} AP${{row.ap || "?"}} D${{row.damage || "?"}}`)}}</td>
+          <td>${{escapeHtml(row.raw_damage_throughput || "")}}</td>
+          <td>${{escapeHtml(row.review_reason || "")}}</td>
+        </tr>
+      `).join("");
+      return `
+        <div class="review-section">
+          <h3>Suspicious Weapon Profiles</h3>
+          <div class="provenance-grid">
+            ${{provenanceCard("Rows needing review", summary.total || 0, `Showing first ${{Math.min((summary.rows || []).length, summary.row_limit || 0)}} rows`)}}
+            ${{severityCards.join("")}}
+            ${{categoryCards.join("")}}
+          </div>
+          ${{reasonRows ? `<p class="small">Most common review reasons</p><div class="check-list">${{reasonRows}}</div>` : ""}}
+          <table class="report-table">
+            <thead><tr><th>Severity</th><th>Category</th><th>Unit</th><th>Weapon</th><th>Profile</th><th>Raw</th><th>Reason</th></tr></thead>
+            <tbody>${{weaponRows || `<tr><td colspan="7">No suspicious weapon profiles were generated.</td></tr>`}}</tbody>
+          </table>
+        </div>
+      `;
+    }}
+
+    function renderSchemaReview(summary) {{
+      if (!summary) return "";
+      const statusCards = Object.entries(summary.by_status || {{}}).map(([key, value]) => provenanceCard(`Status: ${{key}}`, value, ""));
+      const rows = (summary.rows || []).map((row) => `
+        <tr>
+          <td>${{escapeHtml(row.status || "")}}</td>
+          <td>${{escapeHtml(row.table || "")}}</td>
+          <td>${{escapeHtml(row.file || "")}}</td>
+          <td>${{escapeHtml(`${{row.required_count || "0"}} / ${{row.actual_count || "0"}}`)}}</td>
+          <td>${{escapeHtml(row.missing_columns || "")}}</td>
+          <td>${{escapeHtml(row.extra_columns || "")}}</td>
+        </tr>
+      `).join("");
+      return `
+        <div class="review-section">
+          <h3>Schema Review</h3>
+          <div class="provenance-grid">
+            ${{provenanceCard("Tables reviewed", summary.total || 0, `Showing first ${{Math.min((summary.rows || []).length, summary.row_limit || 0)}} rows`)}}
+            ${{statusCards.join("")}}
+          </div>
+          <table class="report-table">
+            <thead><tr><th>Status</th><th>Table</th><th>File</th><th>Required / Actual</th><th>Missing</th><th>Extra</th></tr></thead>
+            <tbody>${{rows || `<tr><td colspan="6">No schema review rows were generated.</td></tr>`}}</tbody>
+          </table>
+        </div>
+      `;
+    }}
+
+    function renderUnitProfiles(summary) {{
+      if (!summary) return "";
+      const severityCards = Object.entries(summary.by_severity || {{}}).map(([key, value]) => provenanceCard(`Severity: ${{key}}`, value, ""));
+      const categoryCards = Object.entries(summary.by_category || {{}}).map(([key, value]) => provenanceCard(`Category: ${{key}}`, value, ""));
+      const reasonRows = Object.entries(summary.by_reason || {{}}).slice(0, 8).map(([reason, count]) => `
+        <div class="check-row">
+          <div>${{escapeHtml(reason)}}</div>
+          <div><span class="status-pill">${{escapeHtml(count)}}</span></div>
+          <div></div>
+        </div>
+      `).join("");
+      const unitRows = (summary.rows || []).map((row) => `
+        <tr>
+          <td>${{escapeHtml(row.severity || "")}}</td>
+          <td>${{escapeHtml(row.category || "")}}</td>
+          <td>${{escapeHtml(row.unit_name || "")}}</td>
+          <td>${{escapeHtml(row.faction || "")}}</td>
+          <td>${{escapeHtml(`T${{row.toughness || "?"}} Sv${{row.save || "?"}} W${{row.wounds || "?"}}`)}}</td>
+          <td>${{escapeHtml(row.points || "")}}</td>
+          <td>${{escapeHtml(`${{row.models_min || "?"}}-${{row.models_max || "?"}}`)}}</td>
+          <td>${{escapeHtml(row.review_reason || "")}}</td>
+        </tr>
+      `).join("");
+      return `
+        <div class="review-section">
+          <h3>Unit Profile Validation</h3>
+          <div class="provenance-grid">
+            ${{provenanceCard("Units reviewed", summary.total || 0, `${{summary.issue_total || 0}} rows need review`)}}
+            ${{severityCards.join("")}}
+            ${{categoryCards.join("")}}
+          </div>
+          ${{reasonRows ? `<p class="small">Most common review reasons</p><div class="check-list">${{reasonRows}}</div>` : ""}}
+          <table class="report-table">
+            <thead><tr><th>Severity</th><th>Category</th><th>Unit</th><th>Faction</th><th>Profile</th><th>Points</th><th>Models</th><th>Reason</th></tr></thead>
+            <tbody>${{unitRows || `<tr><td colspan="8">No unit profile issues were generated.</td></tr>`}}</tbody>
+          </table>
+        </div>
+      `;
+    }}
+
+    function renderLoadouts(summary) {{
+      if (!summary) return "";
+      const severityCards = Object.entries(summary.by_severity || {{}}).map(([key, value]) => provenanceCard(`Severity: ${{key}}`, value, ""));
+      const categoryCards = Object.entries(summary.by_category || {{}}).map(([key, value]) => provenanceCard(`Category: ${{key}}`, value, ""));
+      const reasonRows = Object.entries(summary.by_reason || {{}}).slice(0, 8).map(([reason, count]) => `
+        <div class="check-row">
+          <div>${{escapeHtml(reason)}}</div>
+          <div><span class="status-pill">${{escapeHtml(count)}}</span></div>
+          <div></div>
+        </div>
+      `).join("");
+      const loadoutRows = (summary.rows || []).map((row) => `
+        <tr>
+          <td>${{escapeHtml(row.severity || "")}}</td>
+          <td>${{escapeHtml(row.category || "")}}</td>
+          <td>${{escapeHtml(row.unit_name || "")}}</td>
+          <td>${{escapeHtml(row.faction || "")}}</td>
+          <td>${{escapeHtml(`${{row.total_weapons || "0"}} total / ${{row.ranged_weapons || "0"}} ranged / ${{row.melee_weapons || "0"}} melee`)}}</td>
+          <td>${{escapeHtml(row.points || "")}}</td>
+          <td>${{escapeHtml(row.review_reason || "")}}</td>
+        </tr>
+      `).join("");
+      return `
+        <div class="review-section">
+          <h3>Loadout Complexity</h3>
+          <div class="provenance-grid">
+            ${{provenanceCard("Rows reviewed", summary.total || 0, `Showing first ${{Math.min((summary.rows || []).length, summary.row_limit || 0)}} rows`)}}
+            ${{severityCards.join("")}}
+            ${{categoryCards.join("")}}
+          </div>
+          ${{reasonRows ? `<p class="small">Most common review reasons</p><div class="check-list">${{reasonRows}}</div>` : ""}}
+          <table class="report-table">
+            <thead><tr><th>Severity</th><th>Category</th><th>Unit</th><th>Faction</th><th>Weapons</th><th>Points</th><th>Reason</th></tr></thead>
+            <tbody>${{loadoutRows || `<tr><td colspan="7">No loadout complexity rows were generated.</td></tr>`}}</tbody>
+          </table>
+        </div>
+      `;
+    }}
+
+    function renderSourceCatalogues(summary) {{
+      if (!summary) return "";
+      const totals = summary.totals || {{}};
+      const rows = (summary.rows || []).map((row) => {{
+        const source = row.source_url
+          ? `<a href="${{escapeAttr(row.source_url)}}" target="_blank" rel="noreferrer">${{escapeHtml(row.source_file || "")}}</a>`
+          : escapeHtml(row.source_file || "");
+        return `
+          <tr>
+            <td>${{source}}</td>
+            <td>${{escapeHtml(row.units || "0")}}</td>
+            <td>${{escapeHtml(row.weapon_profiles || "0")}}</td>
+            <td>${{escapeHtml(row.suspicious_weapon_profiles || "0")}}</td>
+            <td>${{escapeHtml(row.unit_profile_issue_rows || "0")}}</td>
+            <td>${{escapeHtml(row.loadout_review_rows || "0")}}</td>
+            <td>${{escapeHtml(row.no_weapon_units || "0")}}</td>
+          </tr>
+        `;
+      }}).join("");
+      return `
+        <div class="review-section">
+          <h3>Source Catalogue Coverage</h3>
+          <div class="provenance-grid">
+            ${{provenanceCard("Catalogues", summary.total || 0, `Showing first ${{Math.min((summary.rows || []).length, summary.row_limit || 0)}} rows`)}}
+            ${{provenanceCard("Units", totals.units || 0, "")}}
+            ${{provenanceCard("Weapon profiles", totals.weapon_profiles || 0, "")}}
+            ${{provenanceCard("Suspicious weapons", totals.suspicious_weapon_profiles || 0, "")}}
+            ${{provenanceCard("Unit profile issues", totals.unit_profile_issue_rows || 0, "")}}
+            ${{provenanceCard("Loadout rows", totals.loadout_review_rows || 0, "")}}
+          </div>
+          <table class="report-table">
+            <thead><tr><th>Source</th><th>Units</th><th>Weapons</th><th>Suspicious</th><th>Unit Issues</th><th>Loadouts</th><th>No Weapons</th></tr></thead>
+            <tbody>${{rows || `<tr><td colspan="7">No source catalogue review rows were generated.</td></tr>`}}</tbody>
+          </table>
+        </div>
+      `;
+    }}
+
+    function renderUnitVariants(summary) {{
+      if (!summary) return "";
+      const rows = (summary.rows || []).map((row) => `
+        <tr>
+          <td>${{escapeHtml(row.unit_name || "")}}</td>
+          <td>${{escapeHtml(row.variant_count || "0")}}</td>
+          <td>${{escapeHtml(row.factions || "")}}</td>
+          <td>${{escapeHtml(row.points || "")}}</td>
+          <td>${{escapeHtml(row.source_files || "")}}</td>
+        </tr>
+      `).join("");
+      return `
+        <div class="review-section">
+          <h3>Duplicate Unit Names</h3>
+          <div class="provenance-grid">
+            ${{provenanceCard("Duplicate names", summary.duplicate_names || 0, `${{summary.total_rows || 0}} variant rows`)}}
+            ${{provenanceCard("Largest variant set", summary.max_variant_count || 0, "")}}
+          </div>
+          <table class="report-table">
+            <thead><tr><th>Unit</th><th>Variants</th><th>Factions</th><th>Points</th><th>Sources</th></tr></thead>
+            <tbody>${{rows || `<tr><td colspan="5">No duplicate unit names were generated.</td></tr>`}}</tbody>
+          </table>
+        </div>
+      `;
+    }}
+
+    function renderWeaponCoverage(summary) {{
+      if (!summary) return "";
+      const coverageCards = Object.entries(summary.by_coverage || {{}}).map(([key, value]) => provenanceCard(`Coverage: ${{key}}`, value, ""));
+      const rows = (summary.rows || []).map((row) => `
+        <tr>
+          <td>${{escapeHtml(row.unit_name || "")}}</td>
+          <td>${{escapeHtml(row.faction || "")}}</td>
+          <td>${{escapeHtml(row.selection_type || "")}}</td>
+          <td>${{escapeHtml(row.points || "")}}</td>
+          <td>${{escapeHtml(`${{row.models_min || "?"}}-${{row.models_max || "?"}}`)}}</td>
+          <td>${{escapeHtml(row.source_file || "")}}</td>
+        </tr>
+      `).join("");
+      return `
+        <div class="review-section">
+          <h3>Unit Weapon Coverage</h3>
+          <div class="provenance-grid">
+            ${{provenanceCard("Units reviewed", summary.total || 0, `${{summary.no_weapon_total || 0}} without imported weapons`)}}
+            ${{coverageCards.join("")}}
+          </div>
+          <table class="report-table">
+            <thead><tr><th>Unit</th><th>Faction</th><th>Type</th><th>Points</th><th>Models</th><th>Source</th></tr></thead>
+            <tbody>${{rows || `<tr><td colspan="6">No units without imported weapons were generated.</td></tr>`}}</tbody>
+          </table>
+        </div>
+      `;
+    }}
+
+    function renderAbilityModifiers(summary) {{
+      if (!summary) return "";
+      const typeCards = Object.entries(summary.by_type || {{}}).map(([key, value]) => provenanceCard(`Type: ${{key}}`, value, ""));
+      const grantCards = Object.entries(summary.by_grant || {{}}).map(([key, value]) => provenanceCard(`Grants: ${{key}}`, value, ""));
+      const rows = (summary.rows || []).map((row) => `
+        <tr>
+          <td>${{escapeHtml(row.modifier_type || "")}}</td>
+          <td>${{escapeHtml(row.unit_name || "")}}</td>
+          <td>${{escapeHtml(row.faction || "")}}</td>
+          <td>${{escapeHtml(row.source || "")}}</td>
+          <td>${{escapeHtml(`Hit ${{row.hit_modifier || "0"}} / Wound ${{row.wound_modifier || "0"}}`)}}</td>
+          <td>${{escapeHtml(row.reroll_hits || row.reroll_wounds || row.grants || row.anti_rules || row.damage_reduction || "")}}</td>
+        </tr>
+      `).join("");
+      return `
+        <div class="review-section">
+          <h3>Derived Ability Modifiers</h3>
+          <div class="provenance-grid">
+            ${{provenanceCard("Rows reviewed", summary.total || 0, `Showing first ${{Math.min((summary.rows || []).length, summary.row_limit || 0)}} rows`)}}
+            ${{typeCards.join("")}}
+            ${{grantCards.join("")}}
+          </div>
+          <table class="report-table">
+            <thead><tr><th>Type</th><th>Unit</th><th>Faction</th><th>Source</th><th>Modifiers</th><th>Rules</th></tr></thead>
+            <tbody>${{rows || `<tr><td colspan="6">No derived ability modifier rows were generated.</td></tr>`}}</tbody>
+          </table>
+        </div>
+      `;
+    }}
+
+    function renderProvenance(manifest, verification, metadata) {{
+      if (!manifest && !verification && !metadata) return "";
+      const source = manifest && manifest.source ? manifest.source : {{}};
+      const metadataSource = metadata && metadata.source_revisions && metadata.source_revisions[0] ? metadata.source_revisions[0] : {{}};
+      const linked = manifest && manifest.linked_ml_artifacts ? manifest.linked_ml_artifacts : {{}};
+      const artifacts = manifest && manifest.artifacts ? manifest.artifacts : {{}};
+      const linkedArtifacts = linked.artifacts || {{}};
+      const featureCsv = linkedArtifacts.feature_csv || {{}};
+      const modelJson = linkedArtifacts.model_json || {{}};
+      const auditJson = linkedArtifacts.model_audit || {{}};
+      const comparisonJson = linkedArtifacts.model_comparison || {{}};
+      const commit = source.commit || metadataSource.commit || "";
+      const generatedAt = manifest && manifest.generated_at ? manifest.generated_at : (metadata && metadata.generated_at ? metadata.generated_at : "");
+      return `
+        <div class="review-section">
+          <h3>Data & ML Provenance</h3>
+          <div class="provenance-grid">
+            ${{provenanceCard("Source commit", commit ? commit.slice(0, 12) : "unknown", source.remote_origin || metadataSource.remote_origin || "")}}
+            ${{provenanceCard("Generated", generatedAt || "unknown", source.branch ? `Branch ${{source.branch}}` : "")}}
+            ${{provenanceCard("Artifact checks", verification ? `${{verification.ok_count || 0}}/${{verification.artifact_count || 0}} passing` : "not run", verification && verification.ok ? "All generated checks passed." : "Review failures below.")}}
+            ${{provenanceCard("Generated artifacts", manifest ? (manifest.artifact_count || Object.keys(artifacts).length || 0) : "unknown", "Manifest-tracked data files")}}
+            ${{provenanceCard("Linked ML artifacts", Object.keys(linkedArtifacts).length || 0, linked.model_type ? `Model type ${{linked.model_type}}` : "")}}
+            ${{linked.model_type ? provenanceCard("ML model type", linked.model_type, linked.feature_set ? `Feature set ${{linked.feature_set}}` : "") : ""}}
+            ${{provenanceCard("ML feature set", linked.feature_set || "unknown", `${{linked.feature_rows || 0}} feature rows`)}}
+            ${{provenanceCard("Feature CSV", shortHash(featureCsv.sha256), featureCsv.path || "not linked")}}
+            ${{provenanceCard("Model JSON", shortHash(modelJson.sha256), modelJson.path || "not linked")}}
+            ${{auditJson.path ? provenanceCard("Model audit", shortHash(auditJson.sha256), auditJson.path) : ""}}
+            ${{comparisonJson.path ? provenanceCard("Model comparison", shortHash(comparisonJson.sha256), comparisonJson.path) : ""}}
+          </div>
+          ${{renderVerificationChecks(verification)}}
+        </div>
+      `;
+    }}
+
+    function provenanceCard(title, value, detail = "") {{
+      return `
+        <div class="provenance-card">
+          <b>${{escapeHtml(title)}}</b>
+          <span>${{escapeHtml(value || "unknown")}}</span>
+          ${{detail ? `<span>${{escapeHtml(detail)}}</span>` : ""}}
+        </div>
+      `;
+    }}
+
+    function shortHash(hash) {{
+      return hash ? String(hash).slice(0, 12) : "unknown";
+    }}
+
+    function renderVerificationChecks(verification) {{
+      if (!verification || !verification.results || !verification.results.length) return `<div class="empty">No artifact verification report is available.</div>`;
+      const failed = verification.results.filter((item) => !item.ok);
+      const rows = (failed.length ? failed : verification.results).map((item) => `
+        <div class="check-row">
+          <div>${{escapeHtml(item.filename || "unknown")}}</div>
+          <div><span class="status-pill ${{item.ok ? "" : "fail"}}">${{escapeHtml(item.status || (item.ok ? "ok" : "failed"))}}</span></div>
+          <div>${{escapeHtml(shortHash(item.actual_sha256 || item.expected_sha256 || ""))}}</div>
+        </div>
+      `).join("");
+      const intro = failed.length
+        ? `${{failed.length}} failed verification checks need attention.`
+        : "All generated artifact and linked ML checks passed.";
+      return `
+        <p class="small">${{escapeHtml(intro)}}</p>
+        <div class="check-list">${{rows}}</div>
       `;
     }}
 
@@ -1241,7 +1690,29 @@ def _local_script(data: dict[str, Any]) -> str:
           <p><b>${{escapeHtml(String(status.edition || "unknown").toUpperCase())}}</b> calculations are ${{status.calculations_enabled ? "enabled" : "blocked"}}.</p>
           <p>Ruleset available: ${{status.rules_available ? "yes" : "no"}} | supported rulesets: ${{escapeHtml((status.supported_rules_editions || []).join(", ") || "none")}}</p>
           ${{blockers}}
+          ${{renderRuleCapabilities(status.rule_capabilities)}}
         </div>
+      `;
+    }}
+
+    function renderRuleCapabilities(capabilities) {{
+      if (!capabilities || !capabilities.length) return "";
+      const rows = capabilities.map((capability) => {{
+        const notes = Array.isArray(capability.notes) ? capability.notes.join("; ") : "";
+        return `
+          <tr>
+            <td>${{escapeHtml(capability.label || capability.key || "unknown")}}</td>
+            <td>${{escapeHtml(capability.status || "unknown")}}</td>
+            <td>${{escapeHtml(notes)}}</td>
+          </tr>
+        `;
+      }}).join("");
+      return `
+        <h4>Ruleset Capability Coverage</h4>
+        <table class="report-table">
+          <thead><tr><th>Capability</th><th>Status</th><th>Notes</th></tr></thead>
+          <tbody>${{rows}}</tbody>
+        </table>
       `;
     }}
 
@@ -1274,6 +1745,11 @@ def _local_script(data: dict[str, Any]) -> str:
       return renderMarkdownReport("Profile Review", profileReview);
     }}
 
+    function renderEditionReadiness(editionReadiness) {{
+      if (!editionReadiness) return "";
+      return renderMarkdownReport("Edition Readiness Report", editionReadiness);
+    }}
+
     function renderUpdateReport(updateReport) {{
       if (!updateReport) return "";
       return renderMarkdownReport("Update Report", updateReport);
@@ -1282,6 +1758,11 @@ def _local_script(data: dict[str, Any]) -> str:
     function renderModelAudit(modelAudit) {{
       if (!modelAudit) return "";
       return renderMarkdownReport("ML Model Audit", modelAudit);
+    }}
+
+    function renderModelComparison(modelComparison) {{
+      if (!modelComparison) return "";
+      return renderMarkdownReport("ML Model Comparison", modelComparison);
     }}
 
     function renderMarkdownReport(title, markdown) {{
@@ -1505,8 +1986,9 @@ def _local_script(data: dict[str, Any]) -> str:
   """
 
 
-def build_local_html(*, csv_dir: Path, template_path: Path, output_path: Path) -> None:
+def build_local_html(*, csv_dir: Path, template_path: Path, output_path: Path, model_path: Path = DEFAULT_MODEL) -> None:
     units = sorted(load_units_from_directory(csv_dir).values(), key=lambda unit: (unit.name.casefold(), unit.faction or ""))
+    model_path = Path(model_path)
     data = {
         "units": [_unit_payload(unit) for unit in units],
         "factions": sorted({unit.faction for unit in units if unit.faction}, key=str.casefold),
@@ -1514,12 +1996,24 @@ def build_local_html(*, csv_dir: Path, template_path: Path, output_path: Path) -
         "importDiff": _load_json(csv_dir / "import_diff.json"),
         "metadata": _load_json(csv_dir / "metadata.json"),
         "editionStatus": _load_json(csv_dir / "edition_status.json"),
+        "artifactManifest": _load_json(csv_dir / "artifact_manifest.json"),
+        "verificationReport": artifact_verification_report(csv_dir),
+        "suspiciousWeaponSummary": suspicious_weapon_summary(csv_dir / "suspicious_weapon_review.csv"),
+        "unitProfileSummary": unit_profile_summary(csv_dir / "unit_profile_review.csv"),
+        "loadoutSummary": loadout_summary(csv_dir / "loadout_review.csv"),
+        "sourceCatalogueSummary": source_catalogue_summary(csv_dir / "source_catalogue_review.csv"),
+        "unitVariantSummary": unit_variant_summary(csv_dir / "unit_variant_review.csv"),
+        "weaponCoverageSummary": weapon_coverage_summary(csv_dir / "unit_weapon_coverage_review.csv"),
+        "abilityModifierSummary": ability_modifier_summary(csv_dir / "ability_modifier_review.csv"),
+        "schemaSummary": schema_summary(csv_dir / "schema_review.csv"),
         "updateReport": _load_text(csv_dir / "update_report.md"),
         "profileReview": _load_text(csv_dir / "profile_review.md"),
-        "modelAudit": _load_text(DEFAULT_MODEL.with_suffix(".md")),
+        "editionReadiness": _load_text(csv_dir / "edition_readiness.md"),
+        "modelAudit": _load_text(model_path.with_suffix(".md")),
+        "modelComparison": _load_text(model_path.parent / "model_comparison.md"),
         "reviewFiles": _review_files(csv_dir),
-        "modelFiles": _model_files(DEFAULT_MODEL.parent),
-        "mlModel": _load_json(DEFAULT_MODEL),
+        "modelFiles": _model_files(model_path.parent, selected_model_path=model_path),
+        "mlModel": _load_json(model_path),
     }
     template = template_path.read_text(encoding="utf-8")
     start = template.index("  <script>")
@@ -1551,6 +2045,7 @@ def _review_files(csv_dir: Path) -> list[dict[str, Any]]:
     labels = {
         "weapon_profile_review.csv": "Weapon profile review CSV",
         "suspicious_weapon_review.csv": "Suspicious weapon review CSV",
+        "unit_profile_review.csv": "Unit profile review CSV",
         "ability_profile_review.csv": "Ability profile review CSV",
         "ability_modifier_review.csv": "Ability modifier review CSV",
         "unit_variant_review.csv": "Duplicate unit name review CSV",
@@ -1559,6 +2054,7 @@ def _review_files(csv_dir: Path) -> list[dict[str, Any]]:
         "source_catalogue_review.csv": "Source catalogue review CSV",
         "schema_review.csv": "Schema review CSV",
         "edition_status.json": "Edition status JSON",
+        "edition_readiness.md": "Edition readiness report",
         "artifact_manifest.json": "Artifact manifest JSON",
         "profile_review.md": "Profile review summary",
         "update_report.md": "Update report",
@@ -1578,11 +2074,18 @@ def _review_files(csv_dir: Path) -> list[dict[str, Any]]:
     return files
 
 
-def _model_files(model_dir: Path) -> list[dict[str, Any]]:
+def _model_files(model_dir: Path, *, selected_model_path: Path | None = None) -> list[dict[str, Any]]:
     labels = {
         "matchup_centroid_model.md": "ML model audit report",
         "matchup_centroid_model.json": "ML model JSON",
+        "matchup_logistic_model.md": "ML logistic model audit report",
+        "matchup_logistic_model.json": "ML logistic model JSON",
+        "model_comparison.md": "ML model comparison report",
     }
+    if selected_model_path:
+        labels.setdefault(selected_model_path.name, "Selected ML model JSON")
+        selected_report = selected_model_path.with_suffix(".md")
+        labels.setdefault(selected_report.name, "Selected ML model audit report")
     files = []
     for filename, label in labels.items():
         path = model_dir / filename
@@ -1615,8 +2118,9 @@ def main() -> None:
     parser.add_argument("--csv-dir", type=Path, default=_default_csv_dir())
     parser.add_argument("--template", type=Path, default=DEFAULT_TEMPLATE)
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
+    parser.add_argument("--model", type=Path, default=DEFAULT_MODEL, help="ML model JSON to embed in the standalone HTML")
     args = parser.parse_args()
-    build_local_html(csv_dir=args.csv_dir, template_path=args.template, output_path=args.output)
+    build_local_html(csv_dir=args.csv_dir, template_path=args.template, output_path=args.output, model_path=args.model)
     print(f"Wrote {args.output}")
 
 

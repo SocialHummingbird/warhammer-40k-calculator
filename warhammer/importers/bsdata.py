@@ -53,6 +53,29 @@ def _build_selection_group_lookup(root: ET.Element) -> Dict[str, ET.Element]:
     return groups
 
 
+def _build_parent_lookup(root: ET.Element) -> Dict[ET.Element, ET.Element]:
+    parents: Dict[ET.Element, ET.Element] = {}
+    for parent in root.iter():
+        for child in list(parent):
+            parents[child] = parent
+    return parents
+
+
+def _build_child_model_reference_ids(root: ET.Element, parent_lookup: Dict[ET.Element, ET.Element]) -> set[str]:
+    ids: set[str] = set()
+    for link in root.findall(".//entryLink"):
+        target_id = link.get("targetId")
+        if not target_id:
+            continue
+        current = parent_lookup.get(link)
+        while current is not None:
+            if current.tag == "selectionEntry" and (current.get("type") or "").strip().lower() in {"unit", "model"}:
+                ids.add(target_id)
+                break
+            current = parent_lookup.get(current)
+    return ids
+
+
 def _direct_comment_text(element: ET.Element) -> str:
     return " ".join((comment.text or "") for comment in element.findall("comment")).casefold()
 
@@ -181,6 +204,8 @@ def import_catalogues(paths: Sequence[Path]) -> CatalogueRows:
     roots: List[ET.Element] = []
     factions: Dict[ET.Element, str] = {}
     source_files: Dict[ET.Element, str] = {}
+    parent_lookups: Dict[ET.Element, Dict[ET.Element, ET.Element]] = {}
+    child_model_reference_ids: Dict[ET.Element, set[str]] = {}
     for file_path, source_file in all_files:
         try:
             tree = ET.parse(file_path)
@@ -194,6 +219,8 @@ def import_catalogues(paths: Sequence[Path]) -> CatalogueRows:
         roots.append(root)
         factions[root] = name
         source_files[root] = source_file
+        parent_lookups[root] = _build_parent_lookup(root)
+        child_model_reference_ids[root] = _build_child_model_reference_ids(root, parent_lookups[root])
 
     # Build global lookups across all included catalogues
     global_entry_lookup: Dict[str, ET.Element] = {}
@@ -231,6 +258,12 @@ def import_catalogues(paths: Sequence[Path]) -> CatalogueRows:
                 continue
             if sel_type == "unit" and _is_crusade_variant_unit(selection):
                 continue
+            if sel_type == "model" and _is_non_standalone_model_without_direct_points(
+                selection,
+                parent_lookups[root],
+                child_model_reference_ids[root],
+            ):
+                continue
 
             unit_id = selection.get("id") or _slugify(selection.get("name", "unit"))
             if unit_id in processed_units:
@@ -263,8 +296,8 @@ def import_catalogues(paths: Sequence[Path]) -> CatalogueRows:
                     faction=faction,
                     name=selection.get("name", "Unnamed Unit"),
                     toughness=_safe_int(stats.get("Toughness")) or _safe_int(stats.get("T")),
-                    save=_clean_stat(stats.get("Save")) or _clean_stat(stats.get("SV")),
-                    invulnerable_save=_clean_stat(stats.get("Invulnerable Save")) or _clean_stat(stats.get("INV")),
+                    save=_clean_roll_stat(stats.get("Save"), max_allowed=7) or _clean_roll_stat(stats.get("SV"), max_allowed=7),
+                    invulnerable_save=_clean_roll_stat(stats.get("Invulnerable Save")) or _clean_roll_stat(stats.get("INV")),
                     wounds=_safe_int(stats.get("Wounds")) or _safe_int(stats.get("W")),
                     move=_clean_stat(stats.get("Movement")) or _clean_stat(stats.get("M")),
                     leadership=_clean_stat(stats.get("Leadership")) or _clean_stat(stats.get("LD")),
@@ -272,7 +305,7 @@ def import_catalogues(paths: Sequence[Path]) -> CatalogueRows:
                     points=_extract_points(candidate_entries),
                     models_min=min_models,
                     models_max=max_models,
-                    feel_no_pain=_clean_stat(stats.get("Feel No Pain")) or _clean_stat(stats.get("FNP")) or None,
+                    feel_no_pain=_clean_roll_stat(stats.get("Feel No Pain")) or _clean_roll_stat(stats.get("FNP")) or None,
                     damage_cap=_clean_stat(stats.get("Damage Cap")) or None,
                     selection_type=sel_type,
                     source_file=unit_source_file,
@@ -383,14 +416,14 @@ def _parse_catalogue(path: Path) -> CatalogueRows:
                 faction=faction,
                 name=selection.get("name", "Unnamed Unit"),
                 toughness=_safe_int(stats.get("Toughness")) or _safe_int(stats.get("T")),
-                save=_clean_stat(stats.get("Save")) or _clean_stat(stats.get("SV")),
-                invulnerable_save=_clean_stat(stats.get("Invulnerable Save")) or _clean_stat(stats.get("INV")),
+                save=_clean_roll_stat(stats.get("Save"), max_allowed=7) or _clean_roll_stat(stats.get("SV"), max_allowed=7),
+                invulnerable_save=_clean_roll_stat(stats.get("Invulnerable Save")) or _clean_roll_stat(stats.get("INV")),
                 wounds=_safe_int(stats.get("Wounds")) or _safe_int(stats.get("W")),
                 move=_clean_stat(stats.get("Movement")) or _clean_stat(stats.get("M")),
                 leadership=_clean_stat(stats.get("Leadership")) or _clean_stat(stats.get("LD")),
                 objective_control=_safe_int(stats.get("Objective Control")) or _safe_int(stats.get("OC")),
                 points=_extract_points(candidate_entries),
-                feel_no_pain=_clean_stat(stats.get("Feel No Pain")) or _clean_stat(stats.get("FNP")) or None,
+                feel_no_pain=_clean_roll_stat(stats.get("Feel No Pain")) or _clean_roll_stat(stats.get("FNP")) or None,
                 damage_cap=_clean_stat(stats.get("Damage Cap")) or None,
                 selection_type="unit",
                 source_file=source_file,
@@ -781,9 +814,12 @@ def _extract_unit_size(selection: ET.Element, related_entries: Sequence[ET.Eleme
 
 
 def _extract_points(entries: Sequence[ET.Element]) -> Optional[int]:
-    fallback_model_points: List[int] = []
+    primary_points: Optional[int] = None
+    model_points: List[int] = []
+    zero_points_seen = False
 
-    for entry in entries:
+    for index, entry in enumerate(entries):
+        entry_type = (entry.get("type") or "").strip().lower()
         for cost in entry.findall("costs/cost"):
             name = (cost.get("name") or "").strip().lower()
             if name not in {"pts", "points"}:
@@ -799,15 +835,61 @@ def _extract_points(entries: Sequence[ET.Element]) -> Optional[int]:
                 points = int(round(numeric))
             else:
                 points = int(numeric)
-            if (entry.get("type") or "").strip().lower() == "model":
-                fallback_model_points.append(points)
+            if points <= 0:
+                zero_points_seen = True
                 continue
-            return points
+            if index == 0 and entry_type in {"unit", "model"}:
+                primary_points = points
+                continue
+            if entry_type == "model":
+                model_points.append(points)
 
-    positive_model_points = [points for points in fallback_model_points if points > 0]
-    if positive_model_points:
-        return min(positive_model_points)
+    if primary_points is not None:
+        return primary_points
+    if model_points:
+        return min(model_points)
+    if zero_points_seen:
+        return 0
     return None
+
+
+def _is_non_standalone_model_without_direct_points(
+    selection: ET.Element,
+    parent_lookup: Dict[ET.Element, ET.Element],
+    child_model_reference_ids: set[str],
+) -> bool:
+    if _direct_positive_points(selection) is not None:
+        return False
+    selection_id = selection.get("id")
+    if selection_id and selection_id in child_model_reference_ids:
+        return True
+
+    current = parent_lookup.get(selection)
+    while current is not None:
+        if current.tag == "selectionEntry" and (current.get("type") or "").strip().lower() in {"unit", "model"}:
+            return True
+        current = parent_lookup.get(current)
+    return False
+
+
+def _direct_positive_points(entry: ET.Element) -> Optional[int]:
+    for cost in entry.findall("costs/cost"):
+        name = (cost.get("name") or "").strip().lower()
+        if name not in {"pts", "points"}:
+            continue
+        value = cost.get("value")
+        if not value:
+            continue
+        try:
+            numeric = float(value)
+        except ValueError:
+            continue
+        points = int(round(numeric)) if abs(numeric - round(numeric)) <= 1e-6 else int(numeric)
+        if points > 0:
+            return points
+    return None
+
+
 def _collect_keywords(selection: ET.Element) -> List[str]:
     keywords: List[str] = []
     for link in selection.findall("categoryLinks/categoryLink"):
@@ -825,6 +907,19 @@ def _clean_stat(value: Optional[str]) -> Optional[str]:
         return None
     value = value.strip()
     return value or None
+
+
+def _clean_roll_stat(value: Optional[str], *, max_allowed: int = 6) -> Optional[str]:
+    cleaned = _clean_stat(value)
+    if not cleaned:
+        return None
+    if cleaned.endswith("+"):
+        return cleaned
+    if cleaned.isdigit():
+        roll = int(cleaned)
+        if 2 <= roll <= max_allowed:
+            return f"{roll}+"
+    return cleaned
 
 
 def _safe_int(value: Optional[str]) -> Optional[int]:

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-25T20:11:44.931505Z",
+  "generated_at": "2026-04-26T18:05:34.223746Z",
   "source": {
     "path": "C:\\Users\\ap010\\OneDrive\\Documents\\dev\\Warhammer 40K Calculator\\250916 0942 Warhammer 40k damage calculator\\data\\wh40k-10e",
     "remote_origin": "https://github.com/BSData/wh40k-10e.git",
@@ -9,87 +9,123 @@
     "commit_subject": "Fixes #7066",
     "dirty": false
   },
-  "artifact_count": 20,
+  "artifact_count": 22,
   "artifacts": {
     "units.csv": {
-      "bytes": 280414,
-      "sha256": "45a56b74e7f7a9ef65daf9b5aeb1c493e57093ecb8066a28dfa264ace0755367"
+      "bytes": 194232,
+      "sha256": "8d80600b3c57e10bc480f5e5709dac3819d11fa17dd3ad5ce7347272779d8ee6"
     },
     "weapons.csv": {
-      "bytes": 1580676,
-      "sha256": "1ed5492ebd01453b5d2038d12a4a02873c7d8bb449bf11c2f5c7b4fba050ecc0"
+      "bytes": 1268236,
+      "sha256": "3ecc054d0538b8f61f8204250a1c23db0c71e4ac59374453639c9b193831b3ef"
     },
     "abilities.csv": {
-      "bytes": 951331,
-      "sha256": "44d66d3ec3ccb270d6551826599ddfd5935350c2215592ea6401984a170f2a98"
+      "bytes": 939790,
+      "sha256": "806929d017a25674f97349d62d1019985981beb18ea427796ff1c053120f5b4c"
     },
     "keywords.csv": {
-      "bytes": 47566,
-      "sha256": "1378f4a3f085edd1d01e46f1d251484d7b9e9a97fbc72d273ff397654197e4df"
+      "bytes": 47094,
+      "sha256": "16a9d2dcd30d6f18ab079f44c4891fe5ba16e25e17ec971f1f4d3d0e2dc12cd6"
     },
     "unit_keywords.csv": {
-      "bytes": 318625,
-      "sha256": "6e48ab642adbbe71f775562879f95b3d90a26333976ccf19f89354621960355f"
+      "bytes": 314947,
+      "sha256": "2a2d4b129ea23f9a26fb7ad290ad19acba6162978e0a0455faa16d1053f30915"
     },
     "metadata.json": {
-      "bytes": 1196,
-      "sha256": "3e296831d5548ced4e44ae1b0ae490e48d03df8a2474e3ae3ad0d66d61d80f9a"
+      "bytes": 1195,
+      "sha256": "2f9a4ed866fb8bab44e1c45e21b8e14883b9083db1246fee151ce0c5e6d60e31"
     },
     "edition_status.json": {
-      "bytes": 947,
-      "sha256": "b16960ab7cda47cd79b88a34939e4c5509be474640d58fb2150d2ec5a3d96384"
+      "bytes": 3607,
+      "sha256": "9c0a7acd37f5dff8afbb2f6e00704467c457664a8e4852f75564c2a4cc4d3803"
+    },
+    "edition_readiness.md": {
+      "bytes": 2031,
+      "sha256": "2ddc0d9a27acdf96d7e11a8bb9bb76c414af55ad473890c171536baae288ac95"
     },
     "audit_report.json": {
-      "bytes": 817,
-      "sha256": "ecfc143381769d5324e62f5c961159e104ee8572fd655762d84385781347bfef"
+      "bytes": 816,
+      "sha256": "eae1af83ae8d52876a75f1358408be1143c616d5b1359ef84d7285b71792d97c"
     },
     "schema_review.csv": {
       "bytes": 1307,
       "sha256": "3b4e52ef4c23363ea47cc5eb88428123c454440c2d3089f1bea2131a0cb93317"
     },
     "import_diff.json": {
-      "bytes": 2279,
-      "sha256": "1548be7e6d2f2a10db78cdbb6bf8340b6bb179053baa2fe0d274170b7a8436ad"
+      "bytes": 4492,
+      "sha256": "71a5529978e708b9779ff372299a780cde1695e85340bb61b0d3c68057671878"
     },
     "update_report.md": {
-      "bytes": 2466,
-      "sha256": "849aa8b8527e026f86743b55a5bd5ec257fce362452517139e6e6dda75a90a5e"
+      "bytes": 4338,
+      "sha256": "72103fdea6f3a2bac6e35269b5121d7728fa38df47b9f46ef315d44d0d9533bf"
     },
     "weapon_profile_review.csv": {
-      "bytes": 2611451,
-      "sha256": "5fbb6236fc22dcf72560a8eacb76d0255fd8bbb23cd78f5f8c186b9dec6272bf"
+      "bytes": 2088005,
+      "sha256": "97e6be07bf1996987fab70c28efca34a904a94ae411f1c7e1ebe3d94ef51946b"
     },
     "suspicious_weapon_review.csv": {
-      "bytes": 15890,
-      "sha256": "3fb8c89fc0b28d7359456d9d18750acca518b6ddf1d392c01c7fda047c980708"
+      "bytes": 17491,
+      "sha256": "4c13856e62704d147cae4ccdf4be175dcd0ba6830ef1075c48695d8d445bea55"
+    },
+    "unit_profile_review.csv": {
+      "bytes": 223834,
+      "sha256": "c579df66e42302e29975a468183b3663213cd607652a8477615867ab6f0c0900"
     },
     "ability_profile_review.csv": {
-      "bytes": 1186697,
-      "sha256": "bc2ee6975d5509beb7fb8864b1b2ee39bb9cf3966d755d1e48ad6548f8e79cd3"
+      "bytes": 1171054,
+      "sha256": "e02bcbf9953012bc682f41384b1d9a4a2ab0802d3cc70369bcad527b2da4adb3"
     },
     "ability_modifier_review.csv": {
-      "bytes": 82224,
-      "sha256": "cab9c1efff0b3c212837bf7be92f0b5ff51408c234f113f0534e32f80d23a0c0"
+      "bytes": 81842,
+      "sha256": "18ab49ad159bc3963bbecf77e08433d70a5162a33e64616c41b7fb0abe008473"
     },
     "unit_variant_review.csv": {
-      "bytes": 44418,
-      "sha256": "fc4715f8457ab243f3e7b2f1d9e716994c0a82e7e7572707951224a98b0e9c92"
+      "bytes": 22181,
+      "sha256": "e9f1a45fb439454d1fbe4756416ee394d28c84a1d734f619afa35c76f4df2e5c"
     },
     "unit_weapon_coverage_review.csv": {
-      "bytes": 260365,
-      "sha256": "618142abcd61d4f5b6d05283ff0922e895e16172fcc09a410c52fd569c135a9a"
+      "bytes": 179835,
+      "sha256": "c0c0d10315409de7ef3ef68778501ab0f813ff7c426b22097e3a55b917fe353c"
     },
     "loadout_review.csv": {
-      "bytes": 61491,
-      "sha256": "961187955f47a6f7289b1803c7095640b1b9e007a9597a23c208143390759710"
+      "bytes": 60879,
+      "sha256": "479e4be5efc23e0a0b9a297986c0da4094b559618b5820c6736f9cfcc2fc7023"
     },
     "source_catalogue_review.csv": {
-      "bytes": 7283,
-      "sha256": "c7341ec244dec6b751f10209c232698a815449ff71041f37fffae5a5fba7b033"
+      "bytes": 7369,
+      "sha256": "184b3609b4a911d66928408fec100ff804f656af5bd95334e93c2d90e19d7e64"
     },
     "profile_review.md": {
-      "bytes": 6891,
-      "sha256": "6aa61812561ba6269a5351a63f9126ab1523751b7db79cd6d12d42f3d2fefd61"
+      "bytes": 8039,
+      "sha256": "9966a8b0a1476ccf43d5f5971460742227c8d7f37a2a67938459fc8833571607"
+    }
+  },
+  "linked_ml_artifacts": {
+    "edition": "10e",
+    "feature_set": "pre_match",
+    "model_type": "centroid",
+    "feature_rows": 10000,
+    "artifacts": {
+      "feature_csv": {
+        "path": "data/ml/10e/matchup_training_rows.csv",
+        "bytes": 5786381,
+        "sha256": "0b84aae91010141e89adb91ccaa69bb4a0ba873a364bba5991f3b17af2b46d35"
+      },
+      "model_json": {
+        "path": "models/10e/matchup_centroid_model.json",
+        "bytes": 10470,
+        "sha256": "b0596758cf7541149b115704e617847dc32b75e0395d430681f59426e06b4a85"
+      },
+      "model_audit": {
+        "path": "models/10e/matchup_centroid_model.md",
+        "bytes": 2946,
+        "sha256": "98fe2c6cebe38e3193665edd8b2dd1375ed86fd6834a1866b6555f933f17233b"
+      },
+      "model_comparison": {
+        "path": "models/10e/model_comparison.md",
+        "bytes": 397,
+        "sha256": "dad72e58e3e65d2594421b338845a7151a704e042e3728ad4af79f9ccca316b4"
+      }
     }
   }
 }

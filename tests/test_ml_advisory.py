@@ -58,6 +58,7 @@ def test_ml_judgement_from_result_returns_advisory_payload():
         ],
         validation_fraction=0,
     )
+    model["training_source"] = {"rows": 4, "sha256": "abcdef1234567890"}
     result = calculate_matchup(
         attacker,
         defender,
@@ -79,6 +80,8 @@ def test_ml_judgement_from_result_returns_advisory_payload():
     assert judgement["winner_label"] in {"attacker", "defender", "close"}
     assert judgement["model_type"] == "nearest_centroid_classifier"
     assert judgement["feature_set"] == "full"
+    assert judgement["feature_rows"] == 4
+    assert judgement["feature_sha256_short"] == "abcdef123456"
     assert "advisory" in judgement["body"]
 
 
@@ -106,6 +109,7 @@ def test_model_status_summarizes_loaded_and_missing_models():
         ],
         validation_fraction=0,
     )
+    model["training_source"] = {"rows": 2, "sha256": "1234567890abcdef"}
 
     assert model_status(None) == {"available": False}
     status = model_status(model)
@@ -113,4 +117,6 @@ def test_model_status_summarizes_loaded_and_missing_models():
     assert status["model_type"] == "nearest_centroid_classifier"
     assert status["feature_set"] == "full"
     assert status["training_rows"] == 2
+    assert status["feature_rows"] == 2
+    assert status["feature_sha256_short"] == "1234567890ab"
     assert status["labels"] == ["attacker", "defender"]

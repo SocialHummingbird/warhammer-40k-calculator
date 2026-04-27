@@ -8,12 +8,14 @@ import sys
 from pathlib import Path
 from typing import Dict, Iterable, List, Optional, Tuple
 
-from .calculator import EngagementMode, evaluate_unit, evaluate_weapon
+from .calculator import evaluate_unit, evaluate_weapon
+from .context import EngagementMode
 from .datasheet import load_units_from_csv as _load_units_from_csv
 from .datasheet import load_units_from_json as _load_units_from_json
 from .formatting import abbreviate_weapon_keyword, format_three_decimal_text, normalise_weapon_label
 from .profiles import UnitProfile, WeaponProfile
 from .reference import build_reference
+from .rules import ruleset_registry_payload
 
 
 DEFAULT_PPM_BASIS = "average"
@@ -383,6 +385,23 @@ def _print_dataset_metadata(csv_dir: Path) -> None:
     print()
 
 
+def _ruleset_report_payload() -> Dict[str, object]:
+    return {"rulesets": ruleset_registry_payload()}
+
+
+def _print_ruleset_report(*, as_json: bool = False) -> None:
+    payload = _ruleset_report_payload()
+    if as_json:
+        print(json.dumps(payload, indent=2))
+        return
+    for edition, ruleset in payload["rulesets"].items():
+        print(f"{edition}: {ruleset['label']} ({ruleset['capability_count']} capabilities)")
+        for capability in ruleset["capabilities"]:
+            notes = "; ".join(capability.get("notes") or [])
+            suffix = f" - {notes}" if notes else ""
+            print(f"  - {capability['key']}: {capability['label']} [{capability['status']}]{suffix}")
+
+
 def _load_units(args: argparse.Namespace) -> Dict[str, UnitProfile]:
     if args.csv_dir and args.data:
         raise SystemExit("Specify only one of --csv-dir or --data.")
@@ -414,7 +433,13 @@ def main(argv: Optional[List[str]] = None) -> None:
     parser.add_argument("--supplement", type=Path, action="append", default=[])
     parser.add_argument("--list-units", action="store_true")
     parser.add_argument("--reference")
+    parser.add_argument("--rulesets", action="store_true", help="List registered rulesets and implemented capability coverage")
+    parser.add_argument("--rulesets-json", action="store_true", help="Print registered rulesets and capability coverage as JSON")
     args = parser.parse_args(argv)
+
+    if args.rulesets or args.rulesets_json:
+        _print_ruleset_report(as_json=args.rulesets_json)
+        return
 
     units = _load_units(args)
     for supplement in args.supplement:

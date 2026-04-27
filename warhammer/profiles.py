@@ -400,9 +400,15 @@ class WeaponProfile:
             wound_modifier=_parse_int_default(data.get("wound_modifier"), default=0),
             reroll_hits=reroll_hits,
             reroll_wounds=reroll_wounds,
-            lethal_hits=_parse_bool_flag(data.get("lethal_hits")),
-            sustained_hits=_parse_sustained_hits(data.get("sustained_hits")),
-            devastating_wounds=_parse_bool_flag(data.get("devastating_wounds")),
+            lethal_hits=_parse_bool_flag(data.get("lethal_hits")) or bool(keyword_flags["lethal_hits"]),
+            sustained_hits=max(
+                _parse_sustained_hits(data.get("sustained_hits")),
+                int(keyword_flags["sustained_hits"]),
+            ),
+            devastating_wounds=(
+                _parse_bool_flag(data.get("devastating_wounds"))
+                or bool(keyword_flags["devastating_wounds"])
+            ),
             auto_hits=auto_hits,
             assault=keyword_flags["assault"],
             heavy=keyword_flags["heavy"],
@@ -659,6 +665,9 @@ def _interpret_weapon_keywords(keywords: List[str]) -> Dict[str, object]:
         "melta": None,
         "rapid_fire": None,
         "anti_rules": [],
+        "devastating_wounds": False,
+        "lethal_hits": False,
+        "sustained_hits": 0,
     }
 
     for keyword in keywords:
@@ -675,6 +684,10 @@ def _interpret_weapon_keywords(keywords: List[str]) -> Dict[str, object]:
             flags["ignores_cover"] = True
         elif lower == "blast":
             flags["blast"] = True
+        elif lower == "devastating wounds":
+            flags["devastating_wounds"] = True
+        elif lower == "lethal hits":
+            flags["lethal_hits"] = True
 
         anti_match = _ANTI_PATTERN.search(keyword)
         if anti_match:
@@ -696,6 +709,12 @@ def _interpret_weapon_keywords(keywords: List[str]) -> Dict[str, object]:
         if rapid_fire_match:
             value = rapid_fire_match.group(1)
             flags["rapid_fire"] = int(value) if value else None
+            continue
+
+        sustained_hits_match = re.search(r"sustained\s*hits\s*(\d+)?", lower)
+        if sustained_hits_match:
+            value = sustained_hits_match.group(1)
+            flags["sustained_hits"] = max(int(value), int(flags["sustained_hits"])) if value else 1
             continue
 
     if not isinstance(flags["anti_rules"], list):
