@@ -28,6 +28,10 @@ def _unit(name: str, *, unit_id: str, faction: str = "", keywords: list[str] | N
                     "damage": "1",
                 }
             ],
+            "points": 100,
+            "models_min": 5,
+            "models_max": 5,
+            "objective_control": 2,
         }
     )
 
@@ -140,3 +144,73 @@ def test_model_file_download_allows_selected_custom_model(tmp_path):
 
     assert path == selected
     assert content_type.startswith("application/json")
+
+
+def test_battlefield_templates_payload_exposes_presets():
+    payload = web_api.battlefield_templates_payload()
+
+    assert [template["id"] for template in payload["templates"]] == ["strike_force_44x60", "onslaught_44x90"]
+    assert payload["rules"]["preset"] == "tactical_mvp_v1"
+
+
+def test_battlefield_validate_army_payload_uses_loaded_dataset(tmp_path):
+    payload = web_api.battlefield_validate_army_payload(
+        {"edition": "10e", "army": {"side": "red", "units": [{"unit_id": "u1", "count": 2}]}},
+        state=_State(tmp_path),
+    )
+
+    assert payload["ok"] is True
+    assert payload["edition"] == "10e"
+    assert payload["points"] == 200
+
+
+def test_battlefield_ai_plan_payload_returns_state_and_actions(tmp_path):
+    payload = web_api.battlefield_ai_plan_payload(
+        {
+            "edition": "10e",
+            "template_id": "strike_force_44x60",
+            "armies": [
+                {"side": "red", "units": [{"unit_id": "u1"}]},
+                {"side": "blue", "units": [{"unit_id": "u2"}]},
+            ],
+            "limit": 2,
+        },
+        state=_State(tmp_path),
+    )
+
+    assert payload["edition"] == "10e"
+    assert payload["state"]["map"]["id"] == "strike_force_44x60"
+    assert payload["actions"]
+
+
+def test_battlefield_resolve_score_uses_objective_control(tmp_path):
+    state = _State(tmp_path)
+    plan = web_api.battlefield_ai_plan_payload(
+        {
+            "edition": "10e",
+            "template_id": "strike_force_44x60",
+            "armies": [
+                {"side": "red", "units": [{"unit_id": "u1"}]},
+                {"side": "blue", "units": [{"unit_id": "u2"}]},
+            ],
+            "limit": 2,
+        },
+        state=state,
+    )
+    battle_state = plan["state"]
+    objective = battle_state["map"]["objectives"][0]
+    red_unit = next(unit for unit in battle_state["units"] if unit["side"] == "red")
+    red_unit["x"] = objective["x"]
+    red_unit["y"] = objective["y"]
+
+    payload = web_api.battlefield_resolve_payload(
+        {
+            "edition": "10e",
+            "state": battle_state,
+            "action": {"type": "score", "side": "red", "actor_id": red_unit["instance_id"]},
+        },
+        state=state,
+    )
+
+    assert payload["state"]["score"]["red"] >= objective["points"]
+    assert payload["outcome"]["log_entry"]["score_delta"]["red"] >= objective["points"]

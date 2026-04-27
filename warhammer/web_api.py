@@ -4,11 +4,12 @@ from pathlib import Path
 from typing import Any, Dict
 
 from . import api_payloads as api_payload_service
+from . import battlefield as battlefield_service
 from . import data_review as data_review_service
 from . import matchup_payloads as payload_service
 from . import unit_search as unit_search_service
 from .rules import ruleset_registry_payload
-from .web_state import AppState
+from .web_state import AppState, requested_rules_edition
 
 
 class WebApiNotFound(LookupError):
@@ -88,6 +89,58 @@ def unit_payload_from_query(query: Dict[str, list[str]], *, state: AppState) -> 
     except KeyError as exc:
         raise WebApiNotFound("Unknown unit") from exc
     return {"unit": payload_service.unit_detail(unit)}
+
+
+def battlefield_templates_payload() -> Dict[str, Any]:
+    return battlefield_service.battlefield_templates_payload()
+
+
+def battlefield_validate_army_payload(payload: Dict[str, Any], *, state: AppState) -> Dict[str, Any]:
+    edition = requested_rules_edition(payload.get("edition"), state=state)
+    dataset = state.dataset_for_edition(edition)
+    result = battlefield_service.validate_army_payload(payload, dataset)
+    result["edition"] = edition
+    return result
+
+
+def battlefield_validate_state_payload(payload: Dict[str, Any], *, state: AppState) -> Dict[str, Any]:
+    edition = requested_rules_edition(payload.get("edition"), state=state)
+    dataset = state.dataset_for_edition(edition)
+    result = battlefield_service.validate_state_payload(payload, dataset)
+    result["edition"] = edition
+    return result
+
+
+def battlefield_actions_payload(payload: Dict[str, Any], *, state: AppState) -> Dict[str, Any]:
+    edition = requested_rules_edition(payload.get("edition"), state=state)
+    dataset = state.dataset_for_edition(edition)
+    result = battlefield_service.actions_payload(payload, dataset, edition=edition)
+    result["edition"] = edition
+    return result
+
+
+def battlefield_resolve_payload(payload: Dict[str, Any], *, state: AppState) -> Dict[str, Any]:
+    edition = requested_rules_edition(payload.get("edition"), state=state)
+    dataset = state.dataset_for_edition(edition)
+    result = battlefield_service.resolve_payload(payload, dataset, edition=edition)
+    result["edition"] = edition
+    return result
+
+
+def battlefield_ai_plan_payload(payload: Dict[str, Any], *, state: AppState) -> Dict[str, Any]:
+    edition = requested_rules_edition(payload.get("edition"), state=state)
+    dataset = state.dataset_for_edition(edition)
+    result = battlefield_service.ai_plan_payload(payload, dataset, edition=edition)
+    result["edition"] = edition
+    return result
+
+
+def battlefield_autoplay_payload(payload: Dict[str, Any], *, state: AppState) -> Dict[str, Any]:
+    edition = requested_rules_edition(payload.get("edition"), state=state)
+    dataset = state.dataset_for_edition(edition)
+    result = battlefield_service.autoplay_payload(payload, dataset, edition=edition)
+    result["edition"] = edition
+    return result
 
 
 def _query_value(query: Dict[str, list[str]], key: str, default: str = "") -> str:

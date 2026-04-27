@@ -84,6 +84,7 @@ def _unit_payload(unit: UnitProfile) -> dict[str, Any]:
         "points": unit.points,
         "modelsMin": unit.models_min,
         "modelsMax": unit.models_max,
+        "objectiveControl": unit.objective_control,
         "sourceFile": unit.source_file,
         "keywords": unit.keywords,
         "canAdvanceAndShoot": unit.can_advance_and_shoot,
@@ -124,16 +125,33 @@ def _local_script(data: dict[str, Any]) -> str:
       mlModels: {{}},
       unitDetails: {{}},
       selectedUnitIds: {{ attacker: null, defender: null }},
+      activeOptionIndex: {{ attacker: -1, defender: -1 }},
       searchTimer: null,
       openMenu: null,
       rulesEdition: "10e",
       supportedRulesEditions: ["10e"],
-      availableEditions: []
+      availableEditions: [],
+      battlefield: {{
+        templates: [],
+        selectedTemplate: "strike_force_44x60",
+        redUnitId: null,
+        blueUnitId: null,
+        redCount: 1,
+        blueCount: 1,
+        armyRows: {{ red: [], blue: [] }},
+        state: null,
+        plan: null,
+        validation: null,
+        dragging: null,
+        selectedInstanceId: null,
+        selectedUnitDetail: null
+      }}
     }};
 
     const el = (id) => document.getElementById(id);
     const hasNumber = (value) => value !== null && value !== undefined && value !== "" && Number.isFinite(Number(value));
     const fmt = (value) => hasNumber(value) ? Number(value).toFixed(2) : "n/a";
+    const signedFmt = (value) => hasNumber(value) ? `${{Number(value) > 0 ? "+" : ""}}${{Number(value).toFixed(2)}}` : "n/a";
     const pct = (value) => `${{Math.round(Number(value || 0) * 100)}}%`;
     const escapeHtml = (value) => String(value ?? "").replace(/[&<>"']/g, (char) => ({{
       "&": "&amp;",
@@ -351,6 +369,573 @@ def _local_script(data: dict[str, Any]) -> str:
       }});
     }}
 
+    function localBattlefieldTemplates() {{
+      return [
+        {{ id: "strike_force_44x60", name: "Strike Force 44 x 60", width: 44, height: 60, rules_preset: "tactical_mvp_v1" }},
+        {{ id: "onslaught_44x90", name: "Onslaught 44 x 90", width: 44, height: 90, rules_preset: "tactical_mvp_v1" }}
+      ];
+    }}
+
+    function localGenerateMap(templateId = "strike_force_44x60") {{
+      const height = templateId === "onslaught_44x90" ? 90 : 60;
+      const width = 44;
+      const dz = height <= 60 ? 10 : 14;
+      return {{
+        id: templateId,
+        name: templateId === "onslaught_44x90" ? "Onslaught 44 x 90" : "Strike Force 44 x 60",
+        width,
+        height,
+        rules_preset: "tactical_mvp_v1",
+        deployment_zones: [
+          {{ id: "red-dz", side: "red", x: 0, y: 0, width, height: dz }},
+          {{ id: "blue-dz", side: "blue", x: 0, y: height - dz, width, height: dz }}
+        ],
+        terrain: [
+          {{ id: "ruin-nw", name: "Northwest ruin", type: "ruin", x: 5, y: height * 0.22, width: 10, height: 8, grants_cover: true, blocks_line_of_sight: true, movement_penalty: 2 }},
+          {{ id: "ruin-se", name: "Southeast ruin", type: "ruin", x: width - 15, y: height * 0.64, width: 10, height: 8, grants_cover: true, blocks_line_of_sight: true, movement_penalty: 2 }},
+          {{ id: "forest-sw", name: "Southwest woods", type: "woods", x: 7, y: height * 0.68, width: 8, height: 7, grants_cover: true, blocks_line_of_sight: false, movement_penalty: 1 }},
+          {{ id: "forest-ne", name: "Northeast woods", type: "woods", x: width - 15, y: height * 0.2, width: 8, height: 7, grants_cover: true, blocks_line_of_sight: false, movement_penalty: 1 }},
+          {{ id: "crater-mid", name: "Central crater", type: "crater", x: width / 2 - 5, y: height / 2 - 4, width: 10, height: 8, grants_cover: true, blocks_line_of_sight: false, movement_penalty: 0 }}
+        ],
+        objectives: [
+          {{ id: "obj-home-red", name: "Red home", x: width / 2, y: dz / 2, radius: 3, points: 5 }},
+          {{ id: "obj-home-blue", name: "Blue home", x: width / 2, y: height - dz / 2, radius: 3, points: 5 }},
+          {{ id: "obj-west", name: "West midfield", x: width * 0.25, y: height / 2, radius: 3, points: 5 }},
+          {{ id: "obj-centre", name: "Centre", x: width / 2, y: height / 2, radius: 3, points: 5 }},
+          {{ id: "obj-east", name: "East midfield", x: width * 0.75, y: height / 2, radius: 3, points: 5 }}
+        ]
+      }};
+    }}
+
+    async function loadBattlefieldTemplates() {{
+      if (!state.battlefield.templates.length) state.battlefield.templates = localBattlefieldTemplates();
+      return state.battlefield.templates;
+    }}
+
+    async function showBattlefield() {{
+      el("error").textContent = "";
+      await loadBattlefieldTemplates();
+      ensureBattlefieldUnitSelections();
+      if (!state.battlefield.state) {{
+        state.battlefield.state = localInitialBattleState();
+        state.battlefield.plan = localBattlefieldPlan(6);
+      }}
+      renderBattlefield();
+    }}
+
+    function ensureBattlefieldUnitSelections() {{
+      const redId = state.selectedUnitIds.attacker || state.battlefield.redUnitId || (state.units[0] && state.units[0].id) || null;
+      const fallback = state.units.find((unit) => unit.id !== redId);
+      const blueId = state.selectedUnitIds.defender || state.battlefield.blueUnitId || (fallback && fallback.id) || redId;
+      if (!state.battlefield.armyRows.red.length && redId) state.battlefield.armyRows.red = [{{ unitId: redId, count: Math.max(1, Number(state.battlefield.redCount || 1)) }}];
+      if (!state.battlefield.armyRows.blue.length && blueId) state.battlefield.armyRows.blue = [{{ unitId: blueId, count: Math.max(1, Number(state.battlefield.blueCount || 1)) }}];
+      syncLegacyBattlefieldSelections();
+    }}
+
+    function battlefieldArmyRows(side) {{
+      ensureBattlefieldRowsObject();
+      return state.battlefield.armyRows[side] || [];
+    }}
+
+    function ensureBattlefieldRowsObject() {{
+      if (!state.battlefield.armyRows) state.battlefield.armyRows = {{ red: [], blue: [] }};
+      if (!Array.isArray(state.battlefield.armyRows.red)) state.battlefield.armyRows.red = [];
+      if (!Array.isArray(state.battlefield.armyRows.blue)) state.battlefield.armyRows.blue = [];
+    }}
+
+    function syncLegacyBattlefieldSelections() {{
+      const red = battlefieldArmyRows("red")[0] || {{}};
+      const blue = battlefieldArmyRows("blue")[0] || {{}};
+      state.battlefield.redUnitId = red.unitId || null;
+      state.battlefield.blueUnitId = blue.unitId || null;
+      state.battlefield.redCount = Math.max(1, Number(red.count || 1));
+      state.battlefield.blueCount = Math.max(1, Number(blue.count || 1));
+    }}
+
+    function battlefieldArmies() {{
+      ensureBattlefieldUnitSelections();
+      return [
+        {{ id: "red", name: "Red Army", side: "red", units: battlefieldArmyRows("red").filter((row) => row.unitId).map((row) => ({{ unit_id: row.unitId, count: Math.max(1, Number(row.count || 1)) }})) }},
+        {{ id: "blue", name: "Blue Army", side: "blue", units: battlefieldArmyRows("blue").filter((row) => row.unitId).map((row) => ({{ unit_id: row.unitId, count: Math.max(1, Number(row.count || 1)) }})) }}
+      ];
+    }}
+
+    function localInitialBattleState() {{
+      const battleMap = localGenerateMap(state.battlefield.selectedTemplate);
+      const units = [];
+      const copyCounters = {{}};
+      for (const army of battlefieldArmies()) {{
+        const zone = battleMap.deployment_zones.find((row) => row.side === army.side);
+        let index = 0;
+        for (const entry of army.units) {{
+          const profile = state.units.find((unit) => unit.id === entry.unit_id);
+          if (!profile || !zone) continue;
+          const models = defaultBattleModels(profile);
+          const radius = defaultBattleRadius(profile);
+          for (let copy = 0; copy < Math.max(1, Number(entry.count || 1)); copy += 1) {{
+            const counterKey = `${{army.side}}:${{entry.unit_id}}`;
+            copyCounters[counterKey] = (copyCounters[counterKey] || 0) + 1;
+            units.push({{
+              instance_id: `${{army.side}}-${{entry.unit_id}}-${{copyCounters[counterKey]}}`,
+              unit_id: entry.unit_id,
+              side: army.side,
+              name: profile.name,
+              x: Math.max(1, Math.min(battleMap.width - 1, zone.x + 4 + (index % 4) * 7)),
+              y: Math.max(1, Math.min(battleMap.height - 1, army.side === "red" ? zone.y + 4 + Math.floor(index / 4) * 5 : zone.y + zone.height - 4 - Math.floor(index / 4) * 5)),
+              radius,
+              models_remaining: models,
+              wounds_remaining: models * Math.max(1, Number(profile.wounds || 1)),
+              status_flags: []
+            }});
+            index += 1;
+          }}
+        }}
+      }}
+      return {{ map: battleMap, armies: battlefieldArmies(), units, turn: 1, phase: "movement", active_side: "red", score: {{ red: 0, blue: 0 }}, log: [] }};
+    }}
+
+    function defaultBattleModels(unit) {{
+      if (unit.modelsMin && unit.modelsMax) return Math.max(1, Math.round((Number(unit.modelsMin) + Number(unit.modelsMax)) / 2));
+      return Math.max(1, Number(unit.modelsMin || unit.modelsMax || 1));
+    }}
+
+    function defaultBattleRadius(unit) {{
+      return Math.max(1, Math.min(6, Math.sqrt(defaultBattleModels(unit)) * 0.85));
+    }}
+
+    function localBattlefieldPlan(limit = 6) {{
+      const actions = localBattleActions().slice(0, limit);
+      return {{ actions, assumptions: ["Local Battlefield mode uses circular unit blobs.", "AI planning is deterministic and heuristic."] }};
+    }}
+
+    function localBattleActions() {{
+      const battleState = state.battlefield.state || localInitialBattleState();
+      const actions = [];
+      const active = (battleState.units || []).filter((unit) => unit.side === battleState.active_side && unit.models_remaining > 0);
+      const enemies = (battleState.units || []).filter((unit) => unit.side !== battleState.active_side && unit.models_remaining > 0);
+      for (const actor of active) {{
+        const actorProfile = state.units.find((unit) => unit.id === actor.unit_id);
+        if (!actorProfile) continue;
+        actions.push({{ id: `${{actor.instance_id}}:hold`, type: "hold", side: actor.side, actor_id: actor.instance_id, score: 0.1, reason: "Hold position.", expected_damage: 0, expected_return_damage: 0, assumptions: ["No movement or attack selected."] }});
+        const objective = nearestBattleObjective(battleState, actor);
+        if (objective) {{
+          const movement = localMovementAllowance(battleState.map, actor, actorProfile);
+          const destination = stepToward(actor.x, actor.y, objective.x, objective.y, movement.allowance);
+          const progress = Math.max(0, distance(actor.x, actor.y, objective.x, objective.y) - distance(destination.x, destination.y, objective.x, objective.y));
+          const controlBonus = distance(destination.x, destination.y, objective.x, objective.y) <= objective.radius + actor.radius
+            ? objective.points * Math.min(2, localObjectiveControl(actor, actorProfile) / 5)
+            : 0;
+          const objectiveValue = progress * 0.9 + controlBonus;
+          actions.push({{ id: `${{actor.instance_id}}:move:${{objective.id}}`, type: "move", side: actor.side, actor_id: actor.instance_id, destination, score: objectiveValue, objective_value: objectiveValue, reason: `Move toward ${{objective.name}} to improve objective control using ${{movement.allowance.toFixed(1)}}" movement.`, expected_damage: 0, expected_return_damage: 0, assumptions: ["Movement uses unit centre distance.", ...movement.assumptions] }});
+        }}
+        for (const target of enemies) {{
+          const targetProfile = state.units.find((unit) => unit.id === target.unit_id);
+          if (!targetProfile) continue;
+          const attack = localBattleAttack(actor, target, actorProfile, targetProfile, "ranged");
+          const returned = localBattleAttack(target, actor, targetProfile, actorProfile, "ranged");
+          actions.push({{
+            id: `${{actor.instance_id}}:shoot:${{target.instance_id}}`,
+            type: "shoot",
+            side: actor.side,
+            actor_id: actor.instance_id,
+            target_id: target.instance_id,
+            score: attack.damage * 10 - returned.damage * 3.5,
+            reason: `Attack ${{target.name}} at ${{distance(actor.x, actor.y, target.x, target.y).toFixed(1)}}" for ${{attack.damage.toFixed(2)}} expected damage.`,
+            expected_damage: attack.damage,
+            expected_return_damage: returned.damage,
+            assumptions: attack.assumptions
+          }});
+        }}
+      }}
+      return actions.sort((left, right) => right.score - left.score || left.id.localeCompare(right.id));
+    }}
+
+    function localBattleAttack(actor, target, attacker, defender, mode) {{
+      const dist = distance(actor.x, actor.y, target.x, target.y);
+      const context = normalizeContext({{ target_in_cover: localTargetInCover(state.battlefield.state.map, target), target_within_half_range: dist <= 12, target_model_count: target.models_remaining }});
+      const result = evaluateUnit(attacker, defender, mode, context);
+      return {{ damage: result.total_damage || 0, assumptions: ["Damage uses the same local calculator engine.", mode === "melee" ? "Melee/charge is approximate in v1." : "Ranges use centre-to-centre distance."] }};
+    }}
+
+    async function battlefieldGenerate() {{
+      state.battlefield.state = localInitialBattleState();
+      state.battlefield.plan = localBattlefieldPlan(6);
+      renderBattlefield();
+    }}
+
+    async function battlefieldValidate() {{
+      const validate = (army) => {{
+        const warnings = [];
+        let points = 0;
+        for (const entry of army.units) {{
+          const unit = state.units.find((row) => row.id === entry.unit_id);
+          if (!unit) continue;
+          points += Number(unit.points || 0);
+          if (!unit.weapons || !unit.weapons.length) warnings.push(`${{unit.name}} has no imported weapons.`);
+        }}
+        return {{ ok: true, points, warnings, errors: [] }};
+      }};
+      state.battlefield.validation = {{ red: validate(battlefieldArmies()[0]), blue: validate(battlefieldArmies()[1]), state: {{ ok: true, warnings: ["Local state validation checks bounds and known unit ids only."], errors: [] }} }};
+      renderBattlefield();
+    }}
+
+    async function battlefieldSuggest() {{
+      if (!state.battlefield.state) state.battlefield.state = localInitialBattleState();
+      state.battlefield.plan = localBattlefieldPlan(6);
+      renderBattlefield();
+    }}
+
+    async function battlefieldAutoplay() {{
+      if (!state.battlefield.state) state.battlefield.state = localInitialBattleState();
+      const replay = [];
+      for (const side of ["red", "blue"]) {{
+        state.battlefield.state.active_side = side;
+        const actors = [...state.battlefield.state.units].filter((unit) => unit.side === side && unit.models_remaining > 0);
+        for (const actor of actors) {{
+          const action = localBattleActions().find((row) => row.actor_id === actor.instance_id);
+          if (!action) continue;
+          const outcome = localResolveBattleAction(action);
+          replay.push({{ chosen: action, outcome }});
+        }}
+      }}
+      state.battlefield.state.turn += 1;
+      state.battlefield.state.active_side = "red";
+      state.battlefield.plan = null;
+      renderBattlefield(replay);
+    }}
+
+    async function battlefieldResolvePlannedAction(index) {{
+      const action = state.battlefield.plan && state.battlefield.plan.actions
+        ? state.battlefield.plan.actions[Number(index)]
+        : null;
+      if (!action) throw new Error("No planned action found.");
+      const outcome = localResolveBattleAction(action);
+      state.battlefield.plan = null;
+      renderBattlefield([{{ chosen: action, outcome }}]);
+    }}
+
+    function battlefieldExportJson() {{
+      const payload = {{
+        format: "battle_state_v1",
+        template_id: state.battlefield.selectedTemplate,
+        armies: battlefieldArmies(),
+        state: state.battlefield.state,
+        exported_at: new Date().toISOString()
+      }};
+      const blob = new Blob([JSON.stringify(payload, null, 2)], {{ type: "application/json" }});
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = `battlefield-state-${{Date.now()}}.json`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(link.href);
+    }}
+
+    async function battlefieldImportJson(file) {{
+      const text = await file.text();
+      const payload = JSON.parse(text);
+      const importedState = payload.state || payload;
+      if (!importedState || !importedState.map || !Array.isArray(importedState.units)) {{
+        throw new Error("Battlefield import must contain a battle_state_v1 state object.");
+      }}
+      state.battlefield.state = importedState;
+      state.battlefield.selectedTemplate = importedState.map.id || payload.template_id || state.battlefield.selectedTemplate;
+      const armies = payload.armies || importedState.armies || [];
+      const red = armies.find((army) => army.side === "red");
+      const blue = armies.find((army) => army.side === "blue");
+      state.battlefield.armyRows = {{
+        red: red && red.units ? red.units.map((row) => ({{ unitId: row.unit_id, count: Math.max(1, Number(row.count || 1)) }})) : [],
+        blue: blue && blue.units ? blue.units.map((row) => ({{ unitId: row.unit_id, count: Math.max(1, Number(row.count || 1)) }})) : []
+      }};
+      syncLegacyBattlefieldSelections();
+      state.battlefield.plan = null;
+      state.battlefield.validation = null;
+      state.battlefield.selectedInstanceId = null;
+      state.battlefield.selectedUnitDetail = null;
+      renderBattlefield();
+    }}
+
+    function localResolveBattleAction(action) {{
+      const battleState = state.battlefield.state;
+      const actor = battleState.units.find((unit) => unit.instance_id === action.actor_id);
+      const entry = {{ turn: battleState.turn, phase: battleState.phase, side: action.side, actor: actor ? actor.name : action.actor_id, action: action.type, reason: action.reason, assumptions: action.assumptions || [] }};
+      if (action.type === "move" && action.destination && actor) {{
+        actor.x = Math.max(actor.radius, Math.min(battleState.map.width - actor.radius, action.destination.x));
+        actor.y = Math.max(actor.radius, Math.min(battleState.map.height - actor.radius, action.destination.y));
+      }} else if (action.type === "shoot") {{
+        const target = battleState.units.find((unit) => unit.instance_id === action.target_id);
+        const targetProfile = target && state.units.find((unit) => unit.id === target.unit_id);
+        if (target && targetProfile) {{
+          target.wounds_remaining = Math.max(0, target.wounds_remaining - Number(action.expected_damage || 0));
+          target.models_remaining = Math.max(0, Math.ceil(target.wounds_remaining / Math.max(1, Number(targetProfile.wounds || 1))));
+          if (target.models_remaining <= 0) target.status_flags = ["destroyed"];
+          entry.target = target.name;
+          entry.damage = action.expected_damage;
+          entry.models_remaining = target.models_remaining;
+        }}
+      }}
+      battleState.log.push(entry);
+      return entry;
+    }}
+
+    function renderBattlefield(replay = null) {{
+      const battleState = state.battlefield.state;
+      const templates = state.battlefield.templates.length ? state.battlefield.templates : localBattlefieldTemplates();
+      el("results").innerHTML = `
+        <div class="battlefield" data-testid="battlefield-view">
+          <div class="battlefield-toolbar">
+            <div><label for="battle-template">Map template</label><select id="battle-template">${{templates.map((template) => `<option value="${{escapeHtml(template.id)}}">${{escapeHtml(template.name)}}</option>`).join("")}}</select></div>
+            <button id="battle-generate" type="button">Generate map</button>
+            <button id="battle-suggest" class="secondary" type="button">Suggest AI action</button>
+            <button id="battle-autoplay" class="secondary" type="button">Run one AI turn</button>
+            <button id="battle-export" class="tertiary" type="button">Export JSON</button>
+            <button id="battle-import" class="tertiary" type="button">Import JSON</button>
+            <input id="battle-import-file" type="file" accept="application/json,.json" hidden>
+          </div>
+          <div class="battlefield-armies">${{renderArmyBuilder("red", battlefieldArmyRows("red"))}}${{renderArmyBuilder("blue", battlefieldArmyRows("blue"))}}</div>
+          <button id="battle-validate" class="tertiary" type="button">Validate armies and state</button>
+          ${{battleState ? renderBattleBoard(battleState) : `<div class="empty">Generate a battlefield to place units.</div>`}}
+          <div class="battlefield-panels"><div class="battle-panel"><h3>Selected unit</h3>${{renderSelectedBattleUnit(battleState)}}</div><div class="battle-panel"><h3>AI planner</h3>${{renderBattlePlan(state.battlefield.plan)}}</div><div class="battle-panel"><h3>Battle log</h3>${{renderBattleLog(battleState, replay)}}</div></div>
+          ${{renderBattleValidation(state.battlefield.validation)}}
+        </div>
+      `;
+      el("battle-template").value = state.battlefield.selectedTemplate;
+      wireBattlefieldEvents();
+    }}
+
+    function renderArmyBuilder(side, rows) {{
+      const armyRows = rows.length ? rows : [{{ unitId: "", count: 1 }}];
+      return `<div class="army-card ${{side}}"><h3>${{side === "red" ? "Red army" : "Blue army"}}</h3>${{armyRows.map((row, index) => renderArmyRow(side, row, index)).join("")}}<button class="tertiary battle-add-unit" type="button" data-side="${{side}}">Add unit</button><div class="small">${{escapeHtml(armySummaryText(armyRows))}}</div></div>`;
+    }}
+
+    function renderArmyRow(side, row, index) {{
+      return `<div class="army-row" data-side="${{side}}" data-index="${{index}}"><div><label for="battle-${{side}}-unit-${{index}}">Unit ${{index + 1}}</label><select id="battle-${{side}}-unit-${{index}}" class="battle-army-unit" data-side="${{side}}" data-index="${{index}}"><option value="">Choose unit</option>${{state.units.map((unit) => `<option value="${{escapeHtml(unit.id || "")}}">${{escapeHtml(unit.name)}}${{unit.points ? ` (${{unit.points}} pts)` : ""}}</option>`).join("")}}</select></div><div><label for="battle-${{side}}-count-${{index}}">Copies</label><input id="battle-${{side}}-count-${{index}}" class="battle-army-count" data-side="${{side}}" data-index="${{index}}" type="number" min="1" max="12" step="1" value="${{Math.max(1, Number(row.count || 1))}}"></div><button class="army-remove" type="button" data-side="${{side}}" data-index="${{index}}" aria-label="Remove unit row">X</button></div>`;
+    }}
+
+    function renderBattleBoard(battleState) {{
+      const battleMap = battleState.map;
+      const terrain = (battleMap.terrain || []).map((feature) => `<rect class="bf-terrain ${{escapeHtml(feature.type)}}" x="${{feature.x}}" y="${{feature.y}}" width="${{feature.width}}" height="${{feature.height}}"><title>${{escapeHtml(feature.name)}}</title></rect>`).join("");
+      const objectives = (battleMap.objectives || []).map((objective) => `<circle class="bf-objective" cx="${{objective.x}}" cy="${{objective.y}}" r="${{objective.radius}}"><title>${{escapeHtml(objective.name)}} objective</title></circle>`).join("");
+      const units = (battleState.units || []).map((unit) => `<g data-unit-id="${{escapeHtml(unit.instance_id)}}"><circle class="bf-unit ${{escapeHtml(unit.side)}} ${{(unit.status_flags || []).includes("destroyed") ? "destroyed" : ""}} ${{state.battlefield.selectedInstanceId === unit.instance_id ? "selected" : ""}}" cx="${{unit.x}}" cy="${{unit.y}}" r="${{unit.radius}}" data-unit-id="${{escapeHtml(unit.instance_id)}}"><title>${{escapeHtml(unit.name)}}: ${{unit.models_remaining}} models, ${{fmt(unit.wounds_remaining)}} wounds</title></circle><text class="bf-label" x="${{unit.x}}" y="${{Number(unit.y) + Number(unit.radius) + 2.8}}">${{escapeHtml(shortUnitLabel(unit.name))}}</text></g>`).join("");
+      return `<div class="battlefield-board-wrap"><svg class="battlefield-board" id="battle-board" viewBox="0 0 ${{battleMap.width}} ${{battleMap.height}}" data-width="${{battleMap.width}}" data-height="${{battleMap.height}}" role="img" aria-label="${{escapeHtml(battleMap.name)}} battlefield"><rect x="0" y="0" width="${{battleMap.width}}" height="${{battleMap.height}}" fill="#f7fafc"></rect>${{terrain}}${{objectives}}${{units}}</svg></div><div class="small">Score: Red ${{battleState.score?.red || 0}} | Blue ${{battleState.score?.blue || 0}}. Drag unit blobs to adjust the current state before asking the AI.</div>`;
+    }}
+
+    function renderBattlePlan(plan) {{
+      const actions = (plan && plan.actions) || [];
+      if (!actions.length) return `<div class="empty">No AI actions available yet.</div>`;
+      return `<div class="battle-log">${{actions.map((action, index) => `<div class="battle-log-entry ${{escapeHtml(action.side)}}"><b>${{escapeHtml(action.type)}}: ${{escapeHtml(unitNameByInstance(action.actor_id))}}</b><br>${{escapeHtml(action.reason)}}<br><span class="small">Score ${{fmt(action.score)}} | Damage ${{fmt(action.expected_damage)}} | Return ${{fmt(action.expected_return_damage)}}</span><div><button class="tertiary battle-resolve-action" type="button" data-action-index="${{index}}">Resolve this action</button></div></div>`).join("")}}</div>`;
+    }}
+
+    function renderSelectedBattleUnit(battleState) {{
+      if (!battleState || !state.battlefield.selectedInstanceId) return `<div class="empty">Select a unit blob on the board.</div>`;
+      const unit = battleUnitByInstance(state.battlefield.selectedInstanceId);
+      if (!unit) return `<div class="empty">Selected unit is no longer on the board.</div>`;
+      const detail = state.battlefield.selectedUnitDetail;
+      const profile = detail || state.units.find((row) => row.id === unit.unit_id) || {{}};
+      const nearestEnemy = nearestBattleUnit(unit, (battleState.units || []).filter((row) => row.side !== unit.side && row.models_remaining > 0));
+      const nearestObjective = nearestBattleObjective(battleState, unit);
+      const weapons = (profile.weapons || []).slice(0, 8).map((weapon) => `<div class="inspector-weapon"><b>${{escapeHtml(weapon.name)}}</b><br>${{escapeHtml(weapon.type || "")}} | A${{escapeHtml(weapon.attacks || "?")}} | ${{escapeHtml(weapon.skillLabel || weapon.skill || "?")}} | S${{escapeHtml(weapon.strength || "?")}} | AP${{escapeHtml(weapon.ap ?? 0)}} | D${{escapeHtml(weapon.damage || "?")}}</div>`).join("");
+      return `<div class="unit-inspector" data-testid="battle-unit-inspector"><div><b>${{escapeHtml(unit.name)}}</b> <span class="small">${{escapeHtml(unit.side)}}</span></div><div class="small">${{escapeHtml(profile.faction || "No faction")}} | T${{escapeHtml(profile.toughness || "?")}} W${{escapeHtml(profile.wounds || "?")}} Sv ${{escapeHtml(profile.saveLabel || profile.save || "?")}} | OC ${{escapeHtml(profile.objectiveControl ?? profile.objective_control ?? "?")}} | ${{escapeHtml(profile.points || 0)}} pts</div><div class="small">Board: x ${{fmt(unit.x)}}, y ${{fmt(unit.y)}} | Models ${{escapeHtml(unit.models_remaining)}} | Wounds remaining ${{fmt(unit.wounds_remaining)}}</div><div class="small">Nearest enemy: ${{nearestEnemy ? `${{escapeHtml(nearestEnemy.name)}} at ${{fmt(nearestEnemy.distance)}}"` : "none"}}</div><div class="small">Nearest objective: ${{nearestObjective ? `${{escapeHtml(nearestObjective.name)}} at ${{fmt(distance(unit.x, unit.y, nearestObjective.x, nearestObjective.y))}}"` : "none"}}</div><div class="inspector-weapons">${{weapons || `<div class="empty">Weapon details not loaded.</div>`}}</div></div>`;
+    }}
+
+    function renderBattleLog(battleState, replay) {{
+      const entries = replay ? replay.map((row) => row.outcome) : ((battleState && battleState.log) || []);
+      if (!entries.length) return `<div class="empty">No actions resolved yet.</div>`;
+      return `<div class="battle-log">${{entries.slice(-12).reverse().map((entry) => `<div class="battle-log-entry ${{escapeHtml(entry.side || "")}}"><b>Turn ${{entry.turn || "?"}}: ${{escapeHtml(entry.actor || entry.side || "Battlefield")}} ${{escapeHtml(entry.action || "")}}</b><br>${{escapeHtml(entry.reason || entry.detail || "")}}${{hasNumber(entry.damage) ? `<br><span class="small">Damage ${{fmt(entry.damage)}}</span>` : ""}}</div>`).join("")}}</div>`;
+    }}
+
+    function renderBattleValidation(validation) {{
+      if (!validation) return "";
+      return `<div class="battlefield-panels">${{["red", "blue", "state"].map((key) => {{ const row = validation[key] || {{}}; return `<div class="battle-panel"><h3>${{escapeHtml(key)}} validation</h3><div class="small">${{row.ok ? "Valid" : "Needs attention"}}</div><ul>${{(row.errors || []).concat(row.warnings || []).map((item) => `<li>${{escapeHtml(item)}}</li>`).join("")}}</ul></div>`; }}).join("")}}</div>`;
+    }}
+
+    function wireBattlefieldEvents() {{
+      el("battle-template").addEventListener("change", (event) => {{ state.battlefield.selectedTemplate = event.target.value; state.battlefield.state = null; }});
+      document.querySelectorAll(".battle-army-unit").forEach((select) => {{
+        const rows = battlefieldArmyRows(select.dataset.side);
+        const row = rows[Number(select.dataset.index)] || {{}};
+        select.value = row.unitId || "";
+        select.addEventListener("change", (event) => {{
+          updateBattlefieldArmyRow(event.target.dataset.side, Number(event.target.dataset.index), {{ unitId: event.target.value }});
+        }});
+      }});
+      document.querySelectorAll(".battle-army-count").forEach((input) => {{
+        input.addEventListener("change", (event) => {{
+          updateBattlefieldArmyRow(event.target.dataset.side, Number(event.target.dataset.index), {{ count: Math.max(1, Number(event.target.value || 1)) }});
+        }});
+      }});
+      document.querySelectorAll(".army-remove").forEach((button) => {{
+        button.addEventListener("click", () => removeBattlefieldArmyRow(button.dataset.side, Number(button.dataset.index)));
+      }});
+      document.querySelectorAll(".battle-add-unit").forEach((button) => {{
+        button.addEventListener("click", () => addBattlefieldArmyRow(button.dataset.side));
+      }});
+      el("battle-generate").addEventListener("click", () => battlefieldGenerate().catch(showBattlefieldError));
+      el("battle-validate").addEventListener("click", () => battlefieldValidate().catch(showBattlefieldError));
+      el("battle-suggest").addEventListener("click", () => battlefieldSuggest().catch(showBattlefieldError));
+      el("battle-autoplay").addEventListener("click", () => battlefieldAutoplay().catch(showBattlefieldError));
+      document.querySelectorAll(".battle-resolve-action").forEach((button) => {{
+        button.addEventListener("click", () => battlefieldResolvePlannedAction(button.dataset.actionIndex).catch(showBattlefieldError));
+      }});
+      el("battle-export").addEventListener("click", battlefieldExportJson);
+      el("battle-import").addEventListener("click", () => el("battle-import-file").click());
+      el("battle-import-file").addEventListener("change", (event) => {{
+        const file = event.target.files && event.target.files[0];
+        if (file) battlefieldImportJson(file).catch(showBattlefieldError);
+        event.target.value = "";
+      }});
+      wireBattleBoardDrag();
+    }}
+
+    function updateBattlefieldArmyRow(side, index, patch) {{
+      const rows = battlefieldArmyRows(side);
+      rows[index] = {{ ...(rows[index] || {{ unitId: "", count: 1 }}), ...patch }};
+      rows[index].count = Math.max(1, Number(rows[index].count || 1));
+      state.battlefield.state = null;
+      state.battlefield.plan = null;
+      syncLegacyBattlefieldSelections();
+      renderBattlefield();
+    }}
+
+    function addBattlefieldArmyRow(side) {{
+      const rows = battlefieldArmyRows(side);
+      const fallback = state.units.find((unit) => !rows.some((row) => row.unitId === unit.id)) || state.units[0];
+      rows.push({{ unitId: fallback ? fallback.id : "", count: 1 }});
+      state.battlefield.state = null;
+      state.battlefield.plan = null;
+      syncLegacyBattlefieldSelections();
+      renderBattlefield();
+    }}
+
+    function removeBattlefieldArmyRow(side, index) {{
+      const rows = battlefieldArmyRows(side);
+      rows.splice(index, 1);
+      if (!rows.length) rows.push({{ unitId: "", count: 1 }});
+      state.battlefield.state = null;
+      state.battlefield.plan = null;
+      syncLegacyBattlefieldSelections();
+      renderBattlefield();
+    }}
+
+    function wireBattleBoardDrag() {{
+      const board = el("battle-board");
+      if (!board) return;
+      board.querySelectorAll(".bf-unit").forEach((node) => {{
+        node.addEventListener("pointerdown", (event) => {{ event.preventDefault(); node.setPointerCapture(event.pointerId); state.battlefield.dragging = node.dataset.unitId; }});
+        node.addEventListener("click", () => {{
+          selectBattleUnit(node.dataset.unitId).catch(showBattlefieldError);
+        }});
+        node.addEventListener("pointermove", (event) => {{
+          if (state.battlefield.dragging !== node.dataset.unitId) return;
+          const point = svgPoint(board, event.clientX, event.clientY);
+          updateBattleUnitPosition(node.dataset.unitId, point.x, point.y);
+          const unit = battleUnitByInstance(node.dataset.unitId);
+          node.setAttribute("cx", unit.x);
+          node.setAttribute("cy", unit.y);
+          const label = node.parentElement.querySelector(".bf-label");
+          if (label) {{ label.setAttribute("x", unit.x); label.setAttribute("y", Number(unit.y) + Number(unit.radius) + 2.8); }}
+        }});
+        node.addEventListener("pointerup", () => {{ state.battlefield.dragging = null; state.battlefield.plan = null; }});
+      }});
+    }}
+
+    async function selectBattleUnit(instanceId) {{
+      const unit = battleUnitByInstance(instanceId);
+      if (!unit) return;
+      state.battlefield.selectedInstanceId = instanceId;
+      state.battlefield.selectedUnitDetail = await loadUnitDetailById(unit.unit_id, unit.name);
+      renderBattlefield();
+    }}
+
+    function svgPoint(svg, clientX, clientY) {{
+      const rect = svg.getBoundingClientRect();
+      const width = Number(svg.dataset.width || 44);
+      const height = Number(svg.dataset.height || 60);
+      return {{ x: Math.max(0, Math.min(width, ((clientX - rect.left) / rect.width) * width)), y: Math.max(0, Math.min(height, ((clientY - rect.top) / rect.height) * height)) }};
+    }}
+
+    function updateBattleUnitPosition(instanceId, x, y) {{
+      const unit = battleUnitByInstance(instanceId);
+      const battleMap = state.battlefield.state && state.battlefield.state.map;
+      if (!unit || !battleMap) return;
+      unit.x = Math.max(unit.radius, Math.min(Number(battleMap.width) - unit.radius, Number(x)));
+      unit.y = Math.max(unit.radius, Math.min(Number(battleMap.height) - unit.radius, Number(y)));
+    }}
+
+    function battleUnitByInstance(instanceId) {{
+      return state.battlefield.state && (state.battlefield.state.units || []).find((unit) => unit.instance_id === instanceId);
+    }}
+
+    function unitNameByInstance(instanceId) {{
+      const unit = battleUnitByInstance(instanceId);
+      return unit ? unit.name : instanceId;
+    }}
+
+    function nearestBattleUnit(unit, candidates) {{
+      const nearest = candidates
+        .map((candidate) => ({{ ...candidate, distance: distance(unit.x, unit.y, candidate.x, candidate.y) }}))
+        .sort((left, right) => left.distance - right.distance)[0];
+      return nearest || null;
+    }}
+
+    function unitLabelById(unitId) {{
+      const unit = state.units.find((row) => row.id === unitId);
+      if (!unit) return "No unit selected.";
+      return [unit.faction, unit.points ? `${{unit.points}} pts` : "", unit.modelsMin ? `${{unit.modelsMin}}-${{unit.modelsMax || unit.modelsMin}} models` : ""].filter(Boolean).join(" | ");
+    }}
+
+    function armySummaryText(rows) {{
+      const selectedRows = rows.filter((row) => row.unitId);
+      const unitTotal = selectedRows.reduce((sum, row) => sum + Math.max(1, Number(row.count || 1)), 0);
+      const points = selectedRows.reduce((sum, row) => {{
+        const unit = state.units.find((candidate) => candidate.id === row.unitId);
+        return sum + (unit && unit.points ? Number(unit.points) * Math.max(1, Number(row.count || 1)) : 0);
+      }}, 0);
+      return `${{unitTotal}} battlefield units | ${{points}} pts before unsupported options`;
+    }}
+
+    function shortUnitLabel(name) {{
+      return String(name || "Unit").split(/\\s+/).slice(0, 2).join(" ");
+    }}
+
+    function showBattlefieldError(error) {{
+      el("error").textContent = error.message;
+    }}
+
+    function nearestBattleObjective(battleState, actor) {{
+      return (battleState.map.objectives || []).slice().sort((left, right) => distance(actor.x, actor.y, left.x, left.y) - distance(actor.x, actor.y, right.x, right.y))[0] || null;
+    }}
+
+    function stepToward(x1, y1, x2, y2, maxDistance) {{
+      const dist = distance(x1, y1, x2, y2);
+      if (dist <= maxDistance || dist === 0) return {{ x: x2, y: y2 }};
+      const ratio = maxDistance / dist;
+      return {{ x: x1 + (x2 - x1) * ratio, y: y1 + (y2 - y1) * ratio }};
+    }}
+
+    function localMovementAllowance(battleMap, actor, profile) {{
+      const base = Number(profile.move || 6);
+      const penalties = (battleMap.terrain || [])
+        .filter((feature) => feature.movement_penalty && actor.x >= feature.x - actor.radius && actor.x <= feature.x + feature.width + actor.radius && actor.y >= feature.y - actor.radius && actor.y <= feature.y + feature.height + actor.radius)
+        .map((feature) => Number(feature.movement_penalty || 0));
+      const penalty = penalties.length ? Math.max(...penalties) : 0;
+      if (!penalty) return {{ allowance: base, assumptions: [] }};
+      return {{ allowance: Math.max(1, base - penalty), assumptions: [`Terrain movement penalty: -${{penalty}}" from current terrain.`] }};
+    }}
+
+    function localObjectiveControl(actor, profile) {{
+      return Math.max(0, Number(profile.objectiveControl || profile.objective_control || 1) * Math.max(0, Number(actor.models_remaining || 0)));
+    }}
+
+    function distance(x1, y1, x2, y2) {{
+      return Math.hypot(Number(x2) - Number(x1), Number(y2) - Number(y1));
+    }}
+
+    function localTargetInCover(battleMap, unit) {{
+      return (battleMap.terrain || []).some((feature) => feature.grants_cover && unit.x >= feature.x - unit.radius && unit.x <= feature.x + feature.width + unit.radius && unit.y >= feature.y - unit.radius && unit.y <= feature.y + feature.height + unit.radius);
+    }}
+
     function findUnit(name, unitId = null) {{
       if (unitId) {{
         const byId = state.units.find((candidate) => candidate.id === unitId);
@@ -366,6 +951,11 @@ def _local_script(data: dict[str, Any]) -> str:
         ? state.selectedUnitIds[field]
         : null;
       return findUnit(unitName, selectedId);
+    }}
+
+    async function loadUnitDetailById(unitId, name = "") {{
+      if (unitId) return state.units.find((unit) => unit.id === unitId) || null;
+      return findUnit(name);
     }}
 
     function queueUnitSearch(value = "") {{
@@ -400,14 +990,28 @@ def _local_script(data: dict[str, Any]) -> str:
 
     function unitVariantLabel(unit) {{
       if (!unit) return "";
-      const modelRange = unit.models_min && unit.models_max && unit.models_min !== unit.models_max
-        ? `${{unit.models_min}}-${{unit.models_max}}`
-        : (unit.models_min || unit.models_max || "unknown");
-      const sourceFile = unit.source_file || unit.sourceFile || "";
+      const modelRange = unitModelRange(unit);
       const parts = [];
       if (unit.faction) parts.push(unit.faction);
       if (unit.points) parts.push(`${{unit.points}} pts`);
       parts.push(`Models ${{modelRange}}`);
+      return parts.join(" | ");
+    }}
+
+    function unitModelRange(unit) {{
+      const min = unit.models_min ?? unit.modelsMin;
+      const max = unit.models_max ?? unit.modelsMax;
+      return min && max && min !== max ? `${{min}}-${{max}}` : (min || max || "unknown");
+    }}
+
+    function unitSourceFile(unit) {{
+      return unit ? (unit.source_file || unit.sourceFile || "") : "";
+    }}
+
+    function unitAuditLabel(unit) {{
+      if (!unit) return "";
+      const sourceFile = unitSourceFile(unit);
+      const parts = [];
       if (sourceFile) parts.push(`Source ${{sourceFile}}`);
       if (unit.id) parts.push(`ID ${{unit.id}}`);
       return parts.join(" | ");
@@ -416,7 +1020,12 @@ def _local_script(data: dict[str, Any]) -> str:
     function updateSelectedUnitInfo(field) {{
       const target = el(`${{field}}-selected`);
       const unit = selectedUnit(field);
-      target.textContent = unit ? unitVariantLabel(unit) : "";
+      if (!unit) {{
+        target.textContent = "";
+        return;
+      }}
+      const audit = unitAuditLabel(unit);
+      target.innerHTML = `${{escapeHtml(unitVariantLabel(unit))}}${{audit ? ` <details><summary>Details</summary><span>${{escapeHtml(audit)}}</span></details>` : ""}}`;
     }}
 
     function updateSelectedUnitInfos() {{
@@ -427,35 +1036,73 @@ def _local_script(data: dict[str, Any]) -> str:
     function closeDropdown(field = state.openMenu) {{
       if (!field) return;
       el(`${{field}}-menu`).classList.remove("open");
+      el(`${{field}}-menu`).closest(".unit-combo")?.classList.remove("menu-open");
       el(field).setAttribute("aria-expanded", "false");
+      document.querySelector(`.combo-toggle[data-target="${{field}}"]`)?.setAttribute("aria-expanded", "false");
+      el(field).removeAttribute("aria-activedescendant");
+      state.activeOptionIndex[field] = -1;
       if (state.openMenu === field) state.openMenu = null;
     }}
 
-    function renderDropdown(field, units) {{
-      const menu = el(`${{field}}-menu`);
-      const rows = units.slice(0, 80);
-      if (!rows.length) {{
-        menu.innerHTML = `<button class="combo-option" type="button" disabled>No matching units</button>`;
+    function dropdownOptions(field) {{
+      return [...el(`${{field}}-options`).querySelectorAll(".combo-option:not([aria-disabled='true'])")];
+    }}
+
+    function setActiveOption(field, index) {{
+      const options = dropdownOptions(field);
+      if (!options.length) {{
+        state.activeOptionIndex[field] = -1;
+        el(field).removeAttribute("aria-activedescendant");
         return;
       }}
-      menu.innerHTML = rows.map((unit) => `
-        <button class="combo-option" type="button" role="option" data-unit="${{escapeHtml(unit.name)}}" data-unit-id="${{escapeHtml(unit.id || "")}}">
+      const bounded = Math.max(0, Math.min(options.length - 1, index));
+      state.activeOptionIndex[field] = bounded;
+      options.forEach((option, optionIndex) => {{
+        const active = optionIndex === bounded;
+        option.classList.toggle("active", active);
+        option.setAttribute("aria-selected", active ? "true" : "false");
+      }});
+      el(field).setAttribute("aria-activedescendant", options[bounded].id);
+      options[bounded].scrollIntoView({{ block: "nearest" }});
+    }}
+
+    function selectDropdownOption(field, button) {{
+      el(field).value = button.dataset.unit;
+      state.selectedUnitIds[field] = button.dataset.unitId || null;
+      updateSelectedUnitInfo(field);
+      closeDropdown(field);
+      refreshWeaponSelectors().catch((error) => {{
+        el("error").textContent = error.message;
+      }});
+    }}
+
+    function renderDropdown(field, units) {{
+      const menu = el(`${{field}}-options`);
+      const rows = units.slice(0, 80);
+      const count = el(`${{field}}-menu-count`);
+      if (count) {{
+        count.textContent = units.length > rows.length
+          ? `Showing first ${{rows.length}} of ${{units.length}} matches. Type to narrow.`
+          : `${{units.length}} matching ${{units.length === 1 ? "unit" : "units"}}`;
+      }}
+      if (!rows.length) {{
+        menu.innerHTML = `<div class="combo-option" role="option" aria-disabled="true">No matching units</div>`;
+        return;
+      }}
+      menu.innerHTML = rows.map((unit, index) => `
+        <div class="combo-option" id="${{field}}-option-${{index}}" role="option" aria-selected="false" tabindex="-1" data-unit="${{escapeHtml(unit.name)}}" data-unit-id="${{escapeHtml(unit.id || "")}}">
           ${{escapeHtml(unit.name)}}
           <span>${{escapeHtml(optionSubtitle(unit))}}</span>
-        </button>
+        </div>
       `).join("");
-      menu.querySelectorAll(".combo-option").forEach((button) => {{
-        button.addEventListener("mousedown", (event) => {{
+      menu.querySelectorAll(".combo-option").forEach((option) => {{
+        option.addEventListener("mousedown", (event) => {{
           event.preventDefault();
-          el(field).value = button.dataset.unit;
-          state.selectedUnitIds[field] = button.dataset.unitId || null;
-          updateSelectedUnitInfo(field);
-          closeDropdown(field);
-          refreshWeaponSelectors().catch((error) => {{
-            el("error").textContent = error.message;
-          }});
+          selectDropdownOption(field, option);
         }});
       }});
+      const selectedIndex = rows.findIndex((unit) => unit.id && unit.id === state.selectedUnitIds[field]);
+      setActiveOption(field, selectedIndex >= 0 ? selectedIndex : 0);
     }}
 
     async function refreshWeaponSelectors() {{
@@ -494,6 +1141,8 @@ def _local_script(data: dict[str, Any]) -> str:
       if (state.openMenu && state.openMenu !== field) closeDropdown(state.openMenu);
       state.openMenu = field;
       el(field).setAttribute("aria-expanded", "true");
+      document.querySelector(`.combo-toggle[data-target="${{field}}"]`)?.setAttribute("aria-expanded", "true");
+      el(`${{field}}-menu`).closest(".unit-combo")?.classList.add("menu-open");
       const units = await searchUnits(el(field).value);
       renderDropdown(field, units);
       el(`${{field}}-menu`).classList.add("open");
@@ -890,10 +1539,11 @@ def _local_script(data: dict[str, Any]) -> str:
         ? `The advisory model classifies ${{winner}} as favoured.`
         : "The advisory model classifies this as close.";
       const confidenceBasis = prediction.probabilities ? "probability-based" : "distance-based";
+      const confidenceText = `${{Math.round(prediction.confidence * 100)}}% model confidence`;
       result.ml_judgement = {{
         available: true,
-        title: winner ? `ML advisory: ${{winner}} (${{Math.round(prediction.confidence * 100)}}%)` : `ML advisory: close matchup (${{Math.round(prediction.confidence * 100)}}%)`,
-        body: `${{outcome}} Confidence is ${{confidenceBasis}} at ${{Math.round(prediction.confidence * 100)}}%; model has ${{accuracyText}}. Use this as an advisory signal only, not a rules result.`,
+        title: winner ? `ML advisory: ${{winner}} favoured (${{confidenceText}})` : `ML advisory: close matchup (${{confidenceText}})`,
+        body: `${{outcome}} Model confidence is ${{confidenceBasis}} at ${{Math.round(prediction.confidence * 100)}}%; model has ${{accuracyText}}. Use this as an advisory signal only, not a rules result.`,
         winner_label: label,
         winner,
         confidence: prediction.confidence,
@@ -1052,6 +1702,7 @@ def _local_script(data: dict[str, Any]) -> str:
 
     async function calculate() {{
       el("error").textContent = "";
+      closeDropdown();
       if (!el("attacker").value.trim() || !el("defender").value.trim()) {{
         el("error").textContent = "Choose both units.";
         return;
@@ -1081,6 +1732,9 @@ def _local_script(data: dict[str, Any]) -> str:
           incoming: evaluateUnit(defender, attacker, mode, incomingContext, el("incoming-weapon").value, el("incoming-multiplier").value)
         }};
         renderResults(attachMlJudgement(result, attacker, defender));
+        if (window.matchMedia("(max-width: 840px)").matches) {{
+          el("results").scrollIntoView({{ behavior: "smooth", block: "start" }});
+        }}
       }} catch (error) {{
         el("error").textContent = error.message;
       }} finally {{
@@ -1090,10 +1744,9 @@ def _local_script(data: dict[str, Any]) -> str:
 
     function renderUnit(unit, label) {{
       const keywords = (unit.keywords || []).slice(0, 8).map((keyword) => `<span class="chip">${{escapeHtml(keyword)}}</span>`).join("");
-      const modelRange = unit.models_min && unit.models_max && unit.models_min !== unit.models_max
-        ? `${{unit.models_min}}-${{unit.models_max}}`
-        : (unit.models_min || unit.models_max || "unknown");
-      const sourceLine = unit.source_file ? `<div class="small">Source ${{escapeHtml(unit.source_file)}}</div>` : "";
+      const modelRange = unitModelRange(unit);
+      const sourceFile = unitSourceFile(unit);
+      const sourceLine = sourceFile ? `<div class="small">Source ${{escapeHtml(sourceFile)}}</div>` : "";
       return `
         <div class="unit-pane">
           <div class="small">${{escapeHtml(label)}}</div>
@@ -1239,25 +1892,27 @@ def _local_script(data: dict[str, Any]) -> str:
       const outgoing = payload.outgoing;
       const incoming = payload.incoming;
       const judgement = matchupJudgement(payload);
+      const netDamage = Number(outgoing.total_damage || 0) - Number(incoming.total_damage || 0);
+      const netPoints = Number(outgoing.estimated_points_removed || 0) - Number(incoming.estimated_points_removed || 0);
       el("results").innerHTML = `
-        <div class="summary">
-          ${{metric("Outgoing damage", fmt(outgoing.total_damage))}}
-          ${{metric("Outgoing models", fmt(outgoing.expected_models_destroyed))}}
-          ${{metric("Outgoing points", fmt(outgoing.estimated_points_removed))}}
-          ${{metric("Return damage", fmt(incoming.total_damage))}}
-          ${{metric("Return models", fmt(incoming.expected_models_destroyed))}}
-          ${{metric("Return points", fmt(incoming.estimated_points_removed))}}
-        </div>
-        <div class="duel">
-          ${{renderUnit(payload.attacker, "Attacker")}}
-          ${{renderUnit(payload.defender, "Defender")}}
-        </div>
-        <div class="judgement">
+        <div class="judgement primary">
           <h3>${{escapeHtml(judgement.title)}}</h3>
           <p>${{escapeHtml(judgement.body)}}</p>
           <p class="small">Edition: ${{escapeHtml(editionLabel(payload.edition || state.rulesEdition))}} | Attacker scope: ${{escapeHtml(scopeText(payload, "outgoing"))}} | Return scope: ${{escapeHtml(scopeText(payload, "incoming"))}}</p>
         </div>
         ${{renderMlJudgement(payload)}}
+        <div class="summary">
+          ${{metric("Net points", signedFmt(netPoints))}}
+          ${{metric("Net damage", signedFmt(netDamage))}}
+          ${{metric("Outgoing damage", fmt(outgoing.total_damage))}}
+          ${{metric("Return damage", fmt(incoming.total_damage))}}
+          ${{metric("Outgoing models", fmt(outgoing.expected_models_destroyed))}}
+          ${{metric("Return models", fmt(incoming.expected_models_destroyed))}}
+        </div>
+        <div class="duel">
+          ${{renderUnit(payload.attacker, "Attacker")}}
+          ${{renderUnit(payload.defender, "Defender")}}
+        </div>
         ${{renderLoadoutWarnings(payload)}}
         ${{renderWeaponList(outgoing, `${{payload.attacker.name}} attack`, `No ${{payload.mode}} weapons found for ${{payload.attacker.name}}.`)}}
         ${{renderWeaponList(incoming, `${{payload.defender.name}} return strike`, `No ${{payload.mode}} weapons found for ${{payload.defender.name}}.`)}}
@@ -1323,6 +1978,8 @@ def _local_script(data: dict[str, Any]) -> str:
           ${{editionStatus ? metric("Edition status", escapeHtml(editionStatus.status || "unknown")) : ""}}
           ${{verificationReport ? metric("Verified checks", `${{verificationReport.ok_count || 0}}/${{verificationReport.artifact_count || 0}}`) : ""}}
         </div>
+        ${{renderReviewNav()}}
+        ${{renderReviewTools()}}
         ${{renderProvenance(artifactManifest, verificationReport, metadata)}}
         ${{renderEditionStatus(editionStatus)}}
         ${{renderEditionReadiness(editionReadiness)}}
@@ -1342,6 +1999,118 @@ def _local_script(data: dict[str, Any]) -> str:
         ${{renderDiff(diff)}}
         ${{renderAuditSections(audit)}}
       `;
+      wireDataReviewFilters();
+    }}
+
+    function renderReviewNav() {{
+      const links = [
+        ["#review-provenance", "Provenance"],
+        ["#review-schema", "Schema"],
+        ["#review-weapons", "Suspicious Weapons"],
+        ["#review-loadouts", "Loadouts"],
+        ["#review-ml", "ML"],
+        ["#review-files", "Raw Reports"]
+      ].map(([href, label]) => `<a href="${{href}}">${{label}}</a>`).join("");
+      return `<nav class="review-nav" aria-label="Data review sections">${{links}}</nav>`;
+    }}
+
+    function renderReviewTools() {{
+      return `
+        <div class="review-tools" aria-label="Data review filters">
+          <label>
+            Search review data
+            <input id="data-review-search" type="search" placeholder="Unit, weapon, source, reason" autocomplete="off">
+          </label>
+          <label>
+            Status
+            <select id="data-review-status">
+              <option value="">All statuses</option>
+              <option value="problem">Problems</option>
+              <option value="error">Errors / failed</option>
+              <option value="warning">Warnings</option>
+              <option value="ok">OK / info</option>
+            </select>
+          </label>
+          <button id="data-review-clear" type="button">Reset</button>
+          <div class="review-filter-status" id="data-review-filter-status" aria-live="polite"></div>
+        </div>
+        <div class="review-filter-empty" id="data-review-filter-empty">No review rows match the current filters.</div>
+      `;
+    }}
+
+    function wireDataReviewFilters() {{
+      const search = el("data-review-search");
+      const status = el("data-review-status");
+      const clear = el("data-review-clear");
+      if (!search || !status || !clear) return;
+      const apply = () => applyDataReviewFilters(search.value, status.value);
+      search.addEventListener("input", apply);
+      status.addEventListener("change", apply);
+      clear.addEventListener("click", () => {{
+        search.value = "";
+        status.value = "";
+        apply();
+        search.focus();
+      }});
+      apply();
+    }}
+
+    function statusMatches(text, filter) {{
+      const normalized = String(text || "").toLowerCase();
+      if (!filter) return true;
+      if (filter === "problem") return /error|fail|failed|warning/.test(normalized);
+      if (filter === "error") return /error|fail|failed/.test(normalized);
+      if (filter === "warning") return normalized.includes("warning");
+      if (filter === "ok") return /ok|pass|info/.test(normalized);
+      return true;
+    }}
+
+    function applyDataReviewFilters(queryValue, statusValue) {{
+      const query = String(queryValue || "").trim().toLowerCase();
+      const sections = [...document.querySelectorAll("#results .review-section")];
+      let visibleSections = 0;
+      let visibleRows = 0;
+      let totalRows = 0;
+
+      sections.forEach((section) => {{
+        const rows = [...section.querySelectorAll("tbody tr")];
+        const dataRows = rows.filter((row) => !(row.cells.length === 1 && row.cells[0].colSpan > 1));
+        const sectionTitleMatches = Boolean(query && section.querySelector("h3") && section.querySelector("h3").textContent.toLowerCase().includes(query));
+        let sectionRowsVisible = 0;
+
+        if (dataRows.length) {{
+          rows.forEach((row) => {{
+            const isEmptyRow = row.cells.length === 1 && row.cells[0].colSpan > 1;
+            if (isEmptyRow) {{
+              row.hidden = Boolean(query || statusValue);
+              return;
+            }}
+            totalRows += 1;
+            const text = row.textContent.toLowerCase();
+            const statusText = row.cells[0] ? row.cells[0].textContent : "";
+            const visible = (!query || text.includes(query) || sectionTitleMatches) && statusMatches(statusText, statusValue);
+            row.hidden = !visible;
+            if (visible) {{
+              sectionRowsVisible += 1;
+              visibleRows += 1;
+            }}
+          }});
+          section.hidden = sectionRowsVisible === 0;
+        }} else {{
+          const visible = (!query || section.textContent.toLowerCase().includes(query)) && !statusValue;
+          section.hidden = !visible;
+        }}
+
+        if (!section.hidden) visibleSections += 1;
+      }});
+
+      const status = el("data-review-filter-status");
+      if (status) {{
+        const rowText = totalRows ? `${{visibleRows}} of ${{totalRows}} table rows` : "no table rows";
+        status.textContent = `${{visibleSections}} review sections visible, ${{rowText}} visible`;
+      }}
+      const empty = el("data-review-filter-empty");
+      if (empty) empty.classList.toggle("visible", visibleSections === 0);
     }}
 
     function renderSuspiciousWeapons(summary) {{
@@ -1367,7 +2136,7 @@ def _local_script(data: dict[str, Any]) -> str:
         </tr>
       `).join("");
       return `
-        <div class="review-section">
+        <div class="review-section" id="review-weapons">
           <h3>Suspicious Weapon Profiles</h3>
           <div class="provenance-grid">
             ${{provenanceCard("Rows needing review", summary.total || 0, `Showing first ${{Math.min((summary.rows || []).length, summary.row_limit || 0)}} rows`)}}
@@ -1397,7 +2166,7 @@ def _local_script(data: dict[str, Any]) -> str:
         </tr>
       `).join("");
       return `
-        <div class="review-section">
+        <div class="review-section" id="review-schema">
           <h3>Schema Review</h3>
           <div class="provenance-grid">
             ${{provenanceCard("Tables reviewed", summary.total || 0, `Showing first ${{Math.min((summary.rows || []).length, summary.row_limit || 0)}} rows`)}}
@@ -1474,7 +2243,7 @@ def _local_script(data: dict[str, Any]) -> str:
         </tr>
       `).join("");
       return `
-        <div class="review-section">
+        <div class="review-section" id="review-loadouts">
           <h3>Loadout Complexity</h3>
           <div class="provenance-grid">
             ${{provenanceCard("Rows reviewed", summary.total || 0, `Showing first ${{Math.min((summary.rows || []).length, summary.row_limit || 0)}} rows`)}}
@@ -1626,7 +2395,7 @@ def _local_script(data: dict[str, Any]) -> str:
       const commit = source.commit || metadataSource.commit || "";
       const generatedAt = manifest && manifest.generated_at ? manifest.generated_at : (metadata && metadata.generated_at ? metadata.generated_at : "");
       return `
-        <div class="review-section">
+        <div class="review-section" id="review-provenance">
           <h3>Data & ML Provenance</h3>
           <div class="provenance-grid">
             ${{provenanceCard("Source commit", commit ? commit.slice(0, 12) : "unknown", source.remote_origin || metadataSource.remote_origin || "")}}
@@ -1725,7 +2494,7 @@ def _local_script(data: dict[str, Any]) -> str:
         </a>
       `).join("");
       return `
-        <div class="review-section">
+        <div class="review-section" id="review-files">
           <h3>Review Files</h3>
           <div class="review-links">${{links}}</div>
         </div>
@@ -1757,7 +2526,7 @@ def _local_script(data: dict[str, Any]) -> str:
 
     function renderModelAudit(modelAudit) {{
       if (!modelAudit) return "";
-      return renderMarkdownReport("ML Model Audit", modelAudit);
+      return renderMarkdownReport("ML Model Audit", modelAudit, "review-ml");
     }}
 
     function renderModelComparison(modelComparison) {{
@@ -1765,9 +2534,9 @@ def _local_script(data: dict[str, Any]) -> str:
       return renderMarkdownReport("ML Model Comparison", modelComparison);
     }}
 
-    function renderMarkdownReport(title, markdown) {{
+    function renderMarkdownReport(title, markdown, sectionId = "") {{
       return `
-        <div class="review-section">
+        <div class="review-section"${{sectionId ? ` id="${{escapeHtml(sectionId)}}"` : ""}}>
           <h3>${{escapeHtml(title)}}</h3>
           <div class="report-markdown">${{markdownToHtml(markdown)}}</div>
         </div>
@@ -1923,6 +2692,7 @@ def _local_script(data: dict[str, Any]) -> str:
 
     function wireEvents() {{
       el("calculate").addEventListener("click", calculate);
+      el("battlefield").addEventListener("click", () => showBattlefield().catch(showBattlefieldError));
       el("data-review").addEventListener("click", showDataReview);
       el("swap").addEventListener("click", () => {{
         const attacker = el("attacker").value;
@@ -1941,9 +2711,21 @@ def _local_script(data: dict[str, Any]) -> str:
         el("error").textContent = error.message;
       }}));
       document.querySelectorAll(".combo-toggle").forEach((button) => {{
-        button.addEventListener("click", () => openDropdown(button.dataset.target).catch((error) => {{
-          el("error").textContent = error.message;
-        }}));
+        button.addEventListener("click", () => {{
+          const target = button.dataset.target;
+          if (state.openMenu === target) {{
+            closeDropdown(target);
+            return;
+          }}
+          openDropdown(target).catch((error) => {{
+            el("error").textContent = error.message;
+          }});
+        }});
+      }});
+      document.querySelectorAll(".combo-done").forEach((button) => {{
+        button.addEventListener("click", () => {{
+          closeDropdown(button.dataset.target);
+        }});
       }});
       document.addEventListener("click", (event) => {{
         if (state.openMenu && !event.target.closest(".unit-combo")) closeDropdown();
@@ -1972,8 +2754,28 @@ def _local_script(data: dict[str, Any]) -> str:
           }});
         }});
         el(id).addEventListener("keydown", (event) => {{
-          if (event.key === "Enter") calculate();
-          if (event.key === "Escape") closeDropdown(id);
+          const menuOpen = state.openMenu === id && el(`${{id}}-menu`).classList.contains("open");
+          if (event.key === "ArrowDown" || event.key === "ArrowUp") {{
+            event.preventDefault();
+            const direction = event.key === "ArrowDown" ? 1 : -1;
+            if (!menuOpen) {{
+              openDropdown(id).catch((error) => {{
+                el("error").textContent = error.message;
+              }});
+              return;
+            }}
+            setActiveOption(id, state.activeOptionIndex[id] + direction);
+          }} else if (event.key === "Enter") {{
+            if (menuOpen && state.activeOptionIndex[id] >= 0) {{
+              event.preventDefault();
+              const option = dropdownOptions(id)[state.activeOptionIndex[id]];
+              if (option) selectDropdownOption(id, option);
+            }} else {{
+              calculate();
+            }}
+          }} else if (event.key === "Escape") {{
+            closeDropdown(id);
+          }}
         }});
       }}
     }}

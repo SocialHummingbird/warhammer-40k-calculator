@@ -75,19 +75,33 @@ def create_handler(state: AppState) -> type[SimpleHTTPRequestHandler]:
                     return
                 self._send_json(payload)
                 return
+            if parsed.path == "/api/battlefield/templates":
+                self._send_json(web_api_service.battlefield_templates_payload())
+                return
             if parsed.path in {"", "/"}:
                 self.path = "/index.html"
             return super().do_GET()
 
         def do_POST(self) -> None:
             parsed = urlparse(self.path)
-            if parsed.path != "/api/calculate":
+            battlefield_routes = {
+                "/api/army/validate": web_api_service.battlefield_validate_army_payload,
+                "/api/battlefield/state/validate": web_api_service.battlefield_validate_state_payload,
+                "/api/battlefield/actions": web_api_service.battlefield_actions_payload,
+                "/api/battlefield/resolve": web_api_service.battlefield_resolve_payload,
+                "/api/battlefield/ai-plan": web_api_service.battlefield_ai_plan_payload,
+                "/api/battlefield/autoplay": web_api_service.battlefield_autoplay_payload,
+            }
+            if parsed.path != "/api/calculate" and parsed.path not in battlefield_routes:
                 self._send_error(HTTPStatus.NOT_FOUND, "Unknown endpoint")
                 return
 
             try:
                 payload = self._read_json()
-                result_payload = calculate_from_payload(payload, state=state)
+                if parsed.path == "/api/calculate":
+                    result_payload = calculate_from_payload(payload, state=state)
+                else:
+                    result_payload = battlefield_routes[parsed.path](payload, state=state)
             except KeyError as exc:
                 self._send_error(HTTPStatus.NOT_FOUND, f"Unknown unit: {exc.args[0]}")
                 return

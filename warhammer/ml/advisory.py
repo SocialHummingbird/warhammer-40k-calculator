@@ -80,9 +80,10 @@ def _winner_name(label: str, *, attacker: UnitProfile, defender: UnitProfile) ->
 
 
 def _title(label: str, winner: str, confidence: float) -> str:
+    confidence_text = f"{confidence:.0%} model confidence"
     if label == "close" or not winner:
-        return f"ML advisory: close matchup ({confidence:.0%})"
-    return f"ML advisory: {winner} ({confidence:.0%})"
+        return f"ML advisory: close matchup ({confidence_text})"
+    return f"ML advisory: {winner} favoured ({confidence_text})"
 
 
 def _body(label: str, winner: str, confidence: float, model: dict[str, Any]) -> str:
@@ -94,7 +95,7 @@ def _body(label: str, winner: str, confidence: float, model: dict[str, Any]) -> 
     else:
         outcome = f"The advisory model classifies {winner} as favoured."
     return (
-        f"{outcome} Confidence is {confidence_basis} at {confidence:.0%}; model has {accuracy_text}. "
+        f"{outcome} Model confidence is {confidence_basis} at {confidence:.0%}; model has {accuracy_text}. "
         "Use this as an advisory signal only, not a rules result."
     )
 

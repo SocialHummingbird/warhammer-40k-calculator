@@ -140,8 +140,7 @@
       left: 0;
       right: 0;
       top: calc(100% + 4px);
-      max-height: min(280px, 42vh);
-      overflow: auto;
+      overflow: hidden;
       border: 1px solid #b9c7d6;
       border-radius: 8px;
       background: #fff;
@@ -151,6 +150,50 @@
 
     .combo-menu.open {
       display: block;
+    }
+
+    .unit-combo.menu-open .combo-menu {
+      position: static;
+      margin-top: 4px;
+      width: 100%;
+    }
+
+    .combo-menu-head {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 8px 10px;
+      border-bottom: 1px solid var(--line);
+      background: #f7fafc;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .combo-done {
+      min-height: 30px;
+      padding: 0 10px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fff;
+      color: var(--blue);
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .combo-options {
+      max-height: min(280px, 42vh);
+      overflow: auto;
+    }
+
+    .combo-footer {
+      padding: 7px 10px;
+      border-top: 1px solid var(--line);
+      background: #f7fafc;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
     }
 
     .combo-option {
@@ -513,6 +556,72 @@
       font-weight: 800;
     }
 
+    .review-tools {
+      display: grid;
+      grid-template-columns: minmax(220px, 1fr) 180px auto;
+      gap: 10px;
+      align-items: end;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--line);
+      background: #fff;
+    }
+
+    .review-tools label {
+      display: grid;
+      gap: 5px;
+      margin: 0;
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+
+    .review-tools input,
+    .review-tools select {
+      height: 36px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 0 10px;
+      background: #fff;
+      color: var(--ink);
+      font: inherit;
+      font-size: 13px;
+    }
+
+    .review-tools button {
+      height: 36px;
+      padding: 0 12px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #edf2f7;
+      color: var(--ink);
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .review-filter-status {
+      grid-column: 1 / -1;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .review-filter-empty {
+      display: none;
+      margin: 14px 16px;
+      padding: 18px;
+      border: 1px dashed var(--line);
+      border-radius: 8px;
+      background: #f7fafc;
+      color: var(--muted);
+      font-weight: 800;
+      text-align: center;
+    }
+
+    .review-filter-empty.visible {
+      display: block;
+    }
+
     .review-link {
       display: inline-flex;
       align-items: center;
@@ -798,6 +907,154 @@
       font-weight: 700;
     }
 
+    .battlefield {
+      padding: 16px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .battlefield-toolbar,
+    .battlefield-armies,
+    .battlefield-panels {
+      display: grid;
+      gap: 10px;
+    }
+
+    .battlefield-toolbar {
+      grid-template-columns: minmax(160px, 1fr) repeat(5, auto);
+      align-items: end;
+    }
+
+    .battlefield-armies,
+    .battlefield-panels {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .army-card,
+    .battle-panel {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      padding: 12px;
+    }
+
+    .army-card h3,
+    .battle-panel h3 {
+      margin: 0 0 8px;
+      font-size: 14px;
+    }
+
+    .army-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 76px 38px;
+      gap: 8px;
+      align-items: end;
+      margin-top: 8px;
+    }
+
+    .army-row label {
+      margin-top: 0;
+    }
+
+    .army-remove {
+      min-height: 38px;
+      padding: 0;
+      border: 1px solid var(--line);
+      background: var(--soft);
+      color: var(--red);
+    }
+
+    .battlefield-board-wrap {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #f7fafc;
+      overflow: hidden;
+    }
+
+    .battlefield-board {
+      width: 100%;
+      min-height: 440px;
+      display: block;
+      touch-action: none;
+    }
+
+    .bf-terrain {
+      fill: #d5e0cf;
+      stroke: #81906f;
+      stroke-width: .35;
+    }
+
+    .bf-terrain.ruin {
+      fill: #d9dde3;
+      stroke: #667483;
+    }
+
+    .bf-objective {
+      fill: rgba(170, 122, 30, .18);
+      stroke: var(--gold);
+      stroke-width: .45;
+    }
+
+    .bf-unit {
+      cursor: grab;
+      stroke: #fff;
+      stroke-width: .55;
+    }
+
+    .bf-unit.selected {
+      stroke: var(--gold);
+      stroke-width: 1.1;
+    }
+
+    .bf-unit.red { fill: var(--red); }
+    .bf-unit.blue { fill: var(--blue); }
+    .bf-unit.destroyed { opacity: .25; }
+
+    .bf-label {
+      fill: #111820;
+      font-size: 2.4px;
+      font-weight: 800;
+      pointer-events: none;
+      text-anchor: middle;
+    }
+
+    .battle-log {
+      display: grid;
+      gap: 8px;
+      max-height: 320px;
+      overflow: auto;
+    }
+
+    .battle-log-entry {
+      border-left: 4px solid var(--steel);
+      background: var(--soft);
+      padding: 8px 10px;
+      font-size: 13px;
+    }
+
+    .battle-log-entry.red { border-color: var(--red); }
+    .battle-log-entry.blue { border-color: var(--blue); }
+
+    .unit-inspector {
+      display: grid;
+      gap: 8px;
+    }
+
+    .inspector-weapons {
+      display: grid;
+      gap: 5px;
+      max-height: 170px;
+      overflow: auto;
+    }
+
+    .inspector-weapon {
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 6px 8px;
+      background: var(--soft);
+      font-size: 12px;
+    }
+
     @media (max-width: 840px) {
       main { grid-template-columns: 1fr; }
       .summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -811,8 +1068,14 @@
       .diff-row > div { border-right: 0; }
       .provenance-grid { grid-template-columns: 1fr; }
       .check-row { grid-template-columns: 1fr; }
-      .combo-menu { max-height: 240px; }
+      .combo-menu-head { display: flex; }
+      .combo-options { max-height: 220px; }
       .actions { flex-wrap: wrap; }
+      .review-tools { grid-template-columns: 1fr; }
+      .battlefield-toolbar,
+      .battlefield-armies,
+      .battlefield-panels { grid-template-columns: 1fr; }
+      .battlefield-board { min-height: 320px; }
     }
   </style>
 </head>
@@ -830,20 +1093,28 @@
       <label for="attacker">Attacker</label>
       <div class="unit-combo" data-field="attacker">
         <div class="combo-row">
-          <input id="attacker" data-testid="attacker-input" autocomplete="off" role="combobox" aria-autocomplete="list" aria-haspopup="listbox" aria-controls="attacker-menu" aria-expanded="false">
-          <button class="combo-toggle" type="button" data-target="attacker" aria-label="Open attacker menu">▼</button>
+          <input id="attacker" data-testid="attacker-input" autocomplete="off" role="combobox" aria-autocomplete="list" aria-haspopup="listbox" aria-controls="attacker-options" aria-expanded="false">
+          <button class="combo-toggle" type="button" data-target="attacker" aria-label="Open attacker menu" aria-controls="attacker-options" aria-expanded="false">▼</button>
         </div>
-        <div class="combo-menu" id="attacker-menu" role="listbox"></div>
+        <div class="combo-menu" id="attacker-menu">
+          <div class="combo-menu-head"><span>Choose attacker</span><button class="combo-done" type="button" data-target="attacker">Done</button></div>
+          <div class="combo-options" id="attacker-options" role="listbox"></div>
+          <div class="combo-footer" id="attacker-menu-count"></div>
+        </div>
         <div class="selected-unit-info" id="attacker-selected" data-testid="attacker-selected"></div>
       </div>
 
       <label for="defender">Defender</label>
       <div class="unit-combo" data-field="defender">
         <div class="combo-row">
-          <input id="defender" data-testid="defender-input" autocomplete="off" role="combobox" aria-autocomplete="list" aria-haspopup="listbox" aria-controls="defender-menu" aria-expanded="false">
-          <button class="combo-toggle" type="button" data-target="defender" aria-label="Open defender menu">▼</button>
+          <input id="defender" data-testid="defender-input" autocomplete="off" role="combobox" aria-autocomplete="list" aria-haspopup="listbox" aria-controls="defender-options" aria-expanded="false">
+          <button class="combo-toggle" type="button" data-target="defender" aria-label="Open defender menu" aria-controls="defender-options" aria-expanded="false">▼</button>
         </div>
-        <div class="combo-menu" id="defender-menu" role="listbox"></div>
+        <div class="combo-menu" id="defender-menu">
+          <div class="combo-menu-head"><span>Choose defender</span><button class="combo-done" type="button" data-target="defender">Done</button></div>
+          <div class="combo-options" id="defender-options" role="listbox"></div>
+          <div class="combo-footer" id="defender-menu-count"></div>
+        </div>
         <div class="selected-unit-info" id="defender-selected" data-testid="defender-selected"></div>
       </div>
 
@@ -867,6 +1138,7 @@
       <div class="actions">
         <button id="calculate" type="button" data-testid="calculate-button">Calculate</button>
         <button id="swap" class="secondary" type="button" data-testid="swap-button">Swap</button>
+        <button id="battlefield" class="secondary" type="button" data-testid="battlefield-button">Battlefield</button>
         <button id="data-review" class="tertiary" type="button" data-testid="data-review-button">Data Review</button>
       </div>
 
@@ -930,12 +1202,28 @@
       rulesEdition: "10e",
       supportedRulesEditions: ["10e"],
       availableEditions: [],
-      rulesets: {}
+      rulesets: {},
+      battlefield: {
+        templates: [],
+        selectedTemplate: "strike_force_44x60",
+        redUnitId: null,
+        blueUnitId: null,
+        redCount: 1,
+        blueCount: 1,
+        armyRows: { red: [], blue: [] },
+        state: null,
+        plan: null,
+        validation: null,
+        dragging: null,
+        selectedInstanceId: null,
+        selectedUnitDetail: null
+      }
     };
 
     const el = (id) => document.getElementById(id);
     const hasNumber = (value) => value !== null && value !== undefined && value !== "" && Number.isFinite(Number(value));
     const fmt = (value) => hasNumber(value) ? Number(value).toFixed(2) : "n/a";
+    const signedFmt = (value) => hasNumber(value) ? `${Number(value) > 0 ? "+" : ""}${Number(value).toFixed(2)}` : "n/a";
     const pct = (value) => `${Math.round(Number(value || 0) * 100)}%`;
     const escapeHtml = (value) => String(value ?? "").replace(/[&<>"']/g, (char) => ({
       "&": "&amp;",
@@ -1046,6 +1334,510 @@
       return api(`/api/data-review?${params}`);
     }
 
+    async function battlefieldPost(path, payload) {
+      return api(path, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ edition: el("edition").value || state.rulesEdition, ...payload })
+      });
+    }
+
+    async function loadBattlefieldTemplates() {
+      if (state.battlefield.templates.length) return state.battlefield.templates;
+      const payload = await api("/api/battlefield/templates");
+      state.battlefield.templates = payload.templates || [];
+      return state.battlefield.templates;
+    }
+
+    async function showBattlefield() {
+      el("error").textContent = "";
+      if (!state.units.length) await loadUnits("");
+      await loadBattlefieldTemplates();
+      ensureBattlefieldUnitSelections();
+      if (!state.battlefield.state) {
+        const payload = await battlefieldPost("/api/battlefield/ai-plan", battlefieldRequestPayload({ limit: 5 }));
+        state.battlefield.state = payload.state;
+        state.battlefield.plan = payload;
+      }
+      renderBattlefield();
+    }
+
+    function ensureBattlefieldUnitSelections() {
+      const selectedAttacker = state.selectedUnitIds.attacker;
+      const selectedDefender = state.selectedUnitIds.defender;
+      const redId = selectedAttacker || state.battlefield.redUnitId || (state.units[0] && state.units[0].id) || null;
+      const fallback = state.units.find((unit) => unit.id !== redId);
+      const blueId = selectedDefender || state.battlefield.blueUnitId || (fallback && fallback.id) || redId;
+      if (!state.battlefield.armyRows.red.length && redId) {
+        state.battlefield.armyRows.red = [{ unitId: redId, count: Math.max(1, Number(state.battlefield.redCount || 1)) }];
+      }
+      if (!state.battlefield.armyRows.blue.length && blueId) {
+        state.battlefield.armyRows.blue = [{ unitId: blueId, count: Math.max(1, Number(state.battlefield.blueCount || 1)) }];
+      }
+      syncLegacyBattlefieldSelections();
+    }
+
+    function battlefieldArmyRows(side) {
+      ensureBattlefieldRowsObject();
+      return state.battlefield.armyRows[side] || [];
+    }
+
+    function ensureBattlefieldRowsObject() {
+      if (!state.battlefield.armyRows) state.battlefield.armyRows = { red: [], blue: [] };
+      if (!Array.isArray(state.battlefield.armyRows.red)) state.battlefield.armyRows.red = [];
+      if (!Array.isArray(state.battlefield.armyRows.blue)) state.battlefield.armyRows.blue = [];
+    }
+
+    function syncLegacyBattlefieldSelections() {
+      const red = battlefieldArmyRows("red")[0] || {};
+      const blue = battlefieldArmyRows("blue")[0] || {};
+      state.battlefield.redUnitId = red.unitId || null;
+      state.battlefield.blueUnitId = blue.unitId || null;
+      state.battlefield.redCount = Math.max(1, Number(red.count || 1));
+      state.battlefield.blueCount = Math.max(1, Number(blue.count || 1));
+    }
+
+    function battlefieldArmies() {
+      ensureBattlefieldUnitSelections();
+      return [
+        { id: "red", name: "Red Army", side: "red", units: battlefieldArmyRows("red").filter((row) => row.unitId).map((row) => ({ unit_id: row.unitId, count: Math.max(1, Number(row.count || 1)) })) },
+        { id: "blue", name: "Blue Army", side: "blue", units: battlefieldArmyRows("blue").filter((row) => row.unitId).map((row) => ({ unit_id: row.unitId, count: Math.max(1, Number(row.count || 1)) })) }
+      ];
+    }
+
+    function battlefieldRequestPayload(extra = {}) {
+      const payload = { template_id: state.battlefield.selectedTemplate, armies: battlefieldArmies(), ...extra };
+      if (state.battlefield.state) payload.state = state.battlefield.state;
+      return payload;
+    }
+
+    async function battlefieldGenerate() {
+      state.battlefield.state = null;
+      state.battlefield.plan = await battlefieldPost("/api/battlefield/ai-plan", battlefieldRequestPayload({ limit: 5 }));
+      state.battlefield.state = state.battlefield.plan.state;
+      renderBattlefield();
+    }
+
+    async function battlefieldValidate() {
+      const red = await battlefieldPost("/api/army/validate", { army: battlefieldArmies()[0] });
+      const blue = await battlefieldPost("/api/army/validate", { army: battlefieldArmies()[1] });
+      const stateValidation = await battlefieldPost("/api/battlefield/state/validate", battlefieldRequestPayload());
+      state.battlefield.validation = { red, blue, state: stateValidation };
+      renderBattlefield();
+    }
+
+    async function battlefieldSuggest() {
+      state.battlefield.plan = await battlefieldPost("/api/battlefield/ai-plan", battlefieldRequestPayload({ limit: 6 }));
+      state.battlefield.state = state.battlefield.plan.state;
+      renderBattlefield();
+    }
+
+    async function battlefieldAutoplay() {
+      const payload = await battlefieldPost("/api/battlefield/autoplay", battlefieldRequestPayload());
+      state.battlefield.state = payload.state;
+      state.battlefield.plan = null;
+      renderBattlefield(payload.replay || []);
+    }
+
+    async function battlefieldResolvePlannedAction(index) {
+      const action = state.battlefield.plan && state.battlefield.plan.actions
+        ? state.battlefield.plan.actions[Number(index)]
+        : null;
+      if (!action) throw new Error("No planned action found.");
+      const payload = await battlefieldPost("/api/battlefield/resolve", battlefieldRequestPayload({ action }));
+      state.battlefield.state = payload.state;
+      state.battlefield.plan = null;
+      renderBattlefield(payload.outcome ? [{ outcome: payload.outcome.log_entry, chosen: payload.outcome.action }] : []);
+    }
+
+    function battlefieldExportJson() {
+      const payload = {
+        format: "battle_state_v1",
+        template_id: state.battlefield.selectedTemplate,
+        armies: battlefieldArmies(),
+        state: state.battlefield.state,
+        exported_at: new Date().toISOString()
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = `battlefield-state-${Date.now()}.json`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(link.href);
+    }
+
+    async function battlefieldImportJson(file) {
+      const text = await file.text();
+      const payload = JSON.parse(text);
+      const importedState = payload.state || payload;
+      if (!importedState || !importedState.map || !Array.isArray(importedState.units)) {
+        throw new Error("Battlefield import must contain a battle_state_v1 state object.");
+      }
+      state.battlefield.state = importedState;
+      state.battlefield.selectedTemplate = importedState.map.id || payload.template_id || state.battlefield.selectedTemplate;
+      const armies = payload.armies || importedState.armies || [];
+      const red = armies.find((army) => army.side === "red");
+      const blue = armies.find((army) => army.side === "blue");
+      state.battlefield.armyRows = {
+        red: red && red.units ? red.units.map((row) => ({ unitId: row.unit_id, count: Math.max(1, Number(row.count || 1)) })) : [],
+        blue: blue && blue.units ? blue.units.map((row) => ({ unitId: row.unit_id, count: Math.max(1, Number(row.count || 1)) })) : []
+      };
+      syncLegacyBattlefieldSelections();
+      state.battlefield.plan = null;
+      state.battlefield.validation = null;
+      state.battlefield.selectedInstanceId = null;
+      state.battlefield.selectedUnitDetail = null;
+      renderBattlefield();
+    }
+
+    function renderBattlefield(replay = null) {
+      const battleState = state.battlefield.state;
+      const templates = state.battlefield.templates;
+      el("results").innerHTML = `
+        <div class="battlefield" data-testid="battlefield-view">
+          <div class="battlefield-toolbar">
+            <div>
+              <label for="battle-template">Map template</label>
+              <select id="battle-template">${templates.map((template) => `<option value="${escapeHtml(template.id)}">${escapeHtml(template.name)}</option>`).join("")}</select>
+            </div>
+            <button id="battle-generate" type="button">Generate map</button>
+            <button id="battle-suggest" class="secondary" type="button">Suggest AI action</button>
+            <button id="battle-autoplay" class="secondary" type="button">Run one AI turn</button>
+            <button id="battle-export" class="tertiary" type="button">Export JSON</button>
+            <button id="battle-import" class="tertiary" type="button">Import JSON</button>
+            <input id="battle-import-file" type="file" accept="application/json,.json" hidden>
+          </div>
+          <div class="battlefield-armies">
+            ${renderArmyBuilder("red", battlefieldArmyRows("red"))}
+            ${renderArmyBuilder("blue", battlefieldArmyRows("blue"))}
+          </div>
+          <button id="battle-validate" class="tertiary" type="button">Validate armies and state</button>
+          ${battleState ? renderBattleBoard(battleState) : `<div class="empty">Generate a battlefield to place units.</div>`}
+          <div class="battlefield-panels">
+            <div class="battle-panel">
+              <h3>Selected unit</h3>
+              ${renderSelectedBattleUnit(battleState)}
+            </div>
+            <div class="battle-panel">
+              <h3>AI planner</h3>
+              ${renderBattlePlan(state.battlefield.plan)}
+            </div>
+            <div class="battle-panel">
+              <h3>Battle log</h3>
+              ${renderBattleLog(battleState, replay)}
+            </div>
+          </div>
+          ${renderBattleValidation(state.battlefield.validation)}
+        </div>
+      `;
+      el("battle-template").value = state.battlefield.selectedTemplate;
+      wireBattlefieldEvents();
+    }
+
+    function renderArmyBuilder(side, rows) {
+      const label = side === "red" ? "Red army" : "Blue army";
+      const armyRows = rows.length ? rows : [{ unitId: "", count: 1 }];
+      return `
+        <div class="army-card ${side}">
+          <h3>${label}</h3>
+          ${armyRows.map((row, index) => renderArmyRow(side, row, index)).join("")}
+          <button class="tertiary battle-add-unit" type="button" data-side="${side}">Add unit</button>
+          <div class="small">${escapeHtml(armySummaryText(armyRows))}</div>
+        </div>
+      `;
+    }
+
+    function renderArmyRow(side, row, index) {
+      return `
+        <div class="army-row" data-side="${side}" data-index="${index}">
+          <div>
+            <label for="battle-${side}-unit-${index}">Unit ${index + 1}</label>
+            <select id="battle-${side}-unit-${index}" class="battle-army-unit" data-side="${side}" data-index="${index}">
+              <option value="">Choose unit</option>
+              ${state.units.map((unit) => `<option value="${escapeHtml(unit.id || "")}">${escapeHtml(unit.name)}${unit.points ? ` (${unit.points} pts)` : ""}</option>`).join("")}
+            </select>
+          </div>
+          <div>
+            <label for="battle-${side}-count-${index}">Copies</label>
+            <input id="battle-${side}-count-${index}" class="battle-army-count" data-side="${side}" data-index="${index}" type="number" min="1" max="12" step="1" value="${Math.max(1, Number(row.count || 1))}">
+          </div>
+          <button class="army-remove" type="button" data-side="${side}" data-index="${index}" aria-label="Remove unit row">X</button>
+        </div>
+      `;
+    }
+
+    function renderBattleBoard(battleState) {
+      const battleMap = battleState.map;
+      const viewBox = `0 0 ${battleMap.width} ${battleMap.height}`;
+      const terrain = (battleMap.terrain || []).map((feature) => `
+        <rect class="bf-terrain ${escapeHtml(feature.type)}" x="${feature.x}" y="${feature.y}" width="${feature.width}" height="${feature.height}">
+          <title>${escapeHtml(feature.name)}: ${feature.grants_cover ? "cover" : "no cover"}</title>
+        </rect>
+      `).join("");
+      const objectives = (battleMap.objectives || []).map((objective) => `
+        <circle class="bf-objective" cx="${objective.x}" cy="${objective.y}" r="${objective.radius}">
+          <title>${escapeHtml(objective.name)} objective</title>
+        </circle>
+      `).join("");
+      const units = (battleState.units || []).map((unit) => `
+        <g data-unit-id="${escapeHtml(unit.instance_id)}">
+          <circle class="bf-unit ${escapeHtml(unit.side)} ${(unit.status_flags || []).includes("destroyed") ? "destroyed" : ""} ${state.battlefield.selectedInstanceId === unit.instance_id ? "selected" : ""}" cx="${unit.x}" cy="${unit.y}" r="${unit.radius}" data-unit-id="${escapeHtml(unit.instance_id)}">
+            <title>${escapeHtml(unit.name)}: ${unit.models_remaining} models, ${fmt(unit.wounds_remaining)} wounds</title>
+          </circle>
+          <text class="bf-label" x="${unit.x}" y="${Number(unit.y) + Number(unit.radius) + 2.8}">${escapeHtml(shortUnitLabel(unit.name))}</text>
+        </g>
+      `).join("");
+      return `
+        <div class="battlefield-board-wrap">
+          <svg class="battlefield-board" id="battle-board" viewBox="${viewBox}" data-width="${battleMap.width}" data-height="${battleMap.height}" role="img" aria-label="${escapeHtml(battleMap.name)} battlefield">
+            <rect x="0" y="0" width="${battleMap.width}" height="${battleMap.height}" fill="#f7fafc"></rect>
+            ${terrain}
+            ${objectives}
+            ${units}
+          </svg>
+        </div>
+        <div class="small">Score: Red ${battleState.score?.red || 0} | Blue ${battleState.score?.blue || 0}. Drag unit blobs to adjust the current state before asking the AI.</div>
+      `;
+    }
+
+    function renderBattlePlan(plan) {
+      const actions = (plan && plan.actions) || [];
+      if (!actions.length) return `<div class="empty">No AI actions available yet.</div>`;
+      return `<div class="battle-log">${actions.map((action, index) => `
+        <div class="battle-log-entry ${escapeHtml(action.side)}">
+          <b>${escapeHtml(action.type)}: ${escapeHtml(unitNameByInstance(action.actor_id))}</b><br>
+          ${escapeHtml(action.reason)}<br>
+          <span class="small">Score ${fmt(action.score)} | Damage ${fmt(action.expected_damage)} | Return ${fmt(action.expected_return_damage)}</span>
+          <div><button class="tertiary battle-resolve-action" type="button" data-action-index="${index}">Resolve this action</button></div>
+        </div>
+      `).join("")}</div>`;
+    }
+
+    function renderSelectedBattleUnit(battleState) {
+      if (!battleState || !state.battlefield.selectedInstanceId) {
+        return `<div class="empty">Select a unit blob on the board.</div>`;
+      }
+      const unit = battleUnitByInstance(state.battlefield.selectedInstanceId);
+      if (!unit) return `<div class="empty">Selected unit is no longer on the board.</div>`;
+      const detail = state.battlefield.selectedUnitDetail;
+      const profile = detail || state.units.find((row) => row.id === unit.unit_id) || {};
+      const nearestEnemy = nearestBattleUnit(unit, (battleState.units || []).filter((row) => row.side !== unit.side && row.models_remaining > 0));
+      const nearestObjective = nearestBattleObjective(battleState, unit);
+      const weapons = (profile.weapons || []).slice(0, 8).map((weapon) => `
+        <div class="inspector-weapon">
+          <b>${escapeHtml(weapon.name)}</b><br>
+          ${escapeHtml(weapon.type || "")} | A${escapeHtml(weapon.attacks || "?")} | ${escapeHtml(weapon.skill || "?")} | S${escapeHtml(weapon.strength || "?")} | AP${escapeHtml(weapon.ap ?? 0)} | D${escapeHtml(weapon.damage || "?")}
+        </div>
+      `).join("");
+      return `
+        <div class="unit-inspector" data-testid="battle-unit-inspector">
+          <div><b>${escapeHtml(unit.name)}</b> <span class="small">${escapeHtml(unit.side)}</span></div>
+          <div class="small">${escapeHtml(profile.faction || "No faction")} | T${escapeHtml(profile.toughness || "?")} W${escapeHtml(profile.wounds || "?")} Sv ${escapeHtml(profile.save || "?")} | OC ${escapeHtml(profile.objective_control ?? profile.objectiveControl ?? "?")} | ${escapeHtml(profile.points || 0)} pts</div>
+          <div class="small">Board: x ${fmt(unit.x)}, y ${fmt(unit.y)} | Models ${escapeHtml(unit.models_remaining)} | Wounds remaining ${fmt(unit.wounds_remaining)}</div>
+          <div class="small">Nearest enemy: ${nearestEnemy ? `${escapeHtml(nearestEnemy.name)} at ${fmt(nearestEnemy.distance)}"` : "none"}</div>
+          <div class="small">Nearest objective: ${nearestObjective ? `${escapeHtml(nearestObjective.name)} at ${fmt(distance(unit.x, unit.y, nearestObjective.x, nearestObjective.y))}"` : "none"}</div>
+          <div class="inspector-weapons">${weapons || `<div class="empty">Weapon details not loaded.</div>`}</div>
+        </div>
+      `;
+    }
+
+    function renderBattleLog(battleState, replay) {
+      const entries = replay
+        ? replay.map((row) => row.outcome)
+        : ((battleState && battleState.log) || []);
+      if (!entries.length) return `<div class="empty">No actions resolved yet.</div>`;
+      return `<div class="battle-log">${entries.slice(-12).reverse().map((entry) => `
+        <div class="battle-log-entry ${escapeHtml(entry.side || "")}">
+          <b>Turn ${entry.turn || "?"}: ${escapeHtml(entry.actor || entry.side || "Battlefield")} ${escapeHtml(entry.action || "")}</b><br>
+          ${escapeHtml(entry.reason || entry.detail || "")}
+          ${hasNumber(entry.damage) ? `<br><span class="small">Damage ${fmt(entry.damage)}${hasNumber(entry.points_removed) ? ` | Points removed ${fmt(entry.points_removed)}` : ""}</span>` : ""}
+        </div>
+      `).join("")}</div>`;
+    }
+
+    function renderBattleValidation(validation) {
+      if (!validation) return "";
+      const blocks = ["red", "blue", "state"].map((key) => {
+        const row = validation[key] || {};
+        const warnings = (row.warnings || []).map((warning) => `<li>${escapeHtml(warning)}</li>`).join("");
+        const errors = (row.errors || []).map((error) => `<li>${escapeHtml(error)}</li>`).join("");
+        return `<div class="battle-panel"><h3>${escapeHtml(key)} validation</h3><div class="small">${row.ok ? "Valid" : "Needs attention"}</div><ul>${errors}${warnings}</ul></div>`;
+      }).join("");
+      return `<div class="battlefield-panels">${blocks}</div>`;
+    }
+
+    function wireBattlefieldEvents() {
+      el("battle-template").addEventListener("change", (event) => {
+        state.battlefield.selectedTemplate = event.target.value;
+        state.battlefield.state = null;
+      });
+      document.querySelectorAll(".battle-army-unit").forEach((select) => {
+        const rows = battlefieldArmyRows(select.dataset.side);
+        const row = rows[Number(select.dataset.index)] || {};
+        select.value = row.unitId || "";
+        select.addEventListener("change", (event) => {
+          updateBattlefieldArmyRow(event.target.dataset.side, Number(event.target.dataset.index), { unitId: event.target.value });
+        });
+      });
+      document.querySelectorAll(".battle-army-count").forEach((input) => {
+        input.addEventListener("change", (event) => {
+          updateBattlefieldArmyRow(event.target.dataset.side, Number(event.target.dataset.index), { count: Math.max(1, Number(event.target.value || 1)) });
+        });
+      });
+      document.querySelectorAll(".army-remove").forEach((button) => {
+        button.addEventListener("click", () => removeBattlefieldArmyRow(button.dataset.side, Number(button.dataset.index)));
+      });
+      document.querySelectorAll(".battle-add-unit").forEach((button) => {
+        button.addEventListener("click", () => addBattlefieldArmyRow(button.dataset.side));
+      });
+      el("battle-generate").addEventListener("click", () => battlefieldGenerate().catch(showBattlefieldError));
+      el("battle-validate").addEventListener("click", () => battlefieldValidate().catch(showBattlefieldError));
+      el("battle-suggest").addEventListener("click", () => battlefieldSuggest().catch(showBattlefieldError));
+      el("battle-autoplay").addEventListener("click", () => battlefieldAutoplay().catch(showBattlefieldError));
+      document.querySelectorAll(".battle-resolve-action").forEach((button) => {
+        button.addEventListener("click", () => battlefieldResolvePlannedAction(button.dataset.actionIndex).catch(showBattlefieldError));
+      });
+      el("battle-export").addEventListener("click", battlefieldExportJson);
+      el("battle-import").addEventListener("click", () => el("battle-import-file").click());
+      el("battle-import-file").addEventListener("change", (event) => {
+        const file = event.target.files && event.target.files[0];
+        if (file) battlefieldImportJson(file).catch(showBattlefieldError);
+        event.target.value = "";
+      });
+      wireBattleBoardDrag();
+    }
+
+    function updateBattlefieldArmyRow(side, index, patch) {
+      const rows = battlefieldArmyRows(side);
+      rows[index] = { ...(rows[index] || { unitId: "", count: 1 }), ...patch };
+      rows[index].count = Math.max(1, Number(rows[index].count || 1));
+      state.battlefield.state = null;
+      state.battlefield.plan = null;
+      syncLegacyBattlefieldSelections();
+      renderBattlefield();
+    }
+
+    function addBattlefieldArmyRow(side) {
+      const rows = battlefieldArmyRows(side);
+      const fallback = state.units.find((unit) => !rows.some((row) => row.unitId === unit.id)) || state.units[0];
+      rows.push({ unitId: fallback ? fallback.id : "", count: 1 });
+      state.battlefield.state = null;
+      state.battlefield.plan = null;
+      syncLegacyBattlefieldSelections();
+      renderBattlefield();
+    }
+
+    function removeBattlefieldArmyRow(side, index) {
+      const rows = battlefieldArmyRows(side);
+      rows.splice(index, 1);
+      if (!rows.length) rows.push({ unitId: "", count: 1 });
+      state.battlefield.state = null;
+      state.battlefield.plan = null;
+      syncLegacyBattlefieldSelections();
+      renderBattlefield();
+    }
+
+    function wireBattleBoardDrag() {
+      const board = el("battle-board");
+      if (!board) return;
+      board.querySelectorAll(".bf-unit").forEach((node) => {
+        node.addEventListener("pointerdown", (event) => {
+          event.preventDefault();
+          node.setPointerCapture(event.pointerId);
+          state.battlefield.dragging = node.dataset.unitId;
+        });
+        node.addEventListener("click", () => {
+          selectBattleUnit(node.dataset.unitId).catch(showBattlefieldError);
+        });
+        node.addEventListener("pointermove", (event) => {
+          if (state.battlefield.dragging !== node.dataset.unitId) return;
+          const point = svgPoint(board, event.clientX, event.clientY);
+          updateBattleUnitPosition(node.dataset.unitId, point.x, point.y);
+          node.setAttribute("cx", point.x);
+          node.setAttribute("cy", point.y);
+          const label = board.querySelector(`g[data-unit-id="${CSS.escape(node.dataset.unitId)}"] .bf-label`);
+          const unit = battleUnitByInstance(node.dataset.unitId);
+          if (label && unit) {
+            label.setAttribute("x", unit.x);
+            label.setAttribute("y", Number(unit.y) + Number(unit.radius) + 2.8);
+          }
+        });
+        node.addEventListener("pointerup", () => {
+          state.battlefield.dragging = null;
+          state.battlefield.plan = null;
+        });
+      });
+    }
+
+    async function selectBattleUnit(instanceId) {
+      const unit = battleUnitByInstance(instanceId);
+      if (!unit) return;
+      state.battlefield.selectedInstanceId = instanceId;
+      state.battlefield.selectedUnitDetail = await loadUnitDetailById(unit.unit_id, unit.name);
+      renderBattlefield();
+    }
+
+    function svgPoint(svg, clientX, clientY) {
+      const rect = svg.getBoundingClientRect();
+      const width = Number(svg.dataset.width || 44);
+      const height = Number(svg.dataset.height || 60);
+      return {
+        x: Math.max(0, Math.min(width, ((clientX - rect.left) / rect.width) * width)),
+        y: Math.max(0, Math.min(height, ((clientY - rect.top) / rect.height) * height))
+      };
+    }
+
+    function updateBattleUnitPosition(instanceId, x, y) {
+      const unit = battleUnitByInstance(instanceId);
+      const battleMap = state.battlefield.state && state.battlefield.state.map;
+      if (!unit || !battleMap) return;
+      unit.x = Math.max(unit.radius, Math.min(Number(battleMap.width) - unit.radius, Number(x)));
+      unit.y = Math.max(unit.radius, Math.min(Number(battleMap.height) - unit.radius, Number(y)));
+    }
+
+    function battleUnitByInstance(instanceId) {
+      return state.battlefield.state && (state.battlefield.state.units || []).find((unit) => unit.instance_id === instanceId);
+    }
+
+    function unitNameByInstance(instanceId) {
+      const unit = battleUnitByInstance(instanceId);
+      return unit ? unit.name : instanceId;
+    }
+
+    function nearestBattleUnit(unit, candidates) {
+      const nearest = candidates
+        .map((candidate) => ({ ...candidate, distance: distance(unit.x, unit.y, candidate.x, candidate.y) }))
+        .sort((left, right) => left.distance - right.distance)[0];
+      return nearest || null;
+    }
+
+    function unitLabelById(unitId) {
+      const unit = state.units.find((row) => row.id === unitId);
+      if (!unit) return "No unit selected.";
+      const parts = [unit.faction, unit.points ? `${unit.points} pts` : "", unit.models_min ? `${unit.models_min}-${unit.models_max || unit.models_min} models` : ""].filter(Boolean);
+      return parts.join(" | ");
+    }
+
+    function armySummaryText(rows) {
+      const selectedRows = rows.filter((row) => row.unitId);
+      const unitTotal = selectedRows.reduce((sum, row) => sum + Math.max(1, Number(row.count || 1)), 0);
+      const points = selectedRows.reduce((sum, row) => {
+        const unit = state.units.find((candidate) => candidate.id === row.unitId);
+        return sum + (unit && unit.points ? Number(unit.points) * Math.max(1, Number(row.count || 1)) : 0);
+      }, 0);
+      return `${unitTotal} battlefield units | ${points} pts before unsupported options`;
+    }
+
+    function shortUnitLabel(name) {
+      return String(name || "Unit").split(/\s+/).slice(0, 2).join(" ");
+    }
+
+    function showBattlefieldError(error) {
+      el("error").textContent = error.message;
+    }
+
     async function loadUnitDetail(name, field = null) {
       const unitName = String(name || "").trim();
       if (!unitName) return null;
@@ -1059,6 +1851,18 @@
       else params.set("name", unitName);
       const query = params.toString();
       const payload = await api(`/api/unit?${query}`);
+      state.unitDetails[key] = payload.unit;
+      return payload.unit;
+    }
+
+    async function loadUnitDetailById(unitId, name = "") {
+      const key = unitId || String(name || "").toLowerCase();
+      if (!key) return null;
+      if (state.unitDetails[key]) return state.unitDetails[key];
+      const params = new URLSearchParams({ edition: el("edition").value || state.rulesEdition });
+      if (unitId) params.set("id", unitId);
+      else params.set("name", name);
+      const payload = await api(`/api/unit?${params}`);
       state.unitDetails[key] = payload.unit;
       return payload.unit;
     }
@@ -1108,9 +1912,7 @@
 
     function unitVariantLabel(unit) {
       if (!unit) return "";
-      const modelRange = unit.models_min && unit.models_max && unit.models_min !== unit.models_max
-        ? `${unit.models_min}-${unit.models_max}`
-        : (unit.models_min || unit.models_max || "unknown");
+      const modelRange = unitModelRange(unit);
       const parts = [];
       if (unit.faction) parts.push(unit.faction);
       if (unit.points) parts.push(`${unit.points} pts`);
@@ -1118,9 +1920,19 @@
       return parts.join(" | ");
     }
 
+    function unitModelRange(unit) {
+      const min = unit.models_min ?? unit.modelsMin;
+      const max = unit.models_max ?? unit.modelsMax;
+      return min && max && min !== max ? `${min}-${max}` : (min || max || "unknown");
+    }
+
+    function unitSourceFile(unit) {
+      return unit ? (unit.source_file || unit.sourceFile || "") : "";
+    }
+
     function unitAuditLabel(unit) {
       if (!unit) return "";
-      const sourceFile = unit.source_file || unit.sourceFile || "";
+      const sourceFile = unitSourceFile(unit);
       const parts = [];
       if (sourceFile) parts.push(`Source ${sourceFile}`);
       if (unit.id) parts.push(`ID ${unit.id}`);
@@ -1146,14 +1958,16 @@
     function closeDropdown(field = state.openMenu) {
       if (!field) return;
       el(`${field}-menu`).classList.remove("open");
+      el(`${field}-menu`).closest(".unit-combo")?.classList.remove("menu-open");
       el(field).setAttribute("aria-expanded", "false");
+      document.querySelector(`.combo-toggle[data-target="${field}"]`)?.setAttribute("aria-expanded", "false");
       el(field).removeAttribute("aria-activedescendant");
       state.activeOptionIndex[field] = -1;
       if (state.openMenu === field) state.openMenu = null;
     }
 
     function dropdownOptions(field) {
-      return [...el(`${field}-menu`).querySelectorAll(".combo-option:not(:disabled)")];
+      return [...el(`${field}-options`).querySelectorAll(".combo-option:not([aria-disabled='true'])")];
     }
 
     function setActiveOption(field, index) {
@@ -1185,22 +1999,28 @@
     }
 
     function renderDropdown(field, units) {
-      const menu = el(`${field}-menu`);
+      const menu = el(`${field}-options`);
       const rows = units.slice(0, 80);
+      const count = el(`${field}-menu-count`);
+      if (count) {
+        count.textContent = units.length > rows.length
+          ? `Showing first ${rows.length} of ${units.length} matches. Type to narrow.`
+          : `${units.length} matching ${units.length === 1 ? "unit" : "units"}`;
+      }
       if (!rows.length) {
-        menu.innerHTML = `<button class="combo-option" type="button" disabled>No matching units</button>`;
+        menu.innerHTML = `<div class="combo-option" role="option" aria-disabled="true">No matching units</div>`;
         return;
       }
       menu.innerHTML = rows.map((unit, index) => `
-        <button class="combo-option" id="${field}-option-${index}" type="button" role="option" aria-selected="false" data-unit="${escapeHtml(unit.name)}" data-unit-id="${escapeHtml(unit.id || "")}">
+        <div class="combo-option" id="${field}-option-${index}" role="option" aria-selected="false" tabindex="-1" data-unit="${escapeHtml(unit.name)}" data-unit-id="${escapeHtml(unit.id || "")}">
           ${escapeHtml(unit.name)}
           <span>${escapeHtml(optionSubtitle(unit))}</span>
-        </button>
+        </div>
       `).join("");
-      menu.querySelectorAll(".combo-option").forEach((button) => {
-        button.addEventListener("mousedown", (event) => {
+      menu.querySelectorAll(".combo-option").forEach((option) => {
+        option.addEventListener("mousedown", (event) => {
           event.preventDefault();
-          selectDropdownOption(field, button);
+          selectDropdownOption(field, option);
         });
       });
       const selectedIndex = rows.findIndex((unit) => unit.id && unit.id === state.selectedUnitIds[field]);
@@ -1243,6 +2063,8 @@
       if (state.openMenu && state.openMenu !== field) closeDropdown(state.openMenu);
       state.openMenu = field;
       el(field).setAttribute("aria-expanded", "true");
+      document.querySelector(`.combo-toggle[data-target="${field}"]`)?.setAttribute("aria-expanded", "true");
+      el(`${field}-menu`).closest(".unit-combo")?.classList.add("menu-open");
       const units = await searchUnits(el(field).value);
       state.units = units;
       renderDropdown(field, units);
@@ -1262,6 +2084,7 @@
 
     async function calculate() {
       el("error").textContent = "";
+      closeDropdown();
       if (!el("attacker").value.trim() || !el("defender").value.trim()) {
         el("error").textContent = "Choose both units.";
         return;
@@ -1288,6 +2111,9 @@
           })
         });
         renderResults(payload);
+        if (window.matchMedia("(max-width: 840px)").matches) {
+          el("results").scrollIntoView({ behavior: "smooth", block: "start" });
+        }
       } catch (error) {
         el("error").textContent = error.message;
       } finally {
@@ -1297,10 +2123,9 @@
 
     function renderUnit(unit, label) {
       const keywords = (unit.keywords || []).slice(0, 8).map((keyword) => `<span class="chip">${escapeHtml(keyword)}</span>`).join("");
-      const modelRange = unit.models_min && unit.models_max && unit.models_min !== unit.models_max
-        ? `${unit.models_min}-${unit.models_max}`
-        : (unit.models_min || unit.models_max || "unknown");
-      const sourceLine = unit.source_file ? `<div class="small">Source ${escapeHtml(unit.source_file)}</div>` : "";
+      const modelRange = unitModelRange(unit);
+      const sourceFile = unitSourceFile(unit);
+      const sourceLine = sourceFile ? `<div class="small">Source ${escapeHtml(sourceFile)}</div>` : "";
       return `
         <div class="unit-pane">
           <div class="small">${escapeHtml(label)}</div>
@@ -1446,26 +2271,28 @@
       const outgoing = payload.outgoing;
       const incoming = payload.incoming;
       const judgement = matchupJudgement(payload);
+      const netDamage = Number(outgoing.total_damage || 0) - Number(incoming.total_damage || 0);
+      const netPoints = Number(outgoing.estimated_points_removed || 0) - Number(incoming.estimated_points_removed || 0);
 
       el("results").innerHTML = `
-        <div class="summary">
-          ${metric("Outgoing damage", fmt(outgoing.total_damage))}
-          ${metric("Outgoing models", fmt(outgoing.expected_models_destroyed))}
-          ${metric("Outgoing points", fmt(outgoing.estimated_points_removed))}
-          ${metric("Return damage", fmt(incoming.total_damage))}
-          ${metric("Return models", fmt(incoming.expected_models_destroyed))}
-          ${metric("Return points", fmt(incoming.estimated_points_removed))}
-        </div>
-        <div class="duel">
-          ${renderUnit(payload.attacker, "Attacker")}
-          ${renderUnit(payload.defender, "Defender")}
-        </div>
-        <div class="judgement">
+        <div class="judgement primary">
           <h3>${escapeHtml(judgement.title)}</h3>
           <p>${escapeHtml(judgement.body)}</p>
           <p class="small">Edition: ${escapeHtml(editionLabel(payload.edition || state.rulesEdition))} | Attacker scope: ${escapeHtml(scopeText(payload, "outgoing"))} | Return scope: ${escapeHtml(scopeText(payload, "incoming"))}</p>
         </div>
         ${renderMlJudgement(payload)}
+        <div class="summary">
+          ${metric("Net points", signedFmt(netPoints))}
+          ${metric("Net damage", signedFmt(netDamage))}
+          ${metric("Outgoing damage", fmt(outgoing.total_damage))}
+          ${metric("Return damage", fmt(incoming.total_damage))}
+          ${metric("Outgoing models", fmt(outgoing.expected_models_destroyed))}
+          ${metric("Return models", fmt(incoming.expected_models_destroyed))}
+        </div>
+        <div class="duel">
+          ${renderUnit(payload.attacker, "Attacker")}
+          ${renderUnit(payload.defender, "Defender")}
+        </div>
         ${renderLoadoutWarnings(payload)}
         ${renderWeaponList(outgoing, `${payload.attacker.name} attack`, `No ${payload.mode} weapons found for ${payload.attacker.name}.`)}
         ${renderWeaponList(incoming, `${payload.defender.name} return strike`, `No ${payload.mode} weapons found for ${payload.defender.name}.`)}
@@ -1533,6 +2360,8 @@
           ${editionStatus ? metric("Edition status", escapeHtml(editionStatus.status || "unknown")) : ""}
           ${verificationReport ? metric("Verified checks", `${verificationReport.ok_count || 0}/${verificationReport.artifact_count || 0}`) : ""}
         </div>
+        ${renderReviewNav()}
+        ${renderReviewTools()}
         ${renderProvenance(artifactManifest, verificationReport, metadata)}
         ${renderEditionStatus(editionStatus)}
         ${renderEditionReadiness(editionReadiness)}
@@ -1552,6 +2381,118 @@
         ${renderDiff(diff)}
         ${renderAuditSections(audit)}
       `;
+      wireDataReviewFilters();
+    }
+
+    function renderReviewNav() {
+      const links = [
+        ["#review-provenance", "Provenance"],
+        ["#review-schema", "Schema"],
+        ["#review-weapons", "Suspicious Weapons"],
+        ["#review-loadouts", "Loadouts"],
+        ["#review-ml", "ML"],
+        ["#review-files", "Raw Reports"]
+      ].map(([href, label]) => `<a href="${href}">${label}</a>`).join("");
+      return `<nav class="review-nav" aria-label="Data review sections">${links}</nav>`;
+    }
+
+    function renderReviewTools() {
+      return `
+        <div class="review-tools" aria-label="Data review filters">
+          <label>
+            Search review data
+            <input id="data-review-search" type="search" placeholder="Unit, weapon, source, reason" autocomplete="off">
+          </label>
+          <label>
+            Status
+            <select id="data-review-status">
+              <option value="">All statuses</option>
+              <option value="problem">Problems</option>
+              <option value="error">Errors / failed</option>
+              <option value="warning">Warnings</option>
+              <option value="ok">OK / info</option>
+            </select>
+          </label>
+          <button id="data-review-clear" type="button">Reset</button>
+          <div class="review-filter-status" id="data-review-filter-status" aria-live="polite"></div>
+        </div>
+        <div class="review-filter-empty" id="data-review-filter-empty">No review rows match the current filters.</div>
+      `;
+    }
+
+    function wireDataReviewFilters() {
+      const search = el("data-review-search");
+      const status = el("data-review-status");
+      const clear = el("data-review-clear");
+      if (!search || !status || !clear) return;
+      const apply = () => applyDataReviewFilters(search.value, status.value);
+      search.addEventListener("input", apply);
+      status.addEventListener("change", apply);
+      clear.addEventListener("click", () => {
+        search.value = "";
+        status.value = "";
+        apply();
+        search.focus();
+      });
+      apply();
+    }
+
+    function statusMatches(text, filter) {
+      const normalized = String(text || "").toLowerCase();
+      if (!filter) return true;
+      if (filter === "problem") return /error|fail|failed|warning/.test(normalized);
+      if (filter === "error") return /error|fail|failed/.test(normalized);
+      if (filter === "warning") return normalized.includes("warning");
+      if (filter === "ok") return /ok|pass|info/.test(normalized);
+      return true;
+    }
+
+    function applyDataReviewFilters(queryValue, statusValue) {
+      const query = String(queryValue || "").trim().toLowerCase();
+      const sections = [...document.querySelectorAll("#results .review-section")];
+      let visibleSections = 0;
+      let visibleRows = 0;
+      let totalRows = 0;
+
+      sections.forEach((section) => {
+        const rows = [...section.querySelectorAll("tbody tr")];
+        const dataRows = rows.filter((row) => !(row.cells.length === 1 && row.cells[0].colSpan > 1));
+        const sectionTitleMatches = Boolean(query && section.querySelector("h3") && section.querySelector("h3").textContent.toLowerCase().includes(query));
+        let sectionRowsVisible = 0;
+
+        if (dataRows.length) {
+          rows.forEach((row) => {
+            const isEmptyRow = row.cells.length === 1 && row.cells[0].colSpan > 1;
+            if (isEmptyRow) {
+              row.hidden = Boolean(query || statusValue);
+              return;
+            }
+            totalRows += 1;
+            const text = row.textContent.toLowerCase();
+            const statusText = row.cells[0] ? row.cells[0].textContent : "";
+            const visible = (!query || text.includes(query) || sectionTitleMatches) && statusMatches(statusText, statusValue);
+            row.hidden = !visible;
+            if (visible) {
+              sectionRowsVisible += 1;
+              visibleRows += 1;
+            }
+          });
+          section.hidden = sectionRowsVisible === 0;
+        } else {
+          const visible = (!query || section.textContent.toLowerCase().includes(query)) && !statusValue;
+          section.hidden = !visible;
+        }
+
+        if (!section.hidden) visibleSections += 1;
+      });
+
+      const status = el("data-review-filter-status");
+      if (status) {
+        const rowText = totalRows ? `${visibleRows} of ${totalRows} table rows` : "no table rows";
+        status.textContent = `${visibleSections} review sections visible, ${rowText} visible`;
+      }
+      const empty = el("data-review-filter-empty");
+      if (empty) empty.classList.toggle("visible", visibleSections === 0);
     }
 
     function renderSuspiciousWeapons(summary) {
@@ -1577,7 +2518,7 @@
         </tr>
       `).join("");
       return `
-        <div class="review-section">
+        <div class="review-section" id="review-weapons">
           <h3>Suspicious Weapon Profiles</h3>
           <div class="provenance-grid">
             ${provenanceCard("Rows needing review", summary.total || 0, `Showing first ${Math.min((summary.rows || []).length, summary.row_limit || 0)} rows`)}
@@ -1607,7 +2548,7 @@
         </tr>
       `).join("");
       return `
-        <div class="review-section">
+        <div class="review-section" id="review-schema">
           <h3>Schema Review</h3>
           <div class="provenance-grid">
             ${provenanceCard("Tables reviewed", summary.total || 0, `Showing first ${Math.min((summary.rows || []).length, summary.row_limit || 0)} rows`)}
@@ -1684,7 +2625,7 @@
         </tr>
       `).join("");
       return `
-        <div class="review-section">
+        <div class="review-section" id="review-loadouts">
           <h3>Loadout Complexity</h3>
           <div class="provenance-grid">
             ${provenanceCard("Rows reviewed", summary.total || 0, `Showing first ${Math.min((summary.rows || []).length, summary.row_limit || 0)} rows`)}
@@ -1836,7 +2777,7 @@
       const commit = source.commit || metadataSource.commit || "";
       const generatedAt = manifest && manifest.generated_at ? manifest.generated_at : (metadata && metadata.generated_at ? metadata.generated_at : "");
       return `
-        <div class="review-section">
+        <div class="review-section" id="review-provenance">
           <h3>Data & ML Provenance</h3>
           <div class="provenance-grid">
             ${provenanceCard("Source commit", commit ? commit.slice(0, 12) : "unknown", source.remote_origin || metadataSource.remote_origin || "")}
@@ -1935,7 +2876,7 @@
         </a>
       `).join("");
       return `
-        <div class="review-section">
+        <div class="review-section" id="review-files">
           <h3>Review Files</h3>
           <div class="review-links">${links}</div>
         </div>
@@ -1967,7 +2908,7 @@
 
     function renderModelAudit(modelAudit) {
       if (!modelAudit) return "";
-      return renderMarkdownReport("ML Model Audit", modelAudit);
+      return renderMarkdownReport("ML Model Audit", modelAudit, "review-ml");
     }
 
     function renderModelComparison(modelComparison) {
@@ -1975,9 +2916,9 @@
       return renderMarkdownReport("ML Model Comparison", modelComparison);
     }
 
-    function renderMarkdownReport(title, markdown) {
+    function renderMarkdownReport(title, markdown, sectionId = "") {
       return `
-        <div class="review-section">
+        <div class="review-section"${sectionId ? ` id="${escapeHtml(sectionId)}"` : ""}>
           <h3>${escapeHtml(title)}</h3>
           <div class="report-markdown">${markdownToHtml(markdown)}</div>
         </div>
@@ -2146,6 +3087,7 @@
 
     function wireEvents() {
       el("calculate").addEventListener("click", calculate);
+      el("battlefield").addEventListener("click", () => showBattlefield().catch(showBattlefieldError));
       el("data-review").addEventListener("click", showDataReview);
       el("swap").addEventListener("click", () => {
         const attacker = el("attacker").value;
@@ -2164,9 +3106,21 @@
         el("error").textContent = error.message;
       }));
       document.querySelectorAll(".combo-toggle").forEach((button) => {
-        button.addEventListener("click", () => openDropdown(button.dataset.target).catch((error) => {
-          el("error").textContent = error.message;
-        }));
+        button.addEventListener("click", () => {
+          const target = button.dataset.target;
+          if (state.openMenu === target) {
+            closeDropdown(target);
+            return;
+          }
+          openDropdown(target).catch((error) => {
+            el("error").textContent = error.message;
+          });
+        });
+      });
+      document.querySelectorAll(".combo-done").forEach((button) => {
+        button.addEventListener("click", () => {
+          closeDropdown(button.dataset.target);
+        });
       });
       document.addEventListener("click", (event) => {
         if (state.openMenu && !event.target.closest(".unit-combo")) closeDropdown();

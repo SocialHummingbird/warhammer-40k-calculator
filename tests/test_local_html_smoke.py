@@ -221,9 +221,14 @@ def test_standalone_html_can_calculate_matchup_in_headless_browser():
                     defenderId: state.selectedUnitIds.defender,
                     error: document.getElementById("error").textContent,
                     judgement: document.querySelector(".judgement h3")?.textContent || "",
+                    firstResultHeading: document.querySelector("#results h3")?.textContent || "",
                     summary: document.querySelector(".summary")?.innerText || "",
                     attackerSelected: document.getElementById("attacker-selected")?.textContent || "",
                     defenderSelected: document.getElementById("defender-selected")?.textContent || "",
+                    actionTop: document.querySelector(".actions")?.getBoundingClientRect().top || 0,
+                    viewportHeight: window.innerHeight,
+                    attackerContextOpen: document.querySelectorAll(".options-group")[1]?.open || false,
+                    returnContextOpen: document.querySelectorAll(".options-group")[2]?.open || false,
                     resultsText: document.getElementById("results")?.innerText || "",
                     status: document.getElementById("status")?.textContent || "",
                     statusTitle: document.getElementById("status")?.title || "",
@@ -251,6 +256,10 @@ def test_standalone_html_can_calculate_matchup_in_headless_browser():
             assert result["defenderId"]
             assert result["error"] == ""
             assert result["judgement"].startswith("AI judgement:")
+            assert result["firstResultHeading"].startswith("AI judgement:")
+            assert result["actionTop"] < result["viewportHeight"]
+            assert result["attackerContextOpen"] is False
+            assert result["returnContextOpen"] is False
             assert "ID " in result["attackerSelected"]
             assert "ID " in result["defenderSelected"]
             assert "Source " in result["attackerSelected"]
@@ -258,6 +267,10 @@ def test_standalone_html_can_calculate_matchup_in_headless_browser():
             assert "Source " in result["resultsText"]
             assert "pts" in result["attackerSelected"]
             assert "pts" in result["defenderSelected"]
+            assert "Models unknown" not in result["attackerSelected"]
+            assert "Models unknown" not in result["defenderSelected"]
+            assert "Models 10-20" in result["attackerSelected"]
+            assert "Models 6-11" in result["defenderSelected"]
             assert "10E rules" in result["status"]
             assert "ML " in result["status"]
             assert result["editionValue"] == "10e"
@@ -271,8 +284,10 @@ def test_standalone_html_can_calculate_matchup_in_headless_browser():
             assert "Ruleset capabilities" in result["statusTitle"]
             assert "Hit rolls" in result["statusTitle"]
             summary = result["summary"].casefold()
-            assert "outgoing points" in summary
-            assert "return points" in summary
+            assert "net points" in summary
+            assert "net damage" in summary
+            assert "outgoing damage" in summary
+            assert "return damage" in summary
             assert result["weaponRows"] > 0
 
             units_by_id = load_units_from_directory(CSV_DIR)
@@ -284,6 +299,82 @@ def test_standalone_html_can_calculate_matchup_in_headless_browser():
             assert result["incomingDamage"] == pytest.approx(incoming.total_damage)
             assert result["outgoingModels"] == pytest.approx(outgoing.expected_models_destroyed)
             assert result["incomingModels"] == pytest.approx(incoming.expected_models_destroyed)
+
+            keyboard_response = websocket.call(
+                "Runtime.evaluate",
+                {
+                    "expression": r"""
+                        (async () => {
+                          document.getElementById("defender").value = "";
+                          state.selectedUnitIds.defender = null;
+                          await openDropdown("defender");
+                          const countText = document.getElementById("defender-menu-count").textContent;
+                          document.getElementById("defender").dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true }));
+                          const activeAfterArrow = state.activeOptionIndex.defender;
+                          const activeId = document.getElementById("defender").getAttribute("aria-activedescendant");
+                          document.getElementById("defender").dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
+                          return {
+                            activeAfterArrow,
+                            activeId,
+                            selected: document.getElementById("defender").value,
+                            selectedId: state.selectedUnitIds.defender,
+                            menuOpen: document.getElementById("defender-menu").classList.contains("open"),
+                            expanded: document.getElementById("defender").getAttribute("aria-expanded"),
+                            toggleExpanded: document.querySelector(".combo-toggle[data-target='defender']").getAttribute("aria-expanded"),
+                            toggleControls: document.querySelector(".combo-toggle[data-target='defender']").getAttribute("aria-controls"),
+                            countText
+                          };
+                        })()
+                    """,
+                    "awaitPromise": True,
+                    "returnByValue": True,
+                },
+            )
+            keyboard = keyboard_response["result"]["result"].get("value")
+            if keyboard_response["result"].get("exceptionDetails"):
+                pytest.fail(str(keyboard_response["result"]["exceptionDetails"]))
+            assert keyboard["activeAfterArrow"] == 1
+            assert keyboard["activeId"] == "defender-option-1"
+            assert keyboard["selected"]
+            assert keyboard["selectedId"]
+            assert keyboard["menuOpen"] is False
+            assert keyboard["expanded"] == "false"
+            assert keyboard["toggleExpanded"] == "false"
+            assert keyboard["toggleControls"] == "defender-options"
+            assert "Showing first" in keyboard["countText"]
+            assert "Type to narrow" in keyboard["countText"]
+
+            done_response = websocket.call(
+                "Runtime.evaluate",
+                {
+                    "expression": r"""
+                        (async () => {
+                          await openDropdown("defender");
+                          const toggleExpandedOpen = document.querySelector(".combo-toggle[data-target='defender']").getAttribute("aria-expanded");
+                          document.querySelector(".combo-done[data-target='defender']").click();
+                          return {
+                            controls: document.getElementById("defender").getAttribute("aria-controls"),
+                            menuOpen: document.getElementById("defender-menu").classList.contains("open"),
+                            expanded: document.getElementById("defender").getAttribute("aria-expanded"),
+                            toggleExpandedOpen,
+                            toggleExpandedClosed: document.querySelector(".combo-toggle[data-target='defender']").getAttribute("aria-expanded"),
+                            activeDescendant: document.getElementById("defender").getAttribute("aria-activedescendant")
+                          };
+                        })()
+                    """,
+                    "awaitPromise": True,
+                    "returnByValue": True,
+                },
+            )
+            done = done_response["result"]["result"].get("value")
+            if done_response["result"].get("exceptionDetails"):
+                pytest.fail(str(done_response["result"]["exceptionDetails"]))
+            assert done["controls"] == "defender-options"
+            assert done["menuOpen"] is False
+            assert done["expanded"] == "false"
+            assert done["toggleExpandedOpen"] == "true"
+            assert done["toggleExpandedClosed"] == "false"
+            assert done["activeDescendant"] is None
 
             ranged_response = websocket.call(
                 "Runtime.evaluate",
@@ -389,6 +480,57 @@ def test_standalone_html_can_calculate_matchup_in_headless_browser():
             assert ranged["outgoingModels"] == pytest.approx(outgoing_ranged.expected_models_destroyed)
             assert ranged["incomingModels"] == pytest.approx(incoming_ranged.expected_models_destroyed)
 
+            websocket.call(
+                "Emulation.setDeviceMetricsOverride",
+                {"width": 390, "height": 844, "deviceScaleFactor": 1, "mobile": True},
+            )
+            mobile_response = websocket.call(
+                "Runtime.evaluate",
+                {
+                    "expression": r"""
+                        (async () => {
+                          const choose = (field, predicate) => {
+                            const unit = state.units.find(predicate);
+                            if (!unit) throw new Error(`Could not find ${field} mobile test unit`);
+                            document.getElementById(field).value = unit.name;
+                            state.selectedUnitIds[field] = unit.id || null;
+                          };
+                          choose("attacker", (unit) => unit.name === "Intercessor Squad" && /Space Marines/.test(unit.faction || ""));
+                          choose("defender", (unit) => unit.name === "Boyz" && /Orks/.test(unit.faction || ""));
+                          updateSelectedUnitInfos();
+                          await refreshWeaponSelectors();
+                          window.scrollTo(0, 0);
+                          const initialActionRect = document.querySelector(".actions").getBoundingClientRect();
+                          await calculate();
+                          await new Promise((resolve) => setTimeout(resolve, 800));
+                          const resultRect = document.getElementById("results").getBoundingClientRect();
+                          return {
+                            scrollWidth: document.documentElement.scrollWidth,
+                            viewportWidth: window.innerWidth,
+                            resultTop: resultRect.top,
+                            initialActionTop: initialActionRect.top,
+                            initialActionBottom: initialActionRect.bottom,
+                            resultHeading: document.querySelector("#results h3")?.textContent || ""
+                          };
+                        })()
+                    """,
+                    "awaitPromise": True,
+                    "returnByValue": True,
+                },
+            )
+            mobile = mobile_response["result"]["result"].get("value")
+            if mobile_response["result"].get("exceptionDetails"):
+                pytest.fail(str(mobile_response["result"]["exceptionDetails"]))
+            assert mobile["scrollWidth"] <= mobile["viewportWidth"]
+            assert -5 <= mobile["resultTop"] <= 120
+            assert mobile["initialActionTop"] < 844
+            assert mobile["initialActionBottom"] > 0
+            assert mobile["resultHeading"].startswith("AI judgement:")
+
+            websocket.call(
+                "Emulation.setDeviceMetricsOverride",
+                {"width": 1280, "height": 720, "deviceScaleFactor": 1, "mobile": False},
+            )
             review_response = websocket.call(
                 "Runtime.evaluate",
                 {
@@ -411,7 +553,13 @@ def test_standalone_html_can_calculate_matchup_in_headless_browser():
                             provenanceModelTypeText: document.body.textContent.includes("ML model type"),
                             provenanceComparisonText: document.body.textContent.includes("Model comparison"),
                             capabilityCoverageText: document.body.textContent.includes("Ruleset Capability Coverage"),
-                            capabilityHitRollsText: document.body.textContent.includes("Hit rolls")
+                            capabilityHitRollsText: document.body.textContent.includes("Hit rolls"),
+                            reviewNavLinks: document.querySelectorAll(".review-nav a").length,
+                            reviewNavText: document.querySelector(".review-nav")?.textContent || "",
+                            reviewSearchExists: Boolean(document.getElementById("data-review-search")),
+                            reviewStatusExists: Boolean(document.getElementById("data-review-status")),
+                            initialFilterStatus: document.getElementById("data-review-filter-status")?.textContent || "",
+                            initialReviewSections: [...document.querySelectorAll("#results .review-section")].filter((section) => !section.hidden).length
                           };
                         })()
                     """,
@@ -438,6 +586,194 @@ def test_standalone_html_can_calculate_matchup_in_headless_browser():
             assert review_result["provenanceComparisonText"] is True
             assert review_result["capabilityCoverageText"] is True
             assert review_result["capabilityHitRollsText"] is True
+            assert review_result["reviewNavLinks"] == 6
+            assert "Suspicious Weapons" in review_result["reviewNavText"]
+            assert review_result["reviewSearchExists"] is True
+            assert review_result["reviewStatusExists"] is True
+            assert "review sections visible" in review_result["initialFilterStatus"]
+
+            review_filter_response = websocket.call(
+                "Runtime.evaluate",
+                {
+                    "expression": r"""
+                        (() => {
+                          const search = document.getElementById("data-review-search");
+                          const status = document.getElementById("data-review-status");
+                          const targetSection = document.getElementById("review-provenance") || document.querySelector("#results .review-section");
+                          const targetTitle = targetSection.querySelector("h3")?.textContent || "";
+                          const searchTerm = targetTitle.toLowerCase().split(/\s+/).find((word) => word.length > 4) || targetTitle.toLowerCase();
+                          search.value = searchTerm;
+                          search.dispatchEvent(new Event("input", { bubbles: true }));
+                          const targetVisible = !targetSection.hidden;
+                          const filteredStatus = document.getElementById("data-review-filter-status").textContent;
+                          const filteredSections = [...document.querySelectorAll("#results .review-section")].filter((section) => !section.hidden).length;
+                          status.value = "problem";
+                          status.dispatchEvent(new Event("change", { bubbles: true }));
+                          const problemStatus = document.getElementById("data-review-filter-status").textContent;
+                          search.value = "__no_such_review_row__";
+                          status.value = "";
+                          search.dispatchEvent(new Event("input", { bubbles: true }));
+                          const emptyVisible = document.getElementById("data-review-filter-empty").classList.contains("visible");
+                          const emptyText = document.getElementById("data-review-filter-empty").textContent;
+                          document.getElementById("data-review-clear").click();
+                          return {
+                            targetVisible,
+                            filteredStatus,
+                            filteredSections,
+                            problemStatus,
+                            emptyVisible,
+                            emptyText,
+                            afterClearSearch: search.value,
+                            afterClearStatus: status.value,
+                            afterClearSections: [...document.querySelectorAll("#results .review-section")].filter((section) => !section.hidden).length
+                          };
+                        })()
+                    """,
+                    "awaitPromise": True,
+                    "returnByValue": True,
+                },
+            )
+            review_filter = review_filter_response["result"]["result"].get("value")
+            if review_filter_response["result"].get("exceptionDetails"):
+                pytest.fail(str(review_filter_response["result"]["exceptionDetails"]))
+            assert review_filter["targetVisible"] is True
+            assert review_filter["filteredSections"] < review_result["initialReviewSections"]
+            assert "review sections visible" in review_filter["filteredStatus"]
+            assert "table rows" in review_filter["problemStatus"]
+            assert review_filter["emptyVisible"] is True
+            assert "No review rows match" in review_filter["emptyText"]
+            assert review_filter["afterClearSearch"] == ""
+            assert review_filter["afterClearStatus"] == ""
+            assert review_filter["afterClearSections"] >= review_result["reviewNavLinks"]
+        finally:
+            if websocket is not None:
+                try:
+                    websocket.call("Browser.close")
+                except Exception:
+                    pass
+                websocket.close()
+            if process.poll() is None:
+                process.terminate()
+                try:
+                    process.wait(timeout=5)
+                except subprocess.TimeoutExpired:
+                    process.kill()
+                    process.wait(timeout=5)
+
+
+def test_standalone_html_battlefield_mode_smoke():
+    chrome = _find_chrome()
+    if not chrome:
+        pytest.skip("Chrome or Edge is not installed")
+    if not LOCAL_HTML.exists():
+        pytest.skip("warhammer_calculator_local.html has not been generated")
+
+    port = _free_port()
+    with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as user_data:
+        process = _start_chrome(chrome, port, LOCAL_HTML, Path(user_data))
+        websocket = None
+        try:
+            target = None
+            for _ in range(80):
+                if process.poll() is not None:
+                    pytest.fail("Headless browser exited before DevTools was ready")
+                try:
+                    targets = _read_targets(port)
+                except Exception:
+                    time.sleep(0.1)
+                    continue
+                target = next((item for item in targets if item.get("type") == "page"), None)
+                if target:
+                    break
+                time.sleep(0.1)
+            if not target:
+                pytest.fail("No DevTools page target found for standalone HTML")
+
+            websocket = _DevToolsWebSocket(target["webSocketDebuggerUrl"])
+            response = websocket.call(
+                "Runtime.evaluate",
+                {
+                    "expression": r"""
+                        (async () => {
+                          await new Promise((resolve, reject) => {
+                            const started = Date.now();
+                            const wait = () => {
+                              if (typeof state !== "undefined" && state.units && state.units.length) resolve();
+                              else if (Date.now() - started > 10000) reject(new Error("local data did not initialise"));
+                              else setTimeout(wait, 50);
+                            };
+                            wait();
+                          });
+                          await showBattlefield();
+                          document.querySelector(".battle-add-unit[data-side='red']").click();
+                          const firstRedCount = document.querySelector(".army-card.red .army-row .battle-army-count");
+                          firstRedCount.value = "2";
+                          firstRedCount.dispatchEvent(new Event("change", { bubbles: true }));
+                          const secondRed = document.querySelectorAll(".army-card.red .army-row")[1];
+                          const redOptions = [...secondRed.querySelector(".battle-army-unit").options].filter((option) => option.value);
+                          secondRed.querySelector(".battle-army-unit").value = redOptions[1]?.value || redOptions[0]?.value || "";
+                          secondRed.querySelector(".battle-army-unit").dispatchEvent(new Event("change", { bubbles: true }));
+                          await battlefieldGenerate();
+                          const firstUnit = document.querySelector(".bf-unit.red");
+                          await selectBattleUnit(firstUnit.dataset.unitId);
+                          const inspectorText = document.querySelector("[data-testid='battle-unit-inspector']")?.innerText || "";
+                          const inspectorWeaponRows = document.querySelectorAll(".inspector-weapon").length;
+                          const selectedClassApplied = document.querySelector(".bf-unit.selected") !== null;
+                          await battlefieldSuggest();
+                          const plannedActions = state.battlefield.plan?.actions?.length || 0;
+                          const resolveButtons = document.querySelectorAll(".battle-resolve-action").length;
+                          await battlefieldResolvePlannedAction(0);
+                          const afterResolveLogLength = state.battlefield.state.log.length;
+                          const afterResolvePlanEmpty = document.querySelector(".battle-resolve-action") === null;
+                          await battlefieldSuggest();
+                          await battlefieldAutoplay();
+                          return {
+                            visible: Boolean(document.querySelector("[data-testid='battlefield-view']")),
+                            board: Boolean(document.getElementById("battle-board")),
+                            redUnits: [...document.querySelectorAll(".bf-unit.red")].length,
+                            blueUnits: [...document.querySelectorAll(".bf-unit.blue")].length,
+                            redRows: [...document.querySelectorAll(".army-card.red .army-row")].length,
+                            redArmyEntries: battlefieldArmies()[0].units.length,
+                            inspectorText,
+                            inspectorWeaponRows,
+                            selectedClassApplied,
+                            plannedActions,
+                            resolveButtons,
+                            afterResolveLogLength,
+                            afterResolvePlanEmpty,
+                            turn: state.battlefield.state.turn,
+                            logLength: state.battlefield.state.log.length,
+                            logText: document.querySelector(".battle-log")?.innerText || "",
+                            error: document.getElementById("error").textContent
+                          };
+                        })()
+                    """,
+                    "awaitPromise": True,
+                    "returnByValue": True,
+                },
+            )
+            result = response["result"]["result"].get("value")
+            if response["result"].get("exceptionDetails"):
+                pytest.fail(str(response["result"]["exceptionDetails"]))
+
+            assert result["visible"] is True
+            assert result["board"] is True
+            assert result["redRows"] == 2
+            assert result["redArmyEntries"] == 2
+            assert result["redUnits"] >= 3
+            assert result["blueUnits"] >= 1
+            assert "Nearest enemy" in result["inspectorText"]
+            assert "Wounds remaining" in result["inspectorText"]
+            assert result["inspectorWeaponRows"] >= 1
+            assert result["selectedClassApplied"] is True
+            assert result["plannedActions"] >= 1
+            assert result["resolveButtons"] >= 1
+            assert result["afterResolveLogLength"] >= 1
+            assert result["afterResolvePlanEmpty"] is True
+            assert result["turn"] == 2
+            assert result["logLength"] >= 1
+            assert "Damage" in result["logText"] or "Move toward" in result["logText"]
+            assert result["error"] == ""
         finally:
             if websocket is not None:
                 try:
