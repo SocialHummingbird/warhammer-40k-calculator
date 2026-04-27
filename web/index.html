@@ -1111,11 +1111,17 @@
       const modelRange = unit.models_min && unit.models_max && unit.models_min !== unit.models_max
         ? `${unit.models_min}-${unit.models_max}`
         : (unit.models_min || unit.models_max || "unknown");
-      const sourceFile = unit.source_file || unit.sourceFile || "";
       const parts = [];
       if (unit.faction) parts.push(unit.faction);
       if (unit.points) parts.push(`${unit.points} pts`);
       parts.push(`Models ${modelRange}`);
+      return parts.join(" | ");
+    }
+
+    function unitAuditLabel(unit) {
+      if (!unit) return "";
+      const sourceFile = unit.source_file || unit.sourceFile || "";
+      const parts = [];
       if (sourceFile) parts.push(`Source ${sourceFile}`);
       if (unit.id) parts.push(`ID ${unit.id}`);
       return parts.join(" | ");
@@ -1124,7 +1130,12 @@
     function updateSelectedUnitInfo(field) {
       const target = el(`${field}-selected`);
       const unit = selectedUnit(field);
-      target.textContent = unit ? unitVariantLabel(unit) : "";
+      if (!unit) {
+        target.textContent = "";
+        return;
+      }
+      const audit = unitAuditLabel(unit);
+      target.innerHTML = `${escapeHtml(unitVariantLabel(unit))}${audit ? ` <details><summary>Details</summary><span>${escapeHtml(audit)}</span></details>` : ""}`;
     }
 
     function updateSelectedUnitInfos() {
@@ -1136,7 +1147,41 @@
       if (!field) return;
       el(`${field}-menu`).classList.remove("open");
       el(field).setAttribute("aria-expanded", "false");
+      el(field).removeAttribute("aria-activedescendant");
+      state.activeOptionIndex[field] = -1;
       if (state.openMenu === field) state.openMenu = null;
+    }
+
+    function dropdownOptions(field) {
+      return [...el(`${field}-menu`).querySelectorAll(".combo-option:not(:disabled)")];
+    }
+
+    function setActiveOption(field, index) {
+      const options = dropdownOptions(field);
+      if (!options.length) {
+        state.activeOptionIndex[field] = -1;
+        el(field).removeAttribute("aria-activedescendant");
+        return;
+      }
+      const bounded = Math.max(0, Math.min(options.length - 1, index));
+      state.activeOptionIndex[field] = bounded;
+      options.forEach((option, optionIndex) => {
+        const active = optionIndex === bounded;
+        option.classList.toggle("active", active);
+        option.setAttribute("aria-selected", active ? "true" : "false");
+      });
+      el(field).setAttribute("aria-activedescendant", options[bounded].id);
+      options[bounded].scrollIntoView({ block: "nearest" });
+    }
+
+    function selectDropdownOption(field, button) {
+      el(field).value = button.dataset.unit;
+      state.selectedUnitIds[field] = button.dataset.unitId || null;
+      updateSelectedUnitInfo(field);
+      closeDropdown(field);
+      refreshWeaponSelectors().catch((error) => {
+        el("error").textContent = error.message;
+      });
     }
 
     function renderDropdown(field, units) {
@@ -1146,8 +1191,8 @@
         menu.innerHTML = `<button class="combo-option" type="button" disabled>No matching units</button>`;
         return;
       }
-      menu.innerHTML = rows.map((unit) => `
-        <button class="combo-option" type="button" role="option" data-unit="${escapeHtml(unit.name)}" data-unit-id="${escapeHtml(unit.id || "")}">
+      menu.innerHTML = rows.map((unit, index) => `
+        <button class="combo-option" id="${field}-option-${index}" type="button" role="option" aria-selected="false" data-unit="${escapeHtml(unit.name)}" data-unit-id="${escapeHtml(unit.id || "")}">
           ${escapeHtml(unit.name)}
           <span>${escapeHtml(optionSubtitle(unit))}</span>
         </button>
@@ -1155,15 +1200,11 @@
       menu.querySelectorAll(".combo-option").forEach((button) => {
         button.addEventListener("mousedown", (event) => {
           event.preventDefault();
-          el(field).value = button.dataset.unit;
-          state.selectedUnitIds[field] = button.dataset.unitId || null;
-          updateSelectedUnitInfo(field);
-          closeDropdown(field);
-          refreshWeaponSelectors().catch((error) => {
-            el("error").textContent = error.message;
-          });
+          selectDropdownOption(field, button);
         });
       });
+      const selectedIndex = rows.findIndex((unit) => unit.id && unit.id === state.selectedUnitIds[field]);
+      setActiveOption(field, selectedIndex >= 0 ? selectedIndex : 0);
     }
 
     async function refreshWeaponSelectors() {
@@ -2155,8 +2196,28 @@
           });
         });
         el(id).addEventListener("keydown", (event) => {
-          if (event.key === "Enter") calculate();
-          if (event.key === "Escape") closeDropdown(id);
+          const menuOpen = state.openMenu === id && el(`${id}-menu`).classList.contains("open");
+          if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+            event.preventDefault();
+            const direction = event.key === "ArrowDown" ? 1 : -1;
+            if (!menuOpen) {
+              openDropdown(id).catch((error) => {
+                el("error").textContent = error.message;
+              });
+              return;
+            }
+            setActiveOption(id, state.activeOptionIndex[id] + direction);
+          } else if (event.key === "Enter") {
+            if (menuOpen && state.activeOptionIndex[id] >= 0) {
+              event.preventDefault();
+              const option = dropdownOptions(id)[state.activeOptionIndex[id]];
+              if (option) selectDropdownOption(id, option);
+            } else {
+              calculate();
+            }
+          } else if (event.key === "Escape") {
+            closeDropdown(id);
+          }
         });
       }
     }
