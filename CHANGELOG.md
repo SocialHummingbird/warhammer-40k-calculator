@@ -5,6 +5,7 @@
   - [x] Promote Calculator, Battlefield, and Data Review to top-level UI modes.
   - [x] Compact Battlefield unit labels so map blobs do not obscure terrain or each other.
   - [x] Add appropriate Warhammer-themed but non-infringing visual assets/art direction for the calculator, Battlefield board, terrain/objective states, empty states, and desktop/local launch experience.
+  - [x] Improve Battlefield board space usage with a board-plus-side-panel layout, clearer unit labels, a terrain rules key, varied terrain shapes, and multi-storey terrain metadata.
 - [x] Refactor core boundaries before adding ML-heavy features.
   - [x] Extract deterministic matchup orchestration into `warhammer.matchups` so the web API and future ML exporters can share one calculation path.
   - [x] Extract generated review artifact loading into `warhammer.data_review`.
