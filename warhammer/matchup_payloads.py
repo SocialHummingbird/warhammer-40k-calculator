@@ -29,6 +29,13 @@ def unit_summary(unit: UnitProfile) -> Dict[str, Any]:
         "points": unit.points,
         "models_min": unit.models_min,
         "models_max": unit.models_max,
+        "base_type": unit.base_type,
+        "base_shape": unit.base_shape,
+        "base_width_mm": unit.base_width_mm,
+        "base_depth_mm": unit.base_depth_mm,
+        "footprint_status": unit.footprint_status,
+        "footprint_source": unit.footprint_source,
+        "footprint_confidence": unit.footprint_confidence,
         "source_file": unit.source_file,
         "keywords": unit.keywords,
     }

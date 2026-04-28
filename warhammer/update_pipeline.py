@@ -5,6 +5,7 @@ from collections.abc import Callable, Sequence
 from pathlib import Path
 
 from warhammer.artifact_manifest import copy_artifacts
+from warhammer.base_sizes import generate_unit_footprint_artifacts
 from warhammer.command_runner import run_command
 from warhammer.data_review import data_review_payload
 from warhammer.data_review_summary import (
@@ -13,6 +14,7 @@ from warhammer.data_review_summary import (
     build_review_threshold_summary_lines,
     normalize_review_thresholds,
 )
+from warhammer.footprint_review import write_footprint_review_report
 from warhammer.file_io import read_json_object, write_json_file
 from warhammer.import_diff import build_import_diff, load_tables
 from warhammer.ml.model import MODEL_TYPES
@@ -66,6 +68,7 @@ def run_update(
         ),
         project_root,
     )
+    _refresh_unit_footprints(csv_dir=csv_dir, project_root=project_root, message_sink=message_sink)
 
     after = load_tables(csv_dir)
     diff = build_import_diff(before, after, source_before=source_before, source_after=source_after)
@@ -154,6 +157,37 @@ def run_update(
         write_json_file(threshold_path, build_current_review_thresholds(payload or {}))
         message_sink(f"Wrote review thresholds to {threshold_path}")
     return 0
+
+
+def _refresh_unit_footprints(*, csv_dir: Path, project_root: Path, message_sink: MessageSink) -> None:
+    base_guide = project_root / "data" / "base_sizes" / "base_size_guide.csv"
+    units_csv = csv_dir / "units.csv"
+    if not base_guide.exists() or not units_csv.exists():
+        return
+    (csv_dir / "base_size_guide.csv").write_bytes(base_guide.read_bytes())
+    overrides = project_root / "data" / "base_sizes" / "unit_footprint_overrides.csv"
+    if overrides.exists():
+        (csv_dir / "unit_footprint_overrides.csv").write_bytes(overrides.read_bytes())
+    rejections = project_root / "data" / "base_sizes" / "unit_footprint_rejections.csv"
+    if rejections.exists():
+        (csv_dir / "unit_footprint_rejections.csv").write_bytes(rejections.read_bytes())
+    summary = generate_unit_footprint_artifacts(
+        units_csv=units_csv,
+        base_size_csv=base_guide,
+        unit_footprints_csv=csv_dir / "unit_footprints.csv",
+        review_csv=csv_dir / "unit_footprint_review.csv",
+        overrides_csv=overrides if overrides.exists() else None,
+        rejections_csv=rejections if rejections.exists() else None,
+        suggestions_csv=csv_dir / "unit_footprint_suggestions.csv",
+        override_template_csv=csv_dir / "unit_footprint_override_template.csv",
+        review_queue_csv=csv_dir / "unit_footprint_review_queue.csv",
+    )
+    write_footprint_review_report(csv_dir)
+    message_sink(
+        "Updated unit footprint artifacts: "
+        f"{summary['footprints']} units, {summary['review_rows']} review rows, "
+        f"{summary['suggestions']} suggestions."
+    )
 
 
 def _review_gate_thresholds(args: object) -> dict[str, int]:

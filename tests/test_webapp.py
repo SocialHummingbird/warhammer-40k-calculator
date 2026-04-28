@@ -355,6 +355,7 @@ def test_data_review_payload_loads_generated_reports(tmp_path):
     (tmp_path / "metadata.json").write_text('{"counts": {"units": 3}}', encoding="utf-8")
     (tmp_path / "edition_status.json").write_text('{"edition": "10e", "status": "ready"}', encoding="utf-8")
     (tmp_path / "edition_readiness.md").write_text("# Edition Readiness Report\n", encoding="utf-8")
+    (tmp_path / "unit_footprint_review.md").write_text("# Unit Footprint Review\n", encoding="utf-8")
     (tmp_path / "update_report.md").write_text("# Update\n\nStatus: PASS\n", encoding="utf-8")
     (tmp_path / "profile_review.md").write_text("# Imported Profile Review\n\nWeapon profiles: 1\n", encoding="utf-8")
     (tmp_path / "weapon_profile_review.csv").write_text("unit_name,weapon_name\nBoyz,Choppa\n", encoding="utf-8")
@@ -371,6 +372,7 @@ def test_data_review_payload_loads_generated_reports(tmp_path):
     assert "Status: PASS" in payload["update_report"]
     assert "Imported Profile Review" in payload["profile_review"]
     assert payload["edition_readiness"] == "# Edition Readiness Report\n"
+    assert payload["unit_footprint_review"] == "# Unit Footprint Review\n"
     assert payload["model_audit"] is None
     assert payload["model_comparison"] is None
     assert payload["model_files"] == []
@@ -379,6 +381,7 @@ def test_data_review_payload_loads_generated_reports(tmp_path):
         "weapon_profile_review.csv",
         "edition_status.json",
         "edition_readiness.md",
+        "unit_footprint_review.md",
         "profile_review.md",
         "update_report.md",
     }
@@ -400,6 +403,11 @@ def test_data_review_payload_tolerates_missing_data_dir():
         "source_catalogue_summary": None,
         "unit_variant_summary": None,
         "weapon_coverage_summary": None,
+        "unit_footprint_summary": None,
+        "unit_footprint_suggestion_summary": None,
+        "unit_footprint_template_summary": None,
+        "unit_footprint_queue_summary": None,
+        "unit_footprint_review": None,
         "ability_modifier_summary": None,
         "schema_summary": None,
         "update_report": None,

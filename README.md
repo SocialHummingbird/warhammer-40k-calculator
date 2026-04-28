@@ -13,6 +13,7 @@ Key features:
 ## Requirements
 - Python 3.11 or newer.
 - PowerShell (all examples below use `pwsh`).
+- Optional: `pypdf` when extracting the official Warhammer 40,000 base-size guide PDF into CSV.
 - No third-party Python dependencies are required.
 
 ## Setup (PowerShell)
@@ -79,7 +80,7 @@ python -m warhammer.webapp --csv-dir data\10e\latest --port 8765
 
 On Windows you can also run `run_web_ui.bat` from the project folder.
 
-Then open `http://127.0.0.1:8765/`. The server loads units once at startup and serves a zero-dependency HTML interface for attacker/defender matchups, faction-filtered unit search, ranged or melee mode, optional per-side weapon selection and weapon count multipliers, estimated points removed, generated matchup judgement, and separate engagement context for the attacker attack and return strike.
+Then open `http://127.0.0.1:8765/`. The server loads units once at startup and serves a zero-dependency HTML interface for attacker/defender matchups, per-side faction-filtered unit search, ranged or melee mode, optional per-side weapon selection and weapon count multipliers, estimated points removed, generated matchup judgement, and separate engagement context for the attacker attack and return strike.
 
 The local server also exposes the latest generated data review at `http://127.0.0.1:8765/api/data-review`, including `update_report.md` and `profile_review.md`, which powers the same Data Review button used by the standalone HTML.
 
@@ -113,7 +114,7 @@ When `data\wh40k-10e` is a local Git checkout, refresh the whole generated datab
 python update_database.py
 ```
 
-The updater fast-forwards the BSData checkout from `https://github.com/BSData/wh40k-10e.git`, regenerates `data\10e\latest`, writes `audit_report.json`, `schema_review.csv`, `edition_status.json`, `edition_readiness.md`, `import_diff.json`, joined profile review files, and a readable `update_report.md`, refreshes the ML feature CSV/model/audit under `data\ml\10e` and `models\10e`, records linked ML artifact hashes in `artifact_manifest.json`, stores a commit-keyed snapshot under `data\10e\snapshots`, rebuilds `warhammer_calculator_local.html`, and mirrors artifacts to `data\latest` for older commands. Use `--skip-ml` to leave existing ML artifacts untouched during a data-only refresh, `--ml-model-type logistic_regression` to have the update pipeline train and embed the optional logistic advisory model, `--ml-labels data\ml\10e\real_matchup_labels.csv` to train and compare advisory models against curated labels, or `--fail-on-review-issues` to make the update exit non-zero when generated artifacts, schema, edition readiness, or error-severity audit rows fail the data review gate. Add `--review-fail-on-warnings` when you want warning rows to block the refresh too, `--review-thresholds config\review_thresholds_10e.json` to use the current accepted warning baseline, `--write-review-thresholds config\review_thresholds_10e.json` to write a new accepted baseline after a successful refresh, or threshold flags such as `--max-suspicious-weapon-warnings`, `--max-loadout-warnings`, and `--max-no-weapon-units` when existing warning rows are accepted but growth should fail the update.
+The updater fast-forwards the BSData checkout from `https://github.com/BSData/wh40k-10e.git`, regenerates `data\10e\latest`, writes `audit_report.json`, `schema_review.csv`, `edition_status.json`, `edition_readiness.md`, `import_diff.json`, joined profile review files, official base-size footprint artifacts, and a readable `update_report.md`, refreshes the ML feature CSV/model/audit under `data\ml\10e` and `models\10e`, records linked ML artifact hashes in `artifact_manifest.json`, stores a commit-keyed snapshot under `data\10e\snapshots`, rebuilds `warhammer_calculator_local.html`, and mirrors artifacts to `data\latest` for older commands. Use `--skip-ml` to leave existing ML artifacts untouched during a data-only refresh, `--ml-model-type logistic_regression` to have the update pipeline train and embed the optional logistic advisory model, `--ml-labels data\ml\10e\real_matchup_labels.csv` to train and compare advisory models against curated labels, or `--fail-on-review-issues` to make the update exit non-zero when generated artifacts, schema, edition readiness, or error-severity audit rows fail the data review gate. Add `--review-fail-on-warnings` when you want warning rows to block the refresh too, `--review-thresholds config\review_thresholds_10e.json` to use the current accepted warning baseline, `--write-review-thresholds config\review_thresholds_10e.json` to write a new accepted baseline after a successful refresh, or threshold flags such as `--max-suspicious-weapon-warnings`, `--max-loadout-warnings`, and `--max-no-weapon-units` when existing warning rows are accepted but growth should fail the update.
 
 Generated metadata records the active rules edition. The current supported value is `10e`; pass `--edition 10e` explicitly when scripting updates that will later coexist with additional edition snapshots. The server discovers `data\<edition>\latest` folders, reports them through `/api/health`, and routes unit search, unit detail, data review, review downloads, and calculations through the selected edition when a matching ruleset exists. If data exists for an edition whose ruleset is not implemented, the server reports it as blocked instead of silently hiding it. Each supported ruleset also publishes machine-readable capability coverage in `edition_status.json` and `/api/health.rulesets`, so future edition work can compare implemented mechanics such as hit rolls, wound rolls, saves, damage handling, and model removal before calculations are enabled. The standalone HTML remains a single embedded dataset but shows the edition used for that export.
 
@@ -206,6 +207,15 @@ For manual data review, open:
 - `data\10e\latest\ability_modifier_review.csv` for derived ability effects that the calculator applies during matchup math.
 - `data\10e\latest\unit_variant_review.csv` for duplicate-name unit rows with their unit IDs, factions, source files, points, and model counts.
 - `data\10e\latest\unit_weapon_coverage_review.csv` for each unit's ranged/melee weapon counts and coverage category.
+- `data\10e\latest\base_size_guide.csv` for extracted rows from the official January 2026 Base Size Guide.
+- `data\10e\latest\unit_footprint_overrides.csv` for reviewable local footprint aliases or manual corrections that cannot be matched safely by name.
+- `data\10e\latest\unit_footprint_rejections.csv` for reviewed footprint suggestions that should not be resurfaced as candidate matches.
+- `data\10e\latest\unit_footprint_override_template.csv` for unmatched units prefilled with unit IDs and top suggestion context, ready for manual override research.
+- `data\10e\latest\unit_footprint_review_queue.csv` for the same unmatched units sorted into a prioritized manual review queue.
+- `data\10e\latest\unit_footprints.csv` for imported units joined to official base sizes, used by Battlefield blob sizing where a numeric base is available.
+- `data\10e\latest\unit_footprint_review.csv` for unmatched, mixed-base, non-numeric-base, and faction-ambiguous footprint rows that need manual review.
+- `data\10e\latest\unit_footprint_review.md` for a human-readable footprint triage report with status counts, high-confidence suggestions, and override workflow commands.
+- `data\10e\latest\unit_footprint_suggestions.csv` for non-authoritative candidate official guide rows that can speed up manual footprint override review.
 - `data\10e\latest\loadout_review.csv` for units with many imported weapon profiles where all-weapons calculations may need specific loadout selection.
 - `data\10e\latest\source_catalogue_review.csv` for per-catalogue unit, weapon, ability, suspicious, loadout review counts, and exact upstream GitHub file URLs.
 - `data\10e\latest\schema_review.csv` for required versus actual generated CSV columns.
@@ -213,6 +223,34 @@ For manual data review, open:
 - `data\10e\latest\edition_readiness.md` for a readable compatibility report and migration checklist for future edition support.
 - `data\10e\latest\artifact_manifest.json` for file sizes and SHA-256 hashes of generated artifacts and linked ML artifacts.
 - `data\10e\latest\profile_review.md` for a short summary of imported profile coverage.
+
+After reviewing high-confidence footprint suggestions, promote them into the manual override layer with a dry run first:
+
+```powershell
+python footprint_review_report.py --data-dir data\10e\latest
+python accept_footprint_suggestions.py --min-score 0.9
+python accept_footprint_suggestions.py --min-score 0.9 --apply
+python reject_footprint_suggestions.py --min-score 0.8 --unit-id <unit-id> --apply
+python plan_footprint_review.py --limit 50 --output data\10e\latest\unit_footprint_review_queue.csv
+python promote_footprint_override_template.py --template data\10e\latest\unit_footprint_override_template.csv
+python promote_footprint_override_template.py --template data\10e\latest\unit_footprint_override_template.csv --apply
+python promote_footprint_override_template.py --queue data\10e\latest\unit_footprint_review_queue.csv
+python promote_footprint_override_template.py --queue data\10e\latest\unit_footprint_review_queue.csv --apply
+python update_database.py --skip-fetch --skip-ml
+```
+
+In `unit_footprint_override_template.csv`, leave uncertain rows blank. Set `review_decision` to
+`accept_suggestion` to promote the prefilled official-guide suggestion, or `override` after filling the
+`override_*` fields for a researched manual base-size row. The promotion script reports suggestion-ready,
+manual override-ready, invalid, blank, skipped, and already-overridden rows before it writes anything.
+Those same counts are visible in the Data Review screen as “Footprint Override Template Status”.
+Data Review also renders “Footprint Review Queue” with the priority counts and first rows from
+`unit_footprint_review_queue.csv`, and the Markdown footprint report includes the same prioritized
+manual-review batch with suggested reviewer actions. The CLI data review summary and release verification output also
+print the footprint review queue distribution so manual base-size audit debt is visible without opening
+the browser.
+
+Battlefield blob sizing uses official numeric base dimensions when available. Official guide rows that say only `Small Flying Base`, `Large Flying Base`, `Hull`, or `Unique` use explicit derived planning footprints in the UI, so they remain auditable instead of being treated as unknown generic blobs.
 
 Verify generated artifacts, linked ML artifact hashes, and linked ML training provenance against their manifest with:
 

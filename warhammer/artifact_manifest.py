@@ -29,6 +29,15 @@ DATA_ARTIFACTS: tuple[str, ...] = (
     "unit_weapon_coverage_review.csv",
     "loadout_review.csv",
     "source_catalogue_review.csv",
+    "base_size_guide.csv",
+    "unit_footprint_overrides.csv",
+    "unit_footprint_rejections.csv",
+    "unit_footprint_override_template.csv",
+    "unit_footprint_review_queue.csv",
+    "unit_footprints.csv",
+    "unit_footprint_review.csv",
+    "unit_footprint_review.md",
+    "unit_footprint_suggestions.csv",
     "profile_review.md",
 )
 

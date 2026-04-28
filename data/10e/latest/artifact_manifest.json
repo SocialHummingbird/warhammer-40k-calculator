@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-28T07:01:00.231690Z",
+  "generated_at": "2026-04-28T11:54:35.582642Z",
   "source": {
     "path": "C:\\Users\\ap010\\OneDrive\\Documents\\dev\\Warhammer 40K Calculator\\250916 0942 Warhammer 40k damage calculator\\data\\wh40k-10e",
     "remote_origin": "https://github.com/BSData/wh40k-10e.git",
@@ -9,7 +9,7 @@
     "commit_subject": "Armageddon Faction Pack update",
     "dirty": false
   },
-  "artifact_count": 22,
+  "artifact_count": 31,
   "artifacts": {
     "units.csv": {
       "bytes": 195218,
@@ -33,11 +33,11 @@
     },
     "metadata.json": {
       "bytes": 1195,
-      "sha256": "0df4d07c76047044d2724e0f107f070b4649e499b6c4bcd7bb95cccbbee565df"
+      "sha256": "36f8e126baf426795489c83c48b20609c979c6318a302c0fe275c3c498f04139"
     },
     "edition_status.json": {
       "bytes": 3724,
-      "sha256": "59de7a2d4884b6a0166b217f293b3eea87612ac3e0b7b03eed90f9563fbc3fed"
+      "sha256": "76915f2f243d0ab7f7ac67eead3b6e36163b7c84f3cf94416fe6f0f919ef5ea1"
     },
     "edition_readiness.md": {
       "bytes": 2015,
@@ -45,7 +45,7 @@
     },
     "audit_report.json": {
       "bytes": 816,
-      "sha256": "2fab6ac930be739380420a81daf7a470a8371249bf21c7595a75d4860595422e"
+      "sha256": "185c03fabc60016602567fe96ef22aed3a54a53c5b3124e15d80740f5ddbd61c"
     },
     "schema_review.csv": {
       "bytes": 1321,
@@ -53,11 +53,11 @@
     },
     "import_diff.json": {
       "bytes": 2315,
-      "sha256": "a8fc5c44d8e7868d9fa12bb6fffd2f4249d3c96f4a78636bd36b432b08e6b9d8"
+      "sha256": "11d83c8ec3b1a17bf673993f12e7f7f981bf628181b3a9e3aa0a7efe1aea4eb8"
     },
     "update_report.md": {
       "bytes": 2723,
-      "sha256": "0bd2fde55a2a5dfa3441bbca51bd7dd7a1777aae55a089117be7e5957afcda6f"
+      "sha256": "14f5979b8a0686d2d375a3df23f194913b061a0828facc3fc6f9f832aa3f4bad"
     },
     "weapon_profile_review.csv": {
       "bytes": 2114210,
@@ -95,37 +95,46 @@
       "bytes": 7472,
       "sha256": "5be99f67c4b1a967716683a13e9ba76d1de495f37ea95ceefbcf0f63ce677080"
     },
+    "base_size_guide.csv": {
+      "bytes": 300803,
+      "sha256": "12f75a021d04d491bc4b563a8e52111fc1cdfcbf6972f529ed592b25790f091a"
+    },
+    "unit_footprint_overrides.csv": {
+      "bytes": 4697,
+      "sha256": "b9639dc7db98adf3d8792442343a651afea627421a68693af1a51413bd466089"
+    },
+    "unit_footprint_rejections.csv": {
+      "bytes": 3113,
+      "sha256": "b90cdb78608c20afd28776baabbe66f0e5cdd8d02162b137c8fec9a8bcab4b61"
+    },
+    "unit_footprint_override_template.csv": {
+      "bytes": 75133,
+      "sha256": "d78789d401979e8e81685948c8ac1b497bdb330b4a654726e93ae986a2710118"
+    },
+    "unit_footprint_review_queue.csv": {
+      "bytes": 146469,
+      "sha256": "a6d55d4443ec027e75846bb75cf22fff9d571221f2e826a9c97fbf8d71bc69c8"
+    },
+    "unit_footprints.csv": {
+      "bytes": 590853,
+      "sha256": "3b1498bc1bfff5f0cc87eb0bbd1d1de8785139a70f021e5fa805ce8a9841f686"
+    },
+    "unit_footprint_review.csv": {
+      "bytes": 327810,
+      "sha256": "09a82601823b5ee81ad378e32a71ec0dee95944ca3ba85ca7e300ebcf3abe5fe"
+    },
+    "unit_footprint_review.md": {
+      "bytes": 9286,
+      "sha256": "e7103967d86d99a0d4fcc9b7d726efd44e59a9b46fd2c3de2e00d241aa6f53a4"
+    },
+    "unit_footprint_suggestions.csv": {
+      "bytes": 155255,
+      "sha256": "4bda971999475d07f795be14124ba08f2b041bb3aa7ecc61cdccd9b4d5f01799"
+    },
     "profile_review.md": {
       "bytes": 8264,
-      "sha256": "e01d5f3e6d873e1c7ee2a999cf1643e83d88e7d1b984c3443e9115d2b0db84f1"
+      "sha256": "33f5ecff6bb1b5c9aeb4bbe6edf62fd25edcd6e15589efaf3175eff5b7cd95d9"
     }
   },
-  "linked_ml_artifacts": {
-    "edition": "10e",
-    "feature_set": "pre_match",
-    "model_type": "centroid",
-    "feature_rows": 10000,
-    "artifacts": {
-      "feature_csv": {
-        "path": "data/ml/10e/matchup_training_rows.csv",
-        "bytes": 5790535,
-        "sha256": "db55ed1cc68095c89f4f5d9e33a2c3a8d31f1345c0efc5ab0f2f845029753236"
-      },
-      "model_json": {
-        "path": "models/10e/matchup_centroid_model.json",
-        "bytes": 10448,
-        "sha256": "c2460531015d9df49eb9440015799a52c934bfe79f7f23eee95ee970ff2bffe9"
-      },
-      "model_audit": {
-        "path": "models/10e/matchup_centroid_model.md",
-        "bytes": 3276,
-        "sha256": "76760e2d265de62e5e1900034615f1d0c95b5219e61b973f84069e645fd5be46"
-      },
-      "model_comparison": {
-        "path": "models/10e/model_comparison.md",
-        "bytes": 397,
-        "sha256": "d7658e49495ad50cc6067b570f4b8563c20c7749e5e856a19fe11144bf2333a4"
-      }
-    }
-  }
+  "linked_ml_artifacts": {}
 }

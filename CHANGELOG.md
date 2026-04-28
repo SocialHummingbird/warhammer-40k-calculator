@@ -1,17 +1,35 @@
 # Changelog
 
 ## Planned Work
-- [ ] Add UI/UX polish and appropriate visual art.
+- [x] Add UI/UX polish and appropriate visual art.
   - [x] Promote Calculator, Battlefield, and Data Review to top-level UI modes.
   - [x] Compact Battlefield unit labels so map blobs do not obscure terrain or each other.
   - [x] Add appropriate Warhammer-themed but non-infringing visual assets/art direction for the calculator, Battlefield board, terrain/objective states, empty states, and desktop/local launch experience.
   - [x] Improve Battlefield board space usage with a board-plus-side-panel layout, clearer unit labels, a terrain rules key, varied terrain shapes, and multi-storey terrain metadata.
+  - [x] Replace the calculator's shared faction filter with separate attacker and defender faction filters.
+  - [x] Add richer Battlefield unit markers with model/wound status, model-count badges, and hover summaries.
+  - [x] Add official-base-size footprint data to support more accurate Battlefield unit blob sizing.
+  - [x] Show Battlefield footprint radius, base size, and footprint source in unit hover text and the selected-unit inspector.
+  - [x] Add a reviewed suggestion acceptance script for promoting high-confidence footprint suggestions into manual overrides.
+  - [x] Generate a Markdown footprint review report so remaining base-size audit work is grouped for manual triage.
+  - [x] Add explicit derived Battlefield footprint estimates for official non-numeric base types such as flying bases, hulls, and unique footprints.
+  - [x] Render the footprint review Markdown report directly in hosted and standalone Data Review screens.
+  - [x] Add a reviewed suggestion rejection layer so unsafe footprint suggestions can be suppressed without turning them into overrides.
+  - [x] Generate a unit footprint override template CSV to make unmatched-unit manual review easier.
+  - [x] Add a promotion script for reviewed footprint override-template rows.
+  - [x] Add validation/status reporting for reviewed footprint override-template rows.
+  - [x] Surface footprint override-template review status directly in hosted and standalone Data Review.
+  - [x] Add a prioritized footprint review queue artifact and CLI for batching manual base-size research.
+  - [x] Render the prioritized footprint review queue directly in hosted and standalone Data Review.
+  - [x] Include footprint review queue counts in the terminal data review summary and release output.
+  - [x] Include the prioritized manual-review queue and reviewer action hints in the Markdown footprint report.
+  - [x] Let reviewed prioritized queue rows be promoted directly into footprint overrides with `--queue`.
 - [x] Refactor core boundaries before adding ML-heavy features.
   - [x] Extract deterministic matchup orchestration into `warhammer.matchups` so the web API and future ML exporters can share one calculation path.
   - [x] Extract generated review artifact loading into `warhammer.data_review`.
   - [x] Extract edition metadata, discovery, and readiness rows into `warhammer.editions`.
   - [x] Extract API payload parsing into `warhammer.api_payloads` and unit filtering into `warhammer.unit_search`.
-- [ ] Add ML foundation.
+- [ ] Add ML foundation. Remaining work is gated on real or curated matchup labels.
   - [x] Add `warhammer.ml.features` and `export_ml_features.py` to generate deterministic calculator-derived matchup feature rows.
   - [x] Add seeded sampling for capped feature exports so training rows cover more than the first sorted pair block.
   - [x] Add a dependency-free nearest-centroid advisory model trainer.
@@ -56,6 +74,19 @@
   - [x] Surface source catalogue coverage, issue counts, and upstream source links directly in the Data Review UI and standalone HTML export.
   - [x] Surface duplicate unit-name variants directly in the Data Review UI and standalone HTML export.
   - [x] Surface unit weapon coverage counts and no-weapon unit samples directly in the Data Review UI and standalone HTML export.
+  - [x] Extract the January 2026 official Base Size Guide into `base_size_guide.csv`, join it to imported units in `unit_footprints.csv`, and surface unmatched/mixed/faction-ambiguous rows through `unit_footprint_review.csv`.
+  - [x] Add a reviewable `unit_footprint_overrides.csv` layer and safer name normalization for apostrophes and simple plural variants.
+  - [x] Add `unit_footprint_suggestions.csv` to propose likely official guide rows for unmatched footprints without applying them automatically.
+  - [x] Add safer base-size name matching for internal plurals, Armour/Armor spelling, generic squad labels, and BSData library catalogue aliases, then accept nine reviewed high-confidence suggestion rows into footprint overrides.
+  - [x] Add `unit_footprint_review.md` with status counts, largest unmatched factions, high-confidence suggestion samples, and explicit override workflow commands.
+  - [x] Include non-numeric base-type counts in the footprint review report and mark their Battlefield footprints as derived estimates.
+  - [x] Add `unit_footprint_rejections.csv` and reject the remaining high-confidence but unsafe different-datasheet suggestions from the footprint review queue.
+  - [x] Add `unit_footprint_override_template.csv` with unmatched unit IDs, factions, model counts, and top suggestion context for manual override research.
+  - [x] Add `promote_footprint_override_template.py` so reviewed template rows can be promoted into `unit_footprint_overrides.csv`.
+  - [x] Show override-template review status counts and invalid-row checks before promotion.
+  - [x] Add structured Data Review cards for footprint override-template ready, invalid, blank, skipped, and already-overridden rows.
+  - [x] Add `unit_footprint_review_queue.csv` and `plan_footprint_review.py` to prioritize unmatched-unit manual footprint review.
+  - [x] Surface footprint review queue priority counts and the first manual-review rows directly in Data Review.
   - [x] Confirm remaining no-weapon Exalted Eightbound row reflects missing weapon profiles in the upstream source rather than dropped importer links.
   - [x] Surface derived ability modifier counts, grants, and sample rows directly in the Data Review UI and standalone HTML export.
   - [x] Surface generated CSV schema review status directly in the Data Review UI and standalone HTML export.
@@ -70,7 +101,7 @@
   - [x] Let `update_database.py --write-review-thresholds` write the current accepted audit baseline after a successful refresh.
   - [x] Add `verify_release.py` to run tests, artifact manifest checks, and the thresholded data review gate as one command.
   - [x] Add PowerShell and batch launchers for local release verification.
-- [ ] Add multi-edition support so 10th edition and future 11th edition data can coexist without sharing incompatible rules assumptions.
+- [ ] Add multi-edition support so 10th edition and future 11th edition data can coexist without sharing incompatible rules assumptions. Remaining work is gated on an upstream 11th-edition data source and rules mapping.
   - [x] First step: introduce an explicit ruleset registry and route current calculator behavior through a `10e` ruleset while keeping current outputs unchanged.
   - [x] Add edition metadata to generated data artifacts and display the active rules edition in the UI status.
   - [x] Add an edition selector and calculate-request edition field, currently locked to available `10e` data.

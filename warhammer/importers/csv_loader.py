@@ -19,6 +19,8 @@ def load_units_from_directory(directory: Path) -> Dict[str, UnitProfile]:
     ability_rows = _read_csv(directory / "abilities.csv")
     keyword_rows = _read_csv(directory / "keywords.csv")
     unit_keyword_rows = _read_csv(directory / "unit_keywords.csv")
+    footprint_rows = _read_csv(directory / "unit_footprints.csv")
+    footprints_by_unit = {row.get("unit_id"): row for row in footprint_rows if row.get("unit_id")}
 
     units: Dict[str, Dict] = {}
     for row in unit_rows:
@@ -40,6 +42,7 @@ def load_units_from_directory(directory: Path) -> Dict[str, UnitProfile]:
             "leadership": _to_optional_int(row.get("leadership")),
             "objective_control": _to_optional_int(row.get("objective_control")),
             "source_file": row.get("source_file") or "",
+            "footprint": footprints_by_unit.get(unit_id, {}),
             "weapons": [],
             "abilities": [],
             "keywords": [],
@@ -129,6 +132,13 @@ def load_units_from_directory(directory: Path) -> Dict[str, UnitProfile]:
             "leadership": payload.get("leadership"),
             "objective_control": payload.get("objective_control"),
             "source_file": payload.get("source_file"),
+            "base_type": payload.get("footprint", {}).get("base_type"),
+            "base_shape": payload.get("footprint", {}).get("base_shape"),
+            "base_width_mm": payload.get("footprint", {}).get("base_width_mm"),
+            "base_depth_mm": payload.get("footprint", {}).get("base_depth_mm"),
+            "footprint_status": payload.get("footprint", {}).get("footprint_status"),
+            "footprint_source": payload.get("footprint", {}).get("source"),
+            "footprint_confidence": payload.get("footprint", {}).get("match_confidence"),
             "weapons": payload["weapons"],
             "abilities": payload["abilities"],
             "keywords": payload["keywords"],

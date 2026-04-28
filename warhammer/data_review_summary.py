@@ -169,6 +169,14 @@ def build_data_review_summary_lines(payload: Mapping[str, Any]) -> list[str]:
             f" ({_format_counts(_mapping(coverage.get('by_coverage')))})"
         )
 
+    footprint_queue = _mapping(payload.get("unit_footprint_queue_summary"))
+    if footprint_queue:
+        lines.append(
+            "Footprint review queue: "
+            f"{footprint_queue.get('total', 0)} rows"
+            f" ({_format_counts(_mapping(footprint_queue.get('by_priority')))})"
+        )
+
     schema = _mapping(payload.get("schema_summary"))
     if schema:
         lines.append(f"Schema: {schema.get('total', 0)} tables ({_format_counts(_mapping(schema.get('by_status')))})")

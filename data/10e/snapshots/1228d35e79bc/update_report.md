@@ -1,6 +1,6 @@
 # Warhammer Data Update Report
 
-Generated: 2026-04-28T07:00:53.681245Z
+Generated: 2026-04-28T11:54:34.997989Z
 Source: https://github.com/BSData/wh40k-10e.git
 Branch: main
 Commit: 1228d35e79bcf02a5e70ec94e422b7ffce4f980e -> 1228d35e79bcf02a5e70ec94e422b7ffce4f980e

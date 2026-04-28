@@ -213,6 +213,15 @@ def test_standalone_html_can_calculate_matchup_in_headless_browser():
                   };
                   const attacker = choose("attacker", (unit) => unit.name === "Boyz" && /Orks/.test(unit.faction || ""));
                   const defender = choose("defender", (unit) => unit.name === "Intercessor Squad" && /Space Marines/.test(unit.faction || ""));
+                  document.getElementById("attacker-faction").value = attacker.faction;
+                  document.getElementById("defender-faction").value = defender.faction;
+                  await loadUnits("", "attacker");
+                  await loadUnits("", "defender");
+                  await openDropdown("attacker");
+                  const attackerMenuText = document.getElementById("attacker-options")?.innerText || "";
+                  await openDropdown("defender");
+                  const defenderMenuText = document.getElementById("defender-options")?.innerText || "";
+                  closeDropdown("defender");
                   updateSelectedUnitInfos();
                   document.getElementById("mode").value = "melee";
                   await refreshWeaponSelectors();
@@ -228,6 +237,11 @@ def test_standalone_html_can_calculate_matchup_in_headless_browser():
                     initialCalculatorEmptyText,
                     attackerId: state.selectedUnitIds.attacker,
                     defenderId: state.selectedUnitIds.defender,
+                    oldGlobalFactionExists: Boolean(document.getElementById("faction")),
+                    attackerFactionValue: document.getElementById("attacker-faction")?.value || "",
+                    defenderFactionValue: document.getElementById("defender-faction")?.value || "",
+                    attackerMenuText,
+                    defenderMenuText,
                     error: document.getElementById("error").textContent,
                     judgement: document.querySelector(".judgement h3")?.textContent || "",
                     firstResultHeading: document.querySelector("#results h3")?.textContent || "",
@@ -272,6 +286,13 @@ def test_standalone_html_can_calculate_matchup_in_headless_browser():
             assert "Choose a matchup" in result["initialCalculatorEmptyText"]
             assert result["attackerId"]
             assert result["defenderId"]
+            assert result["oldGlobalFactionExists"] is False
+            assert "Orks" in result["attackerFactionValue"]
+            assert "Space Marines" in result["defenderFactionValue"]
+            assert "Boyz" in result["attackerMenuText"]
+            assert "Intercessor Squad" not in result["attackerMenuText"]
+            assert "Intercessor Squad" in result["defenderMenuText"]
+            assert "Boyz" not in result["defenderMenuText"]
             assert result["error"] == ""
             assert result["bodyView"] == "calculator"
             assert result["calculatorNavPressed"] == "true"
@@ -569,6 +590,8 @@ def test_standalone_html_can_calculate_matchup_in_headless_browser():
                             schemaReviewLink: [...document.querySelectorAll('.review-link')].some((link) => /schema_review\.csv/.test(link.getAttribute("download") || link.textContent || "")),
                             editionStatusLink: [...document.querySelectorAll('.review-link')].some((link) => /edition_status\.json/.test(link.getAttribute("download") || link.textContent || "")),
                             editionReadinessLink: [...document.querySelectorAll('.review-link')].some((link) => /edition_readiness\.md/.test(link.getAttribute("download") || link.textContent || "")),
+                            footprintReviewLink: [...document.querySelectorAll('.review-link')].some((link) => /unit_footprint_review\.md/.test(link.getAttribute("download") || link.textContent || "")),
+                            footprintTemplateLink: [...document.querySelectorAll('.review-link')].some((link) => /unit_footprint_override_template\.csv/.test(link.getAttribute("download") || link.textContent || "")),
                             modelAuditLink: [...document.querySelectorAll('.review-link')].some((link) => /matchup_centroid_model\.md/.test(link.getAttribute("download") || link.textContent || "")),
                             modelComparisonLink: [...document.querySelectorAll('.review-link')].some((link) => /model_comparison\.md/.test(link.getAttribute("download") || link.textContent || "")),
                             readinessText: document.body.textContent.includes("Edition Readiness"),
@@ -585,6 +608,13 @@ def test_standalone_html_can_calculate_matchup_in_headless_browser():
                             reviewNavText: document.querySelector(".review-nav")?.textContent || "",
                             reviewSearchExists: Boolean(document.getElementById("data-review-search")),
                             reviewStatusExists: Boolean(document.getElementById("data-review-status")),
+                            footprintSuggestionsText: document.body.textContent.includes("Footprint Match Suggestions"),
+                            footprintTemplateStatusText: document.body.textContent.includes("Footprint Override Template Status"),
+                            footprintTemplateReadyText: document.body.textContent.includes("Ready to promote"),
+                            footprintQueueText: document.body.textContent.includes("Footprint Review Queue"),
+                            footprintQueueHintText: document.body.textContent.includes("Prioritized manual review batch"),
+                            footprintReviewText: document.body.textContent.includes("Unit Footprint Review"),
+                            footprintEstimateText: document.body.textContent.includes("Non-Numeric Footprint Estimates"),
                             initialFilterStatus: document.getElementById("data-review-filter-status")?.textContent || "",
                             initialReviewSections: [...document.querySelectorAll("#results .review-section")].filter((section) => !section.hidden).length
                           };
@@ -604,6 +634,8 @@ def test_standalone_html_can_calculate_matchup_in_headless_browser():
             assert review_result["schemaReviewLink"] is True
             assert review_result["editionStatusLink"] is True
             assert review_result["editionReadinessLink"] is True
+            assert review_result["footprintReviewLink"] is True
+            assert review_result["footprintTemplateLink"] is True
             assert review_result["modelAuditLink"] is True
             assert review_result["modelComparisonLink"] is True
             assert review_result["readinessText"] is True
@@ -616,8 +648,16 @@ def test_standalone_html_can_calculate_matchup_in_headless_browser():
             assert review_result["provenanceComparisonText"] is True
             assert review_result["capabilityCoverageText"] is True
             assert review_result["capabilityHitRollsText"] is True
-            assert review_result["reviewNavLinks"] == 6
+            assert review_result["reviewNavLinks"] == 7
             assert "Suspicious Weapons" in review_result["reviewNavText"]
+            assert "Footprints" in review_result["reviewNavText"]
+            assert review_result["footprintSuggestionsText"] is True
+            assert review_result["footprintTemplateStatusText"] is True
+            assert review_result["footprintTemplateReadyText"] is True
+            assert review_result["footprintQueueText"] is True
+            assert review_result["footprintQueueHintText"] is True
+            assert review_result["footprintReviewText"] is True
+            assert review_result["footprintEstimateText"] is True
             assert review_result["reviewSearchExists"] is True
             assert review_result["reviewStatusExists"] is True
             assert "review sections visible" in review_result["initialFilterStatus"]
@@ -801,8 +841,11 @@ def test_standalone_html_battlefield_mode_smoke():
                           const boardLabelMaxLength = Math.max(...boardLabels.map((node) => node.textContent.length));
                           const boardLabelsCentered = boardLabels.every((node) => {
                             const circle = node.parentElement.querySelector(".bf-unit");
-                            return circle && node.getAttribute("x") === circle.getAttribute("cx") && node.getAttribute("y") === circle.getAttribute("cy");
+                            return circle && node.getAttribute("x") === circle.getAttribute("cx");
                           });
+                          const unitStatLabels = [...document.querySelectorAll(".bf-unit-stat-label")].map((node) => node.textContent);
+                          const unitBadgeLabels = [...document.querySelectorAll(".bf-unit-badge-text")].map((node) => node.textContent);
+                          const unitTooltipText = document.querySelector(".bf-unit-marker title")?.textContent || "";
                           document.getElementById("battle-next-phase").click();
                           await new Promise((resolve) => setTimeout(resolve, 0));
                           const nextPhaseAfterClick = state.battlefield.state.phase;
@@ -1027,6 +1070,9 @@ def test_standalone_html_battlefield_mode_smoke():
                             initialBattlefieldEmptyText,
                             boardLabelMaxLength,
                             boardLabelsCentered,
+                            unitStatLabels,
+                            unitBadgeLabels,
+                            unitTooltipText,
                             redFactionValue,
                             redSelectableText,
                             redFactionOptions,
@@ -1198,6 +1244,13 @@ def test_standalone_html_battlefield_mode_smoke():
             assert {"R", "B", "W", "C", "E"}.issubset(set(result["objectiveLabels"]))
             assert result["boardLabelMaxLength"] <= 2
             assert result["boardLabelsCentered"] is True
+            assert any(label.startswith("M") and " W" in label for label in result["unitStatLabels"])
+            assert all(label for label in result["unitBadgeLabels"])
+            assert "Models " in result["unitTooltipText"]
+            assert "Nearest enemy:" in result["unitTooltipText"]
+            assert "Position x " in result["unitTooltipText"]
+            assert "Footprint " in result["unitTooltipText"]
+            assert "Base " in result["unitTooltipText"]
             assert result["redFactionValue"] == "Xenos - Orks"
             assert "selectable units" in result["redSelectableText"]
             assert any("Boyz" in option for option in result["redFactionOptions"])
@@ -1291,6 +1344,8 @@ def test_standalone_html_battlefield_mode_smoke():
             assert result["blueUnits"] >= 1
             assert "Nearest enemy" in result["inspectorText"]
             assert "Wounds remaining" in result["inspectorText"]
+            assert "Footprint " in result["inspectorText"]
+            assert "Base " in result["inspectorText"]
             assert result["inspectorWeaponRows"] >= 1
             assert result["selectedClassApplied"] is True
             assert float(result["moveRadius"]) >= 1

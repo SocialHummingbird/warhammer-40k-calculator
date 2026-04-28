@@ -14,6 +14,10 @@ from warhammer.data_review import (
     schema_summary,
     source_catalogue_summary,
     suspicious_weapon_summary,
+    unit_footprint_queue_summary,
+    unit_footprint_template_summary,
+    unit_footprint_suggestion_summary,
+    unit_footprint_summary,
     unit_profile_summary,
     unit_variant_summary,
     weapon_coverage_summary,
@@ -86,6 +90,13 @@ def _unit_payload(unit: UnitProfile) -> dict[str, Any]:
         "points": unit.points,
         "modelsMin": unit.models_min,
         "modelsMax": unit.models_max,
+        "baseType": unit.base_type,
+        "baseShape": unit.base_shape,
+        "baseWidthMm": unit.base_width_mm,
+        "baseDepthMm": unit.base_depth_mm,
+        "footprintStatus": unit.footprint_status,
+        "footprintSource": unit.footprint_source,
+        "footprintConfidence": unit.footprint_confidence,
         "objectiveControl": unit.objective_control,
         "sourceFile": unit.source_file,
         "keywords": unit.keywords,
@@ -117,6 +128,16 @@ def _local_script(data: dict[str, Any]) -> str:
       verificationReport: LOCAL_DATA.verificationReport || null,
       suspiciousWeaponSummary: LOCAL_DATA.suspiciousWeaponSummary || null,
       unitProfileSummary: LOCAL_DATA.unitProfileSummary || null,
+      loadoutSummary: LOCAL_DATA.loadoutSummary || null,
+      sourceCatalogueSummary: LOCAL_DATA.sourceCatalogueSummary || null,
+      unitVariantSummary: LOCAL_DATA.unitVariantSummary || null,
+      weaponCoverageSummary: LOCAL_DATA.weaponCoverageSummary || null,
+      unitFootprintSummary: LOCAL_DATA.unitFootprintSummary || null,
+      unitFootprintSuggestionSummary: LOCAL_DATA.unitFootprintSuggestionSummary || null,
+      unitFootprintTemplateSummary: LOCAL_DATA.unitFootprintTemplateSummary || null,
+      unitFootprintQueueSummary: LOCAL_DATA.unitFootprintQueueSummary || null,
+      abilityModifierSummary: LOCAL_DATA.abilityModifierSummary || null,
+      schemaSummary: LOCAL_DATA.schemaSummary || null,
       updateReport: LOCAL_DATA.updateReport || null,
       profileReview: LOCAL_DATA.profileReview || null,
       editionReadiness: LOCAL_DATA.editionReadiness || null,
@@ -128,8 +149,9 @@ def _local_script(data: dict[str, Any]) -> str:
       mlModels: {{}},
       unitDetails: {{}},
       selectedUnitIds: {{ attacker: null, defender: null }},
+      unitSearchResults: {{ attacker: [], defender: [] }},
       activeOptionIndex: {{ attacker: -1, defender: -1 }},
-      searchTimer: null,
+      searchTimer: {{ attacker: null, defender: null }},
       openMenu: null,
       rulesEdition: "10e",
       supportedRulesEditions: ["10e"],
@@ -166,6 +188,7 @@ def _local_script(data: dict[str, Any]) -> str:
       "\\"": "&quot;",
       "'": "&#39;"
     }}[char]));
+    const escapeAttr = escapeHtml;
 
     function unitSummary(unit) {{
       return {{
@@ -178,6 +201,13 @@ def _local_script(data: dict[str, Any]) -> str:
         points: unit.points,
         models_min: unit.modelsMin,
         models_max: unit.modelsMax,
+        base_type: unit.baseType,
+        base_shape: unit.baseShape,
+        base_width_mm: unit.baseWidthMm,
+        base_depth_mm: unit.baseDepthMm,
+        footprint_status: unit.footprintStatus,
+        footprint_source: unit.footprintSource,
+        footprint_confidence: unit.footprintConfidence,
         source_file: unit.sourceFile || "",
         keywords: unit.keywords || []
       }};
@@ -316,22 +346,35 @@ def _local_script(data: dict[str, Any]) -> str:
       el("status").title = titleParts.join(" | ");
     }}
 
-    function renderFactions() {{
-      const select = el("faction");
-      const current = select.value;
-      select.innerHTML = `<option value="">All factions</option>`;
-      for (const faction of state.factions) {{
-        const option = document.createElement("option");
-        option.value = faction;
-        option.textContent = faction;
-        select.appendChild(option);
-      }}
-      select.value = state.factions.includes(current) ? current : "";
+    function factionSelectId(field) {{
+      return field === "defender" ? "defender-faction" : "attacker-faction";
     }}
 
-    function searchUnits(query = "") {{
+    function factionForField(field) {{
+      if (field !== "attacker" && field !== "defender") return "";
+      const select = el(factionSelectId(field));
+      return select ? select.value : "";
+    }}
+
+    function renderFactions() {{
+      for (const selectId of ["attacker-faction", "defender-faction"]) {{
+        const select = el(selectId);
+        if (!select) continue;
+        const current = select.value;
+        select.innerHTML = `<option value="">All factions</option>`;
+        for (const faction of state.factions) {{
+          const option = document.createElement("option");
+          option.value = faction;
+          option.textContent = faction;
+          select.appendChild(option);
+        }}
+        select.value = state.factions.includes(current) ? current : "";
+      }}
+    }}
+
+    function searchUnits(query = "", field = null) {{
       const needle = query.trim().toLowerCase();
-      const faction = el("faction").value.toLowerCase();
+      const faction = factionForField(field).toLowerCase();
       const matches = state.units
         .filter((unit) => !faction || String(unit.faction || "").toLowerCase() === faction)
         .filter((unit) => {{
@@ -343,9 +386,10 @@ def _local_script(data: dict[str, Any]) -> str:
       return Promise.resolve(matches.map(unitSummary));
     }}
 
-    async function loadUnits(query = "") {{
-      const units = await searchUnits(query);
-      if (state.openMenu) renderDropdown(state.openMenu, units);
+    async function loadUnits(query = "", field = null) {{
+      const units = await searchUnits(query, field);
+      if (field === "attacker" || field === "defender") state.unitSearchResults[field] = units;
+      if (state.openMenu) renderDropdown(state.openMenu, state.unitSearchResults[state.openMenu] || units);
       return units;
     }}
 
@@ -363,6 +407,11 @@ def _local_script(data: dict[str, Any]) -> str:
         source_catalogue_summary: state.sourceCatalogueSummary,
         unit_variant_summary: state.unitVariantSummary,
         weapon_coverage_summary: state.weaponCoverageSummary,
+        unit_footprint_summary: state.unitFootprintSummary,
+        unit_footprint_suggestion_summary: state.unitFootprintSuggestionSummary,
+        unit_footprint_template_summary: state.unitFootprintTemplateSummary,
+        unit_footprint_queue_summary: state.unitFootprintQueueSummary,
+        unit_footprint_review: state.unitFootprintReview,
         ability_modifier_summary: state.abilityModifierSummary,
         schema_summary: state.schemaSummary,
         update_report: state.updateReport,
@@ -541,7 +590,34 @@ def _local_script(data: dict[str, Any]) -> str:
     }}
 
     function defaultBattleRadius(unit) {{
+      const width = Number(unit.base_width_mm || unit.baseWidthMm || 0);
+      const depth = Number(unit.base_depth_mm || unit.baseDepthMm || 0);
+      if (width > 0 && depth > 0) {{
+        return radiusFromBaseDimensions(defaultBattleModels(unit), width, depth);
+      }}
+      const estimate = battleBaseEstimate(unit);
+      if (estimate.width && estimate.depth) {{
+        return radiusFromBaseDimensions(defaultBattleModels(unit), estimate.width, estimate.depth);
+      }}
+      if (estimate.radius && defaultBattleModels(unit) <= 1) {{
+        return estimate.radius;
+      }}
       return Math.max(1, Math.min(6, Math.sqrt(defaultBattleModels(unit)) * 0.85));
+    }}
+
+    function radiusFromBaseDimensions(models, widthMm, depthMm) {{
+      const largestBaseInches = Math.max(widthMm, depthMm) / 25.4;
+      const singleModelRadius = Math.max(0.45, largestBaseInches / 2);
+      return Math.max(0.75, Math.min(8, Math.sqrt(models) * (singleModelRadius + 0.2)));
+    }}
+
+    function battleBaseEstimate(profile = {{}}) {{
+      const type = String(profile.base_type || profile.baseType || "");
+      if (type === "small_flying_base") return {{ width: 32, depth: 32, label: "derived 32mm flying footprint" }};
+      if (type === "large_flying_base") return {{ width: 60, depth: 60, label: "derived 60mm flying footprint" }};
+      if (type === "hull") return {{ radius: 2.8, label: "derived hull footprint placeholder" }};
+      if (type === "unique") return {{ radius: 2.8, label: "derived unique footprint placeholder" }};
+      return {{}};
     }}
 
     function localBattlefieldPlan(limit = 6) {{
@@ -1482,7 +1558,15 @@ def _local_script(data: dict[str, Any]) -> str:
       const terrain = (battleMap.terrain || []).map((feature) => renderTerrainFeature(feature)).join("");
       const objectives = (battleMap.objectives || []).map((objective, index) => `<circle class="bf-objective" cx="${{objective.x}}" cy="${{objective.y}}" r="${{objective.radius}}"><title>${{escapeHtml(objective.name)}} objective</title></circle><text class="bf-objective-label" x="${{objective.x}}" y="${{objective.y}}">${{escapeHtml(battleObjectiveLabel(objective, index))}}</text>`).join("");
       const overlays = renderBattleOverlays(battleState);
-      const units = (battleState.units || []).map((unit) => `<g data-unit-id="${{escapeHtml(unit.instance_id)}}"><circle class="bf-unit ${{escapeHtml(unit.side)}} ${{(unit.status_flags || []).includes("destroyed") ? "destroyed" : ""}} ${{state.battlefield.selectedInstanceId === unit.instance_id ? "selected" : ""}}" cx="${{unit.x}}" cy="${{unit.y}}" r="${{unit.radius}}" data-unit-id="${{escapeHtml(unit.instance_id)}}"><title>${{escapeHtml(unit.name)}}: ${{unit.models_remaining}} models, ${{fmt(unit.wounds_remaining)}} wounds</title></circle><text class="bf-label" x="${{unit.x}}" y="${{unit.y}}" font-size="${{battleLabelFontSize(unit)}}">${{escapeHtml(unitInitials(unit.name))}}</text><text class="bf-unit-name-label" x="${{unit.x}}" y="${{Number(unit.y || 0) + Number(unit.radius || 1) + 1.5}}" textLength="${{battleUnitNameLabelWidth(unit)}}" lengthAdjust="spacingAndGlyphs">${{escapeHtml(shortUnitLabel(unit.name))}}</text></g>`).join("");
+      const units = (battleState.units || []).map((unit) => {{
+        const profile = battleUnitProfile(unit);
+        const radius = Number(unit.radius || 1);
+        const badgeRadius = Math.max(0.72, Math.min(1.25, radius * 0.42));
+        const badgeX = Number(unit.x || 0) + radius * 0.68;
+        const badgeY = Number(unit.y || 0) - radius * 0.68;
+        const statY = Number(unit.y || 0) + radius * 0.42;
+        return `<g class="bf-unit-marker ${{escapeHtml(unit.side)}}" data-unit-id="${{escapeHtml(unit.instance_id)}}"><title>${{escapeHtml(battleUnitTooltip(unit, profile, battleState))}}</title><circle class="bf-unit ${{escapeHtml(unit.side)}} ${{(unit.status_flags || []).includes("destroyed") ? "destroyed" : ""}} ${{state.battlefield.selectedInstanceId === unit.instance_id ? "selected" : ""}}" cx="${{unit.x}}" cy="${{unit.y}}" r="${{unit.radius}}" data-unit-id="${{escapeHtml(unit.instance_id)}}"></circle><text class="bf-label" x="${{unit.x}}" y="${{Number(unit.y || 0) - radius * 0.18}}" font-size="${{battleLabelFontSize(unit)}}">${{escapeHtml(unitInitials(unit.name))}}</text><text class="bf-unit-stat-label" x="${{unit.x}}" y="${{statY}}" textLength="${{battleUnitStatLabelWidth(unit)}}" lengthAdjust="spacingAndGlyphs">${{escapeHtml(battleUnitStatText(unit))}}</text><circle class="bf-unit-badge" cx="${{badgeX}}" cy="${{badgeY}}" r="${{badgeRadius}}"></circle><text class="bf-unit-badge-text" x="${{badgeX}}" y="${{badgeY}}">${{escapeHtml(battleUnitBadgeText(unit))}}</text><text class="bf-unit-name-label" x="${{unit.x}}" y="${{Number(unit.y || 0) + radius + 1.5}}" textLength="${{battleUnitNameLabelWidth(unit)}}" lengthAdjust="spacingAndGlyphs">${{escapeHtml(shortUnitLabel(unit.name))}}</text></g>`;
+      }}).join("");
       return `<div class="battlefield-board-wrap"><div class="battlefield-board-header" data-testid="battlefield-board-header"><div class="battlefield-board-title"><h3>${{escapeHtml(battleMap.name || "Battlefield")}}</h3><div class="small">${{escapeHtml(battleMap.width)}}" x ${{escapeHtml(battleMap.height)}}" | ${{escapeHtml(titleCase(battleState.phase || "movement"))}} phase | Red ${{redLive}} live, Blue ${{blueLive}} live</div></div><div class="battlefield-board-legend" aria-label="Battlefield legend">${{renderTerrainLegend(battleMap)}}<span><i class="legend-swatch objective"></i>Objective marker</span><span><i class="legend-swatch red"></i>Red unit</span><span><i class="legend-swatch blue"></i>Blue unit</span></div></div><svg class="battlefield-board" id="battle-board" viewBox="0 0 ${{battleMap.width}} ${{battleMap.height}}" data-width="${{battleMap.width}}" data-height="${{battleMap.height}}" role="img" aria-label="${{escapeHtml(battleMap.name)}} battlefield"><defs><pattern id="bf-grid" width="4" height="4" patternUnits="userSpaceOnUse"><path d="M 4 0 L 0 0 0 4" fill="none" stroke="#dfe7ee" stroke-width="0.08"></path></pattern></defs><rect class="bf-board-bg" x="0" y="0" width="${{battleMap.width}}" height="${{battleMap.height}}"></rect><rect x="0" y="0" width="${{battleMap.width}}" height="${{battleMap.height}}" fill="url(#bf-grid)" opacity=".8"></rect>${{deploymentZones}}${{terrain}}${{objectives}}${{overlays}}${{units}}</svg></div><div class="small">Phase: ${{escapeHtml(titleCase(battleState.phase || "movement"))}} | Score: Red ${{battleState.score?.red || 0}} | Blue ${{battleState.score?.blue || 0}}. Drag unit blobs to adjust the current state before asking the AI.</div>`;
     }}
 
@@ -1599,7 +1683,8 @@ def _local_script(data: dict[str, Any]) -> str:
       const nearestEnemy = nearestBattleUnit(unit, (battleState.units || []).filter((row) => row.side !== unit.side && row.models_remaining > 0));
       const nearestObjective = nearestBattleObjective(battleState, unit);
       const weapons = (profile.weapons || []).slice(0, 8).map((weapon) => `<div class="inspector-weapon"><b>${{escapeHtml(weapon.name)}}</b><br>${{escapeHtml(weapon.type || "")}}${{weapon.range_inches ? ` | R${{escapeHtml(weapon.range_inches)}}"` : ""}} | A${{escapeHtml(weapon.attacks || "?")}} | ${{escapeHtml(weapon.skillLabel || weapon.skill || "?")}} | S${{escapeHtml(weapon.strength || "?")}} | AP${{escapeHtml(weapon.ap ?? 0)}} | D${{escapeHtml(weapon.damage || "?")}}</div>`).join("");
-      return `<div class="unit-inspector" data-testid="battle-unit-inspector"><div><b>${{escapeHtml(unit.name)}}</b> <span class="small">${{escapeHtml(unit.side)}}</span></div><div class="small">${{escapeHtml(profile.faction || "No faction")}} | T${{escapeHtml(profile.toughness || "?")}} W${{escapeHtml(profile.wounds || "?")}} Sv ${{escapeHtml(profile.saveLabel || profile.save || "?")}} | OC ${{escapeHtml(profile.objectiveControl ?? profile.objective_control ?? "?")}} | ${{escapeHtml(profile.points || 0)}} pts</div><div class="small">Board: x ${{fmt(unit.x)}}, y ${{fmt(unit.y)}} | Models ${{escapeHtml(unit.models_remaining)}} | Wounds remaining ${{fmt(unit.wounds_remaining)}}</div><div class="small">Nearest enemy: ${{nearestEnemy ? `${{escapeHtml(nearestEnemy.name)}} at ${{fmt(nearestEnemy.distance)}}"` : "none"}}</div><div class="small">Nearest objective: ${{nearestObjective ? `${{escapeHtml(nearestObjective.name)}} at ${{fmt(distance(unit.x, unit.y, nearestObjective.x, nearestObjective.y))}}"` : "none"}}</div><div class="inspector-weapons">${{weapons || `<div class="empty">Weapon details not loaded.</div>`}}</div></div>`;
+      const footprintSource = battleFootprintSourceLabel(profile);
+      return `<div class="unit-inspector" data-testid="battle-unit-inspector"><div><b>${{escapeHtml(unit.name)}}</b> <span class="small">${{escapeHtml(unit.side)}}</span></div><div class="small">${{escapeHtml(profile.faction || "No faction")}} | T${{escapeHtml(profile.toughness || "?")}} W${{escapeHtml(profile.wounds || "?")}} Sv ${{escapeHtml(profile.saveLabel || profile.save || "?")}} | OC ${{escapeHtml(profile.objectiveControl ?? profile.objective_control ?? "?")}} | ${{escapeHtml(profile.points || 0)}} pts</div><div class="small">Board: x ${{fmt(unit.x)}}, y ${{fmt(unit.y)}} | Models ${{escapeHtml(unit.models_remaining)}} | Wounds remaining ${{fmt(unit.wounds_remaining)}}</div><div class="small">${{escapeHtml(battleFootprintLabel(unit, profile))}}</div>${{footprintSource ? `<div class="small">${{escapeHtml(footprintSource)}}</div>` : ""}}<div class="small">Nearest enemy: ${{nearestEnemy ? `${{escapeHtml(nearestEnemy.name)}} at ${{fmt(nearestEnemy.distance)}}"` : "none"}}</div><div class="small">Nearest objective: ${{nearestObjective ? `${{escapeHtml(nearestObjective.name)}} at ${{fmt(distance(unit.x, unit.y, nearestObjective.x, nearestObjective.y))}}"` : "none"}}</div><div class="inspector-weapons">${{weapons || `<div class="empty">Weapon details not loaded.</div>`}}</div></div>`;
     }}
 
     function renderBattleLog(battleState, replay) {{
@@ -1647,6 +1732,40 @@ def _local_script(data: dict[str, Any]) -> str:
     function titleCase(value) {{
       const text = String(value || "");
       return text ? text.charAt(0).toUpperCase() + text.slice(1) : "";
+    }}
+
+    function battleBaseLabel(profile = {{}}) {{
+      const width = Number(profile.baseWidthMm ?? profile.base_width_mm);
+      const depth = Number(profile.baseDepthMm ?? profile.base_depth_mm);
+      const shape = String(profile.baseShape ?? profile.base_shape ?? "").replaceAll("_", " ");
+      const type = String(profile.baseType ?? profile.base_type ?? "").replaceAll("_", " ");
+      if (Number.isFinite(width) && width > 0) {{
+        const size = Number.isFinite(depth) && depth > 0 && Math.abs(depth - width) > 0.1
+          ? `${{fmt(width)}}x${{fmt(depth)}}mm`
+          : `${{fmt(width)}}mm`;
+        return `Base ${{size}}${{shape ? ` ${{shape}}` : ""}}`;
+      }}
+      const estimate = battleBaseEstimate(profile);
+      if (type && estimate.label) return `Base ${{titleCase(type)}} (${{estimate.label}})`;
+      if (type) return `Base ${{titleCase(type)}}`;
+      return "Base unknown";
+    }}
+
+    function battleFootprintLabel(unit, profile = {{}}) {{
+      return `Footprint ${{fmt(unit.radius)}}" | ${{battleBaseLabel(profile)}}`;
+    }}
+
+    function battleFootprintSourceLabel(profile = {{}}) {{
+      const status = profile.footprintStatus ?? profile.footprint_status;
+      const source = profile.footprintSource ?? profile.footprint_source;
+      const confidence = profile.footprintConfidence ?? profile.footprint_confidence;
+      const parts = [];
+      if (status) parts.push(String(status));
+      if (source) parts.push(String(source));
+      if (hasNumber(confidence)) parts.push(`confidence ${{fmt(confidence)}}`);
+      const estimate = battleBaseEstimate(profile);
+      if (estimate.label) parts.push(estimate.label);
+      return parts.length ? `Footprint source: ${{parts.join(", ")}}` : "";
     }}
 
     function renderBattleValidation(validation) {{
@@ -1809,6 +1928,51 @@ def _local_script(data: dict[str, Any]) -> str:
       return unit ? unit.name : instanceId;
     }}
 
+    function battleUnitProfile(unit) {{
+      if (!unit) return {{}};
+      return battlefieldAvailableUnits().find((row) => row.id === unit.unit_id)
+        || state.units.find((row) => row.id === unit.unit_id)
+        || {{}};
+    }}
+
+    function compactNumber(value) {{
+      if (!hasNumber(value)) return "?";
+      const number = Number(value);
+      return Number.isInteger(number) ? String(number) : number.toFixed(1);
+    }}
+
+    function battleUnitStatText(unit) {{
+      if ((unit.status_flags || []).includes("destroyed") || Number(unit.models_remaining || 0) <= 0) return "OUT";
+      return `M${{compactNumber(unit.models_remaining)}} W${{compactNumber(unit.wounds_remaining)}}`;
+    }}
+
+    function battleUnitBadgeText(unit) {{
+      const models = Number(unit.models_remaining || 0);
+      if (models > 99) return "99+";
+      return compactNumber(models);
+    }}
+
+    function battleUnitTooltip(unit, profile = {{}}, battleState = null) {{
+      const objectiveControl = profile.objectiveControl ?? profile.objective_control ?? "?";
+      const points = hasNumber(profile.points) ? `${{profile.points}} pts` : "points unknown";
+      const faction = profile.faction || "No faction";
+      const status = (unit.status_flags || []).length ? (unit.status_flags || []).join(", ") : "active";
+      const nearestEnemy = battleState ? nearestBattleUnit(unit, (battleState.units || []).filter((row) => row.side !== unit.side && row.models_remaining > 0)) : null;
+      const nearestObjective = battleState ? nearestBattleObjective(battleState, unit) : null;
+      const parts = [
+        `${{unit.name}} (${{titleCase(unit.side)}})`,
+        `${{faction}} | ${{points}}`,
+        `Models ${{compactNumber(unit.models_remaining)}} | wounds remaining ${{compactNumber(unit.wounds_remaining)}} | status ${{status}}`,
+        `T${{profile.toughness || "?"}} W${{profile.wounds || "?"}} Sv ${{profile.saveLabel || profile.save || "?"}} OC ${{objectiveControl}}`,
+        `Position x ${{fmt(unit.x)}}, y ${{fmt(unit.y)}} | ${{battleFootprintLabel(unit, profile)}}`,
+      ];
+      const footprintSource = battleFootprintSourceLabel(profile);
+      if (footprintSource) parts.push(footprintSource);
+      if (nearestEnemy) parts.push(`Nearest enemy: ${{nearestEnemy.name}} at ${{fmt(nearestEnemy.distance)}}"`);
+      if (nearestObjective) parts.push(`Nearest objective: ${{nearestObjective.name}} at ${{fmt(distance(unit.x, unit.y, nearestObjective.x, nearestObjective.y))}}"`);
+      return parts.join("\\n");
+    }}
+
     function nearestBattleUnit(unit, candidates) {{
       const nearest = candidates
         .map((candidate) => ({{ ...candidate, distance: distance(unit.x, unit.y, candidate.x, candidate.y) }}))
@@ -1853,6 +2017,10 @@ def _local_script(data: dict[str, Any]) -> str:
 
     function battleUnitNameLabelWidth(unit) {{
       return Math.max(3.5, Math.min(10, Number(unit.radius || 2) * 3.8)).toFixed(2);
+    }}
+
+    function battleUnitStatLabelWidth(unit) {{
+      return Math.max(2.4, Math.min(5.8, Number(unit.radius || 2) * 1.95)).toFixed(2);
     }}
 
     function showBattlefieldError(error) {{
@@ -2201,10 +2369,10 @@ def _local_script(data: dict[str, Any]) -> str:
       return findUnit(name);
     }}
 
-    function queueUnitSearch(value = "") {{
-      window.clearTimeout(state.searchTimer);
-      state.searchTimer = window.setTimeout(() => {{
-        loadUnits(value).catch((error) => {{
+    function queueUnitSearch(field, value = "") {{
+      window.clearTimeout(state.searchTimer[field]);
+      state.searchTimer[field] = window.setTimeout(() => {{
+        loadUnits(value, field).catch((error) => {{
           el("error").textContent = error.message;
         }});
       }}, 120);
@@ -2222,13 +2390,14 @@ def _local_script(data: dict[str, Any]) -> str:
       const unitName = el(field).value.trim();
       if (!unitName) return null;
       const selectedId = state.selectedUnitIds[field];
+      const fieldUnits = state.unitSearchResults[field] || [];
       if (selectedId) {{
-        const byId = state.units.find((unit) => unit.id === selectedId);
+        const byId = fieldUnits.find((unit) => unit.id === selectedId) || state.units.find((unit) => unit.id === selectedId);
         if (byId) return byId;
         const cached = state.unitDetails[selectedId];
         if (cached) return cached;
       }}
-      return state.units.find((unit) => unit.name === unitName) || null;
+      return fieldUnits.find((unit) => unit.name === unitName) || state.units.find((unit) => unit.name === unitName) || null;
     }}
 
     function unitVariantLabel(unit) {{
@@ -2386,7 +2555,8 @@ def _local_script(data: dict[str, Any]) -> str:
       el(field).setAttribute("aria-expanded", "true");
       document.querySelector(`.combo-toggle[data-target="${{field}}"]`)?.setAttribute("aria-expanded", "true");
       el(`${{field}}-menu`).closest(".unit-combo")?.classList.add("menu-open");
-      const units = await searchUnits(el(field).value);
+      const units = await searchUnits(el(field).value, field);
+      state.unitSearchResults[field] = units;
       renderDropdown(field, units);
       el(`${{field}}-menu`).classList.add("open");
     }}
@@ -3191,6 +3361,11 @@ def _local_script(data: dict[str, Any]) -> str:
       const sourceCatalogues = payload.source_catalogue_summary;
       const unitVariants = payload.unit_variant_summary;
       const weaponCoverage = payload.weapon_coverage_summary;
+      const unitFootprints = payload.unit_footprint_summary;
+      const unitFootprintSuggestions = payload.unit_footprint_suggestion_summary;
+      const unitFootprintTemplate = payload.unit_footprint_template_summary;
+      const unitFootprintQueue = payload.unit_footprint_queue_summary;
+      const unitFootprintReview = payload.unit_footprint_review;
       const abilityModifiers = payload.ability_modifier_summary;
       const schema = payload.schema_summary;
       const updateReport = payload.update_report;
@@ -3200,7 +3375,7 @@ def _local_script(data: dict[str, Any]) -> str:
       const modelComparison = payload.model_comparison;
       const reviewFiles = payload.review_files || [];
       const modelFiles = payload.model_files || [];
-      if (!audit && !diff && !metadata && !editionStatus && !artifactManifest && !verificationReport && !suspiciousWeapons && !unitProfiles && !loadouts && !sourceCatalogues && !unitVariants && !weaponCoverage && !abilityModifiers && !schema && !updateReport && !profileReview && !editionReadiness && !modelAudit && !modelComparison) {{
+      if (!audit && !diff && !metadata && !editionStatus && !artifactManifest && !verificationReport && !suspiciousWeapons && !unitProfiles && !loadouts && !sourceCatalogues && !unitVariants && !weaponCoverage && !unitFootprints && !unitFootprintSuggestions && !unitFootprintTemplate && !unitFootprintQueue && !unitFootprintReview && !abilityModifiers && !schema && !updateReport && !profileReview && !editionReadiness && !modelAudit && !modelComparison) {{
         el("results").dataset.view = "data-review";
         el("results").innerHTML = renderDataReviewEmptyState();
         return;
@@ -3238,6 +3413,11 @@ def _local_script(data: dict[str, Any]) -> str:
         ${{renderSourceCatalogues(sourceCatalogues)}}
         ${{renderUnitVariants(unitVariants)}}
         ${{renderWeaponCoverage(weaponCoverage)}}
+        ${{renderUnitFootprintReview(unitFootprintReview)}}
+        ${{renderUnitFootprints(unitFootprints)}}
+        ${{renderUnitFootprintSuggestions(unitFootprintSuggestions)}}
+        ${{renderUnitFootprintTemplateSummary(unitFootprintTemplate)}}
+        ${{renderUnitFootprintQueue(unitFootprintQueue)}}
         ${{renderAbilityModifiers(abilityModifiers)}}
         ${{renderReviewFiles([...reviewFiles, ...modelFiles])}}
         ${{renderModelComparison(modelComparison)}}
@@ -3256,6 +3436,7 @@ def _local_script(data: dict[str, Any]) -> str:
         ["#review-schema", "Schema"],
         ["#review-weapons", "Suspicious Weapons"],
         ["#review-loadouts", "Loadouts"],
+        ["#review-footprints", "Footprints"],
         ["#review-ml", "ML"],
         ["#review-files", "Raw Reports"]
       ].map(([href, label]) => `<a href="${{href}}">${{label}}</a>`).join("");
@@ -3611,6 +3792,137 @@ def _local_script(data: dict[str, Any]) -> str:
       `;
     }}
 
+    function renderUnitFootprints(summary) {{
+      if (!summary) return "";
+      const severityCards = Object.entries(summary.by_severity || {{}}).map(([key, value]) => provenanceCard(`Severity: ${{key}}`, value, ""));
+      const categoryCards = Object.entries(summary.by_category || {{}}).map(([key, value]) => provenanceCard(`Category: ${{key}}`, value, ""));
+      const statusCards = Object.entries(summary.by_status || {{}}).map(([key, value]) => provenanceCard(`Status: ${{key}}`, value, ""));
+      const rows = (summary.rows || []).map((row) => `
+        <tr>
+          <td>${{escapeHtml(row.severity || "")}}</td>
+          <td>${{escapeHtml(row.category || "")}}</td>
+          <td>${{escapeHtml(row.unit_name || "")}}</td>
+          <td>${{escapeHtml(row.faction || "")}}</td>
+          <td>${{escapeHtml(row.base_width_mm && row.base_depth_mm ? `${{row.base_width_mm}}x${{row.base_depth_mm}}mm ${{row.base_shape || ""}}` : (row.base_type || ""))}}</td>
+          <td>${{escapeHtml(row.guide_faction || "")}}</td>
+          <td>${{escapeHtml(row.match_confidence || "")}}</td>
+          <td>${{escapeHtml(row.review_reason || "")}}</td>
+        </tr>
+      `).join("");
+      return `
+        <div class="review-section" id="review-footprints">
+          <h3>Unit Footprint Review</h3>
+          <div class="provenance-grid">
+            ${{provenanceCard("Rows needing review", summary.total || 0, `Showing first ${{Math.min((summary.rows || []).length, summary.row_limit || 0)}} rows`)}}
+            ${{severityCards.join("")}}
+            ${{categoryCards.join("")}}
+            ${{statusCards.join("")}}
+          </div>
+          <table class="report-table">
+            <thead><tr><th>Severity</th><th>Category</th><th>Unit</th><th>Faction</th><th>Base</th><th>Guide faction</th><th>Confidence</th><th>Reason</th></tr></thead>
+            <tbody>${{rows || `<tr><td colspan="8">No footprint review rows were generated.</td></tr>`}}</tbody>
+          </table>
+        </div>
+      `;
+    }}
+
+    function renderUnitFootprintSuggestions(summary) {{
+      if (!summary) return "";
+      const scoreCards = Object.entries(summary.by_score_band || {{}}).map(([key, value]) => provenanceCard(`Score: ${{key}}`, value, ""));
+      const factionCards = Object.entries(summary.by_faction || {{}}).slice(0, 6).map(([key, value]) => provenanceCard(key, value, "suggestions"));
+      const rows = (summary.rows || []).map((row) => `
+        <tr>
+          <td>${{escapeHtml(row.suggestion_rank || "")}}</td>
+          <td>${{escapeHtml(row.suggestion_score || "")}}</td>
+          <td>${{escapeHtml(row.unit_name || "")}}</td>
+          <td>${{escapeHtml(row.faction || "")}}</td>
+          <td>${{escapeHtml(row.guide_unit_name || "")}}${{row.guide_model_name ? `: ${{escapeHtml(row.guide_model_name)}}` : ""}}</td>
+          <td>${{escapeHtml(row.guide_faction || "")}}</td>
+          <td>${{escapeHtml(row.base_size_text || (row.base_width_mm && row.base_depth_mm ? `${{row.base_width_mm}}x${{row.base_depth_mm}}mm` : row.base_type || ""))}}</td>
+          <td>${{escapeHtml(row.suggestion_reason || "")}}</td>
+        </tr>
+      `).join("");
+      return `
+        <div class="review-section">
+          <h3>Footprint Match Suggestions</h3>
+          <p class="small">Suggestions are review aids only. They do not affect Battlefield footprint sizing until accepted into the manual override CSV.</p>
+          <div class="provenance-grid">
+            ${{provenanceCard("Suggestion rows", summary.total || 0, `${{summary.unit_total || 0}} unmatched units have candidates`)}}
+            ${{scoreCards.join("")}}
+            ${{factionCards.join("")}}
+          </div>
+          <table class="report-table">
+            <thead><tr><th>Rank</th><th>Score</th><th>Imported unit</th><th>Faction</th><th>Suggested guide row</th><th>Guide faction</th><th>Base</th><th>Reason</th></tr></thead>
+            <tbody>${{rows || `<tr><td colspan="8">No footprint suggestions were generated.</td></tr>`}}</tbody>
+          </table>
+        </div>
+      `;
+    }}
+
+    function renderUnitFootprintTemplateSummary(summary) {{
+      if (!summary) return "";
+      const statusCards = Object.entries(summary.by_status || {{}})
+        .filter(([key]) => !["total", "outside_filter"].includes(key))
+        .map(([key, value]) => provenanceCard(`Template: ${{key.replaceAll("_", " ")}}`, value, ""));
+      const rows = (summary.rows || []).map((row) => `
+        <tr>
+          <td>${{escapeHtml(row.unit_name || "")}}</td>
+          <td><code>${{escapeHtml(row.unit_id || "")}}</code></td>
+          <td>${{escapeHtml(row.review_decision || "")}}</td>
+          <td>${{escapeHtml(row.reason || "")}}</td>
+        </tr>
+      `).join("");
+      return `
+        <div class="review-section">
+          <h3>Footprint Override Template Status</h3>
+          <p class="small">Rows become active only after review decisions are promoted into the manual override CSV.</p>
+          <div class="provenance-grid">
+            ${{provenanceCard("Template rows", summary.total || 0, `${{summary.blank_total || 0}} still blank`)}}
+            ${{provenanceCard("Ready to promote", summary.ready_total || 0, "Suggestion-ready plus manual override-ready rows")}}
+            ${{provenanceCard("Invalid reviewed rows", summary.invalid_total || 0, "Fix before applying reviewed rows")}}
+            ${{statusCards.join("")}}
+          </div>
+          <table class="report-table">
+            <thead><tr><th>Unit</th><th>Unit ID</th><th>Decision</th><th>Issue</th></tr></thead>
+            <tbody>${{rows || `<tr><td colspan="4">No invalid reviewed template rows.</td></tr>`}}</tbody>
+          </table>
+        </div>
+      `;
+    }}
+
+    function renderUnitFootprintQueue(summary) {{
+      if (!summary) return "";
+      const priorityCards = Object.entries(summary.by_priority || {{}}).map(([key, value]) => provenanceCard(`Queue: ${{key.replaceAll("_", " ")}}`, value, ""));
+      const factionCards = Object.entries(summary.by_faction || {{}}).slice(0, 6).map(([key, value]) => provenanceCard(key, value, "queue rows"));
+      const rows = (summary.rows || []).map((row) => `
+        <tr>
+          <td>${{escapeHtml(row.review_rank || "")}}</td>
+          <td>${{escapeHtml(row.review_priority || "")}}</td>
+          <td>${{escapeHtml(row.unit_name || "")}}<br><code>${{escapeHtml(row.unit_id || "")}}</code></td>
+          <td>${{escapeHtml(row.faction || "")}}</td>
+          <td>${{escapeHtml(row.suggestion_score || "")}}</td>
+          <td>${{escapeHtml(row.suggested_guide_unit_name || "")}}${{row.suggested_guide_model_name ? `: ${{escapeHtml(row.suggested_guide_model_name)}}` : ""}}</td>
+          <td>${{escapeHtml(row.suggested_base_size_text || "")}}</td>
+          <td>${{escapeHtml(row.review_hint || "")}}</td>
+        </tr>
+      `).join("");
+      return `
+        <div class="review-section">
+          <h3>Footprint Review Queue</h3>
+          <p class="small">Prioritized manual review batch from the override template. Use this to decide which rows to research first.</p>
+          <div class="provenance-grid">
+            ${{provenanceCard("Queued rows", summary.total || 0, `Showing first ${{Math.min((summary.rows || []).length, summary.row_limit || 0)}} rows`)}}
+            ${{priorityCards.join("")}}
+            ${{factionCards.join("")}}
+          </div>
+          <table class="report-table">
+            <thead><tr><th>Rank</th><th>Priority</th><th>Unit</th><th>Faction</th><th>Score</th><th>Suggested guide row</th><th>Base</th><th>Review hint</th></tr></thead>
+            <tbody>${{rows || `<tr><td colspan="8">No footprint review queue rows were generated.</td></tr>`}}</tbody>
+          </table>
+        </div>
+      `;
+    }}
+
     function renderAbilityModifiers(summary) {{
       if (!summary) return "";
       const typeCards = Object.entries(summary.by_type || {{}}).map(([key, value]) => provenanceCard(`Type: ${{key}}`, value, ""));
@@ -3772,6 +4084,11 @@ def _local_script(data: dict[str, Any]) -> str:
     function renderProfileReview(profileReview) {{
       if (!profileReview) return "";
       return renderMarkdownReport("Profile Review", profileReview);
+    }}
+
+    function renderUnitFootprintReview(unitFootprintReview) {{
+      if (!unitFootprintReview) return "";
+      return renderMarkdownReport("Unit Footprint Review Report", unitFootprintReview, "review-footprint-report");
     }}
 
     function renderEditionReadiness(editionReadiness) {{
@@ -3991,15 +4308,32 @@ def _local_script(data: dict[str, Any]) -> str:
         const attackerId = state.selectedUnitIds.attacker;
         state.selectedUnitIds.attacker = state.selectedUnitIds.defender;
         state.selectedUnitIds.defender = attackerId;
+        const attackerUnits = state.unitSearchResults.attacker;
+        state.unitSearchResults.attacker = state.unitSearchResults.defender;
+        state.unitSearchResults.defender = attackerUnits;
+        const attackerFaction = el("attacker-faction").value;
+        el("attacker-faction").value = el("defender-faction").value;
+        el("defender-faction").value = attackerFaction;
         updateSelectedUnitInfos();
         swapContexts();
         refreshWeaponSelectors().catch((error) => {{
           el("error").textContent = error.message;
         }});
       }});
-      el("faction").addEventListener("change", () => loadUnits("").catch((error) => {{
-        el("error").textContent = error.message;
-      }}));
+      for (const field of ["attacker", "defender"]) {{
+        el(factionSelectId(field)).addEventListener("change", () => {{
+          state.selectedUnitIds[field] = null;
+          state.unitSearchResults[field] = [];
+          el(field).value = "";
+          updateSelectedUnitInfo(field);
+          refreshWeaponSelectors().catch((error) => {{
+            el("error").textContent = error.message;
+          }});
+          loadUnits("", field).catch((error) => {{
+            el("error").textContent = error.message;
+          }});
+        }});
+      }}
       document.querySelectorAll(".combo-toggle").forEach((button) => {{
         button.addEventListener("click", () => {{
           const target = button.dataset.target;
@@ -4032,7 +4366,7 @@ def _local_script(data: dict[str, Any]) -> str:
             state.openMenu = id;
             el(`${{id}}-menu`).classList.add("open");
             el(id).setAttribute("aria-expanded", "true");
-            queueUnitSearch(value);
+            queueUnitSearch(id, value);
           }}
         }});
         el(id).addEventListener("focus", () => openDropdown(id).catch((error) => {{
@@ -4071,7 +4405,7 @@ def _local_script(data: dict[str, Any]) -> str:
     }}
 
     wireEvents();
-    Promise.all([loadHealth(), loadUnits()]).catch((error) => {{
+    Promise.all([loadHealth(), loadUnits("", "attacker")]).catch((error) => {{
       el("status").textContent = "Data failed to load";
       el("error").textContent = error.message;
     }});
@@ -4096,6 +4430,14 @@ def build_local_html(*, csv_dir: Path, template_path: Path, output_path: Path, m
         "sourceCatalogueSummary": source_catalogue_summary(csv_dir / "source_catalogue_review.csv"),
         "unitVariantSummary": unit_variant_summary(csv_dir / "unit_variant_review.csv"),
         "weaponCoverageSummary": weapon_coverage_summary(csv_dir / "unit_weapon_coverage_review.csv"),
+        "unitFootprintSummary": unit_footprint_summary(csv_dir / "unit_footprint_review.csv"),
+        "unitFootprintSuggestionSummary": unit_footprint_suggestion_summary(csv_dir / "unit_footprint_suggestions.csv"),
+        "unitFootprintTemplateSummary": unit_footprint_template_summary(
+            csv_dir / "unit_footprint_override_template.csv",
+            csv_dir / "unit_footprint_overrides.csv",
+        ),
+        "unitFootprintQueueSummary": unit_footprint_queue_summary(csv_dir / "unit_footprint_review_queue.csv"),
+        "unitFootprintReview": _load_text(csv_dir / "unit_footprint_review.md"),
         "abilityModifierSummary": ability_modifier_summary(csv_dir / "ability_modifier_review.csv"),
         "schemaSummary": schema_summary(csv_dir / "schema_review.csv"),
         "updateReport": _load_text(csv_dir / "update_report.md"),
@@ -4144,6 +4486,15 @@ def _review_files(csv_dir: Path) -> list[dict[str, Any]]:
         "unit_weapon_coverage_review.csv": "Unit weapon coverage review CSV",
         "loadout_review.csv": "Loadout review CSV",
         "source_catalogue_review.csv": "Source catalogue review CSV",
+        "base_size_guide.csv": "Official base-size guide CSV",
+        "unit_footprint_overrides.csv": "Unit footprint manual overrides CSV",
+        "unit_footprint_rejections.csv": "Unit footprint rejected suggestions CSV",
+        "unit_footprint_override_template.csv": "Unit footprint override template CSV",
+        "unit_footprint_review_queue.csv": "Unit footprint prioritized review queue CSV",
+        "unit_footprints.csv": "Unit footprint CSV",
+        "unit_footprint_review.csv": "Unit footprint review CSV",
+        "unit_footprint_review.md": "Unit footprint review report",
+        "unit_footprint_suggestions.csv": "Unit footprint suggestions CSV",
         "schema_review.csv": "Schema review CSV",
         "edition_status.json": "Edition status JSON",
         "edition_readiness.md": "Edition readiness report",

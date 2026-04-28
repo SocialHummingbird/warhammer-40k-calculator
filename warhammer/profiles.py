@@ -467,6 +467,13 @@ class UnitProfile:
     leadership: Optional[int] = None
     objective_control: Optional[int] = None
     source_file: str = ""
+    base_type: Optional[str] = None
+    base_shape: Optional[str] = None
+    base_width_mm: Optional[float] = None
+    base_depth_mm: Optional[float] = None
+    footprint_status: Optional[str] = None
+    footprint_source: Optional[str] = None
+    footprint_confidence: Optional[float] = None
     weapons: List[WeaponProfile] = field(default_factory=list)
     abilities: List[AbilityProfile] = field(default_factory=list)
     ability_modifiers: List[AbilityModifier] = field(default_factory=list)
@@ -520,6 +527,13 @@ class UnitProfile:
             leadership=_parse_optional_int(data.get("leadership")),
             objective_control=_parse_optional_int(data.get("objective_control")),
             source_file=str(data.get("source_file") or ""),
+            base_type=(str(data.get("base_type")) if data.get("base_type") else None),
+            base_shape=(str(data.get("base_shape")) if data.get("base_shape") else None),
+            base_width_mm=_parse_optional_float(data.get("base_width_mm")),
+            base_depth_mm=_parse_optional_float(data.get("base_depth_mm")),
+            footprint_status=(str(data.get("footprint_status")) if data.get("footprint_status") else None),
+            footprint_source=(str(data.get("footprint_source") or data.get("base_source")) if data.get("footprint_source") or data.get("base_source") else None),
+            footprint_confidence=_parse_optional_float(data.get("footprint_confidence")),
             weapons=weapons,
             abilities=abilities,
             ability_modifiers=ability_modifiers,

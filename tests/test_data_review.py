@@ -15,6 +15,7 @@ def test_data_review_payload_loads_generated_reports(tmp_path):
     (tmp_path / "metadata.json").write_text('{"counts": {"units": 3}}', encoding="utf-8")
     (tmp_path / "edition_status.json").write_text('{"edition": "10e", "status": "ready"}', encoding="utf-8")
     (tmp_path / "edition_readiness.md").write_text("# Edition Readiness Report\n", encoding="utf-8")
+    (tmp_path / "unit_footprint_review.md").write_text("# Unit Footprint Review\n", encoding="utf-8")
     (tmp_path / "update_report.md").write_text("# Update\n\nStatus: PASS\n", encoding="utf-8")
     (tmp_path / "profile_review.md").write_text("# Imported Profile Review\n\nWeapon profiles: 1\n", encoding="utf-8")
     (tmp_path / "weapon_profile_review.csv").write_text("unit_name,weapon_name\nBoyz,Choppa\n", encoding="utf-8")
@@ -33,6 +34,11 @@ def test_data_review_payload_loads_generated_reports(tmp_path):
     assert payload["source_catalogue_summary"] is None
     assert payload["unit_variant_summary"] is None
     assert payload["weapon_coverage_summary"] is None
+    assert payload["unit_footprint_summary"] is None
+    assert payload["unit_footprint_suggestion_summary"] is None
+    assert payload["unit_footprint_template_summary"] is None
+    assert payload["unit_footprint_queue_summary"] is None
+    assert payload["unit_footprint_review"] == "# Unit Footprint Review\n"
     assert payload["ability_modifier_summary"] is None
     assert payload["schema_summary"] is None
     assert "Status: PASS" in payload["update_report"]
@@ -46,6 +52,7 @@ def test_data_review_payload_loads_generated_reports(tmp_path):
         "weapon_profile_review.csv",
         "edition_status.json",
         "edition_readiness.md",
+        "unit_footprint_review.md",
         "profile_review.md",
         "update_report.md",
     }
@@ -65,6 +72,11 @@ def test_data_review_payload_tolerates_missing_data_dir():
         "source_catalogue_summary": None,
         "unit_variant_summary": None,
         "weapon_coverage_summary": None,
+        "unit_footprint_summary": None,
+        "unit_footprint_suggestion_summary": None,
+        "unit_footprint_template_summary": None,
+        "unit_footprint_queue_summary": None,
+        "unit_footprint_review": None,
         "ability_modifier_summary": None,
         "schema_summary": None,
         "update_report": None,
@@ -271,6 +283,106 @@ def test_data_review_payload_summarizes_weapon_coverage(tmp_path):
     assert summary["ranged_weapons_missing_range"] == 0
     assert summary["rows"][0]["unit_name"] == "Drop Pod"
     assert summary["rows"][0]["coverage"] == "no_weapons"
+
+
+def test_data_review_payload_summarizes_unit_footprints(tmp_path):
+    (tmp_path / "unit_footprint_review.csv").write_text(
+        "\n".join(
+            [
+                "review_severity,review_category,unit_id,faction,unit_name,selection_type,models_min,models_max,footprint_status,base_type,base_shape,base_width_mm,base_depth_mm,guide_faction,guide_unit_name,guide_model_name,source,source_url,source_updated,match_method,match_confidence,review_reason",
+                "warning,unmatched_unit,u1,Test,Missing Base,unit,5,10,unmatched,,,,,,,,guide,url,January 2026,none,0.00,no guide match",
+                "info,mixed_or_multi_base_unit,u2,Test,Mixed Base,unit,11,11,review,round,round,40,40,TEST,Mixed Base,Platform,guide,url,January 2026,exact_name_faction,0.70,multiple official rows",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    payload = data_review_payload(tmp_path)
+    summary = payload["unit_footprint_summary"]
+
+    assert summary["total"] == 2
+    assert summary["by_severity"] == {"info": 1, "warning": 1}
+    assert summary["by_category"] == {"mixed_or_multi_base_unit": 1, "unmatched_unit": 1}
+    assert summary["by_status"] == {"review": 1, "unmatched": 1}
+    assert summary["rows"][0]["unit_name"] == "Missing Base"
+    assert summary["rows"][1]["base_width_mm"] == "40"
+
+
+def test_data_review_payload_summarizes_unit_footprint_suggestions(tmp_path):
+    (tmp_path / "unit_footprint_suggestions.csv").write_text(
+        "\n".join(
+            [
+                "unit_id,faction,unit_name,selection_type,models_min,models_max,suggestion_rank,suggestion_score,suggestion_reason,guide_faction,guide_unit_name,guide_model_name,base_size_text,base_type,base_shape,base_width_mm,base_depth_mm,source,source_url,source_updated",
+                "u1,Test,Autarch Skyrunner,model,1,1,1,0.72,similar name,AELDARI,Farseer Skyrunner,,Small Flying Base,small_flying_base,flying,,,guide,url,January 2026",
+                "u2,Test,Odd Unit,model,1,1,1,0.58,weak name,AELDARI,Other Unit,,32mm,round,round,32,32,guide,url,January 2026",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    payload = data_review_payload(tmp_path)
+    summary = payload["unit_footprint_suggestion_summary"]
+
+    assert summary["total"] == 2
+    assert summary["unit_total"] == 2
+    assert summary["by_score_band"] == {"low": 1, "medium": 1}
+    assert summary["by_faction"] == {"Test": 2}
+    assert summary["rows"][0]["unit_name"] == "Autarch Skyrunner"
+    assert summary["rows"][0]["guide_unit_name"] == "Farseer Skyrunner"
+
+
+def test_data_review_payload_summarizes_unit_footprint_override_template(tmp_path):
+    (tmp_path / "unit_footprint_override_template.csv").write_text(
+        "\n".join(
+            [
+                "unit_id,unit_name,faction_contains,suggested_guide_unit_name,suggested_base_size_text,override_base_size_text,review_decision",
+                "ready,Ready Unit,Test,Official Unit,40mm,,accept_suggestion",
+                "manual,Manual Unit,Test,,,90x52.5mm Oval Base,override",
+                "invalid,Invalid Unit,Test,,,,accept_suggestion",
+                "blank,Blank Unit,Test,,,,",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    (tmp_path / "unit_footprint_overrides.csv").write_text(
+        "unit_id,unit_name\n",
+        encoding="utf-8",
+    )
+
+    payload = data_review_payload(tmp_path)
+    summary = payload["unit_footprint_template_summary"]
+
+    assert summary["total"] == 4
+    assert summary["ready_total"] == 2
+    assert summary["invalid_total"] == 1
+    assert summary["blank_total"] == 1
+    assert summary["by_status"]["accept_suggestion_ready"] == 1
+    assert summary["by_status"]["override_ready"] == 1
+    assert summary["rows"][0]["unit_id"] == "invalid"
+    assert "missing" in summary["rows"][0]["reason"]
+
+
+def test_data_review_payload_summarizes_unit_footprint_review_queue(tmp_path):
+    (tmp_path / "unit_footprint_review_queue.csv").write_text(
+        "\n".join(
+            [
+                "review_rank,review_priority,review_hint,unit_id,unit_name,faction_contains,models_min,models_max,suggestion_score,suggested_guide_faction,suggested_guide_unit_name,suggested_guide_model_name,suggested_base_size_text",
+                "1,review_suggestion_high,Check same datasheet,u1,Commander in Crisis Battlesuit [Legends],Xenos - T'au Empire,1,1,0.86,T'AU EMPIRE,Commander in Enforcer Battlesuit,,60mm",
+                "2,no_suggestion,Research official base,u2,Unknown Unit,Test,1,1,,,,,",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    payload = data_review_payload(tmp_path)
+    summary = payload["unit_footprint_queue_summary"]
+
+    assert summary["total"] == 2
+    assert summary["by_priority"] == {"no_suggestion": 1, "review_suggestion_high": 1}
+    assert summary["by_faction"]["Xenos - T'au Empire"] == 1
+    assert summary["rows"][0]["review_rank"] == "1"
+    assert summary["rows"][0]["suggested_guide_unit_name"] == "Commander in Enforcer Battlesuit"
+    assert summary["rows"][1]["review_priority"] == "no_suggestion"
 
 
 def test_data_review_payload_summarizes_ability_modifiers(tmp_path):

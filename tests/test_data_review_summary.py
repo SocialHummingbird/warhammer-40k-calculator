@@ -46,6 +46,15 @@ def test_render_data_review_summary_includes_terminal_audit_counts():
             "by_category": {"legends_profile": 4, "many_profiles": 2},
         },
         "weapon_coverage_summary": {"total": 10, "no_weapon_total": 1, "by_coverage": {"both": 8, "no_weapons": 1, "melee_only": 1}},
+        "unit_footprint_queue_summary": {
+            "total": 12,
+            "by_priority": {
+                "review_suggestion_high": 2,
+                "review_suggestion_medium": 3,
+                "review_suggestion_low": 4,
+                "no_suggestion": 3,
+            },
+        },
         "schema_summary": {"total": 5, "by_status": {"pass": 5}},
         "unit_variant_summary": {"duplicate_names": 3, "total_rows": 7, "max_variant_count": 3},
         "ability_modifier_summary": {"total": 9, "by_type": {"attack_modifier": 8, "damage_reduction": 1}},
@@ -68,6 +77,8 @@ def test_render_data_review_summary_includes_terminal_audit_counts():
     assert "Suspicious weapons: 4" in rendered
     assert "Unit profile issues: 2" in rendered
     assert "Weapon coverage: 1 no-weapon units / 10 units" in rendered
+    assert "Footprint review queue: 12 rows" in rendered
+    assert "review_suggestion_high 2" in rendered
     assert "Review files: 1 available" in rendered
     assert rendered.endswith("\n")
 

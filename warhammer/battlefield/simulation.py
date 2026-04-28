@@ -26,6 +26,15 @@ from .models import (
 
 ADVANCE_EXPECTED_ROLL = 3.5
 
+BASE_TYPE_DIMENSIONS_MM: Dict[str, Tuple[float, float]] = {
+    "small_flying_base": (32.0, 32.0),
+    "large_flying_base": (60.0, 60.0),
+}
+BASE_TYPE_RADIUS_INCHES: Dict[str, float] = {
+    "hull": 2.8,
+    "unique": 2.8,
+}
+
 MVP_ASSUMPTIONS = [
     "Battlefield mode uses circular unit blobs and centre-to-centre range.",
     "Line of sight is approximated from terrain bounding boxes; varied terrain shapes are visual in the MVP.",
@@ -1207,7 +1216,35 @@ def nearest_objective_bonus(state: BattleState, actor: BattleUnit) -> float:
 
 def default_radius(unit: UnitProfile) -> float:
     models = default_models(unit)
+    dimensions = footprint_dimensions_mm(unit)
+    if dimensions:
+        return radius_from_base_dimensions(models, *dimensions)
+    base_type = getattr(unit, "base_type", None)
+    if base_type in BASE_TYPE_RADIUS_INCHES and models <= 1:
+        return BASE_TYPE_RADIUS_INCHES[base_type]
     return round(max(1.0, min(6.0, math.sqrt(models) * 0.85)), 2)
+
+
+def footprint_dimensions_mm(unit: UnitProfile) -> Tuple[float, float] | None:
+    base_width = _float_or_none(getattr(unit, "base_width_mm", None))
+    base_depth = _float_or_none(getattr(unit, "base_depth_mm", None))
+    if base_width and base_depth:
+        return base_width, base_depth
+    return BASE_TYPE_DIMENSIONS_MM.get(str(getattr(unit, "base_type", "") or ""))
+
+
+def radius_from_base_dimensions(models: int, base_width_mm: float, base_depth_mm: float) -> float:
+    largest_base_inches = max(float(base_width_mm), float(base_depth_mm)) / 25.4
+    single_model_radius = max(0.45, largest_base_inches / 2)
+    formation_radius = math.sqrt(models) * (single_model_radius + 0.2)
+    return round(max(0.75, min(8.0, formation_radius)), 2)
+
+
+def _float_or_none(value: object) -> float | None:
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return None
 
 
 def default_models(unit: UnitProfile) -> int:

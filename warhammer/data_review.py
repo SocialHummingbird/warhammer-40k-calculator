@@ -5,6 +5,8 @@ import csv
 from pathlib import Path
 from typing import Any, Dict, Optional
 
+from warhammer.base_sizes import summarize_footprint_override_template
+
 
 REVIEW_FILE_LABELS = {
     "weapon_profile_review.csv": "Weapon profile review CSV",
@@ -16,6 +18,15 @@ REVIEW_FILE_LABELS = {
     "unit_weapon_coverage_review.csv": "Unit weapon coverage review CSV",
     "loadout_review.csv": "Loadout review CSV",
     "source_catalogue_review.csv": "Source catalogue review CSV",
+    "base_size_guide.csv": "Official base-size guide CSV",
+    "unit_footprint_overrides.csv": "Unit footprint manual overrides CSV",
+    "unit_footprint_rejections.csv": "Unit footprint rejected suggestions CSV",
+    "unit_footprint_override_template.csv": "Unit footprint override template CSV",
+    "unit_footprint_review_queue.csv": "Unit footprint prioritized review queue CSV",
+    "unit_footprints.csv": "Unit footprint CSV",
+    "unit_footprint_review.csv": "Unit footprint review CSV",
+    "unit_footprint_review.md": "Unit footprint review report",
+    "unit_footprint_suggestions.csv": "Unit footprint suggestions CSV",
     "schema_review.csv": "Schema review CSV",
     "edition_status.json": "Edition status JSON",
     "edition_readiness.md": "Edition readiness report",
@@ -56,6 +67,11 @@ def data_review_payload(
             "source_catalogue_summary": None,
             "unit_variant_summary": None,
             "weapon_coverage_summary": None,
+            "unit_footprint_summary": None,
+            "unit_footprint_suggestion_summary": None,
+            "unit_footprint_template_summary": None,
+            "unit_footprint_queue_summary": None,
+            "unit_footprint_review": None,
             "ability_modifier_summary": None,
             "schema_summary": None,
             "update_report": None,
@@ -80,6 +96,14 @@ def data_review_payload(
         "source_catalogue_summary": source_catalogue_summary(data_dir / "source_catalogue_review.csv"),
         "unit_variant_summary": unit_variant_summary(data_dir / "unit_variant_review.csv"),
         "weapon_coverage_summary": weapon_coverage_summary(data_dir / "unit_weapon_coverage_review.csv"),
+        "unit_footprint_summary": unit_footprint_summary(data_dir / "unit_footprint_review.csv"),
+        "unit_footprint_suggestion_summary": unit_footprint_suggestion_summary(data_dir / "unit_footprint_suggestions.csv"),
+        "unit_footprint_template_summary": unit_footprint_template_summary(
+            data_dir / "unit_footprint_override_template.csv",
+            data_dir / "unit_footprint_overrides.csv",
+        ),
+        "unit_footprint_queue_summary": unit_footprint_queue_summary(data_dir / "unit_footprint_review_queue.csv"),
+        "unit_footprint_review": load_text_file(data_dir / "unit_footprint_review.md"),
         "ability_modifier_summary": ability_modifier_summary(data_dir / "ability_modifier_review.csv"),
         "schema_summary": schema_summary(data_dir / "schema_review.csv"),
         "update_report": load_text_file(data_dir / "update_report.md"),
@@ -421,6 +445,221 @@ def weapon_coverage_summary(path: Path, *, row_limit: int = 30) -> Optional[Dict
     }
 
 
+def unit_footprint_summary(path: Path, *, row_limit: int = 30) -> Optional[Dict[str, Any]]:
+    if not path.exists():
+        return None
+    try:
+        with path.open(newline="", encoding="utf-8") as handle:
+            rows = list(csv.DictReader(handle))
+    except OSError:
+        return None
+
+    by_severity: dict[str, int] = {}
+    by_category: dict[str, int] = {}
+    by_status: dict[str, int] = {}
+    for row in rows:
+        severity = (row.get("review_severity") or "unknown").strip() or "unknown"
+        category = (row.get("review_category") or "unknown").strip() or "unknown"
+        status = (row.get("footprint_status") or "unknown").strip() or "unknown"
+        by_severity[severity] = by_severity.get(severity, 0) + 1
+        by_category[category] = by_category.get(category, 0) + 1
+        by_status[status] = by_status.get(status, 0) + 1
+
+    sorted_rows = sorted(
+        rows,
+        key=lambda row: (
+            {"warning": 0, "error": 1, "info": 2}.get((row.get("review_severity") or "").casefold(), 3),
+            row.get("faction", "").casefold(),
+            row.get("unit_name", "").casefold(),
+        ),
+    )
+    return {
+        "total": len(rows),
+        "by_severity": dict(sorted(by_severity.items())),
+        "by_category": dict(sorted(by_category.items())),
+        "by_status": dict(sorted(by_status.items())),
+        "rows": [_unit_footprint_row(row) for row in sorted_rows[:row_limit]],
+        "row_limit": row_limit,
+    }
+
+
+def unit_footprint_suggestion_summary(path: Path, *, row_limit: int = 30) -> Optional[Dict[str, Any]]:
+    if not path.exists():
+        return None
+    try:
+        with path.open(newline="", encoding="utf-8") as handle:
+            rows = list(csv.DictReader(handle))
+    except OSError:
+        return None
+
+    by_faction: dict[str, int] = {}
+    by_score_band: dict[str, int] = {}
+    units_with_suggestions: set[str] = set()
+    for row in rows:
+        faction = (row.get("faction") or "unknown").strip() or "unknown"
+        by_faction[faction] = by_faction.get(faction, 0) + 1
+        units_with_suggestions.add(row.get("unit_id") or row.get("unit_name") or "")
+        score = _csv_float(row.get("suggestion_score", ""))
+        if score >= 0.75:
+            band = "high"
+        elif score >= 0.65:
+            band = "medium"
+        else:
+            band = "low"
+        by_score_band[band] = by_score_band.get(band, 0) + 1
+
+    top_rows = sorted(
+        rows,
+        key=lambda row: (
+            _csv_int(row.get("suggestion_rank", "999")),
+            -_csv_float(row.get("suggestion_score", "")),
+            row.get("faction", "").casefold(),
+            row.get("unit_name", "").casefold(),
+        ),
+    )
+    return {
+        "total": len(rows),
+        "unit_total": len({unit for unit in units_with_suggestions if unit}),
+        "by_score_band": dict(sorted(by_score_band.items())),
+        "by_faction": dict(sorted(by_faction.items(), key=lambda item: (-item[1], item[0]))),
+        "rows": [_unit_footprint_suggestion_row(row) for row in top_rows[:row_limit]],
+        "row_limit": row_limit,
+    }
+
+
+def unit_footprint_template_summary(
+    path: Path,
+    overrides_path: Path | None = None,
+    *,
+    row_limit: int = 30,
+) -> Optional[Dict[str, Any]]:
+    if not path.exists():
+        return None
+    try:
+        with path.open(newline="", encoding="utf-8") as handle:
+            rows = list(csv.DictReader(handle))
+        override_rows = []
+        if overrides_path and overrides_path.exists():
+            with overrides_path.open(newline="", encoding="utf-8") as handle:
+                override_rows = list(csv.DictReader(handle))
+    except OSError:
+        return None
+
+    summary = summarize_footprint_override_template(rows, override_rows)
+    counts = summary["counts"]
+    ready_total = int(counts.get("accept_suggestion_ready", 0)) + int(counts.get("override_ready", 0))
+    invalid_rows = list(summary["issues"])
+    return {
+        "total": counts.get("total", len(rows)),
+        "ready_total": ready_total,
+        "invalid_total": counts.get("invalid", 0),
+        "blank_total": counts.get("blank", 0),
+        "rejected_total": counts.get("rejected", 0),
+        "already_overridden_total": counts.get("already_overridden", 0),
+        "by_status": dict(sorted(counts.items())),
+        "rows": [_unit_footprint_template_issue_row(row) for row in invalid_rows[:row_limit]],
+        "row_limit": row_limit,
+    }
+
+
+def unit_footprint_queue_summary(path: Path, *, row_limit: int = 20) -> Optional[Dict[str, Any]]:
+    if not path.exists():
+        return None
+    try:
+        with path.open(newline="", encoding="utf-8") as handle:
+            rows = list(csv.DictReader(handle))
+    except OSError:
+        return None
+
+    by_priority: dict[str, int] = {}
+    by_faction: dict[str, int] = {}
+    for row in rows:
+        priority = (row.get("review_priority") or "unknown").strip() or "unknown"
+        faction = (row.get("faction_contains") or "unknown").strip() or "unknown"
+        by_priority[priority] = by_priority.get(priority, 0) + 1
+        by_faction[faction] = by_faction.get(faction, 0) + 1
+
+    return {
+        "total": len(rows),
+        "by_priority": dict(sorted(by_priority.items())),
+        "by_faction": dict(sorted(by_faction.items(), key=lambda item: (-item[1], item[0]))),
+        "rows": [_unit_footprint_queue_row(row) for row in rows[:row_limit]],
+        "row_limit": row_limit,
+    }
+
+
+def _unit_footprint_queue_row(row: Dict[str, str]) -> Dict[str, str]:
+    return {
+        "review_rank": row.get("review_rank", ""),
+        "review_priority": row.get("review_priority", ""),
+        "review_hint": row.get("review_hint", ""),
+        "unit_id": row.get("unit_id", ""),
+        "unit_name": row.get("unit_name", ""),
+        "faction": row.get("faction_contains", ""),
+        "models_min": row.get("models_min", ""),
+        "models_max": row.get("models_max", ""),
+        "suggestion_score": row.get("suggestion_score", ""),
+        "suggested_guide_faction": row.get("suggested_guide_faction", ""),
+        "suggested_guide_unit_name": row.get("suggested_guide_unit_name", ""),
+        "suggested_guide_model_name": row.get("suggested_guide_model_name", ""),
+        "suggested_base_size_text": row.get("suggested_base_size_text", ""),
+    }
+
+
+def _unit_footprint_template_issue_row(row: Dict[str, str]) -> Dict[str, str]:
+    return {
+        "unit_id": row.get("unit_id", ""),
+        "unit_name": row.get("unit_name", ""),
+        "review_decision": row.get("review_decision", ""),
+        "reason": row.get("reason", ""),
+    }
+
+
+def _unit_footprint_suggestion_row(row: Dict[str, str]) -> Dict[str, str]:
+    return {
+        "unit_id": row.get("unit_id", ""),
+        "faction": row.get("faction", ""),
+        "unit_name": row.get("unit_name", ""),
+        "selection_type": row.get("selection_type", ""),
+        "models_min": row.get("models_min", ""),
+        "models_max": row.get("models_max", ""),
+        "suggestion_rank": row.get("suggestion_rank", ""),
+        "suggestion_score": row.get("suggestion_score", ""),
+        "suggestion_reason": row.get("suggestion_reason", ""),
+        "guide_faction": row.get("guide_faction", ""),
+        "guide_unit_name": row.get("guide_unit_name", ""),
+        "guide_model_name": row.get("guide_model_name", ""),
+        "base_size_text": row.get("base_size_text", ""),
+        "base_type": row.get("base_type", ""),
+        "base_shape": row.get("base_shape", ""),
+        "base_width_mm": row.get("base_width_mm", ""),
+        "base_depth_mm": row.get("base_depth_mm", ""),
+    }
+
+
+def _unit_footprint_row(row: Dict[str, str]) -> Dict[str, str]:
+    return {
+        "severity": row.get("review_severity", ""),
+        "category": row.get("review_category", ""),
+        "faction": row.get("faction", ""),
+        "unit_name": row.get("unit_name", ""),
+        "selection_type": row.get("selection_type", ""),
+        "models_min": row.get("models_min", ""),
+        "models_max": row.get("models_max", ""),
+        "footprint_status": row.get("footprint_status", ""),
+        "base_type": row.get("base_type", ""),
+        "base_shape": row.get("base_shape", ""),
+        "base_width_mm": row.get("base_width_mm", ""),
+        "base_depth_mm": row.get("base_depth_mm", ""),
+        "guide_faction": row.get("guide_faction", ""),
+        "guide_unit_name": row.get("guide_unit_name", ""),
+        "guide_model_name": row.get("guide_model_name", ""),
+        "match_method": row.get("match_method", ""),
+        "match_confidence": row.get("match_confidence", ""),
+        "review_reason": row.get("review_reason", ""),
+    }
+
+
 def _weapon_coverage_row(row: Dict[str, str]) -> Dict[str, str]:
     return {
         "faction": row.get("faction", ""),
@@ -544,6 +783,13 @@ def _csv_int(value: str) -> int:
         return int(value or 0)
     except (TypeError, ValueError):
         return 0
+
+
+def _csv_float(value: str) -> float:
+    try:
+        return float(value or 0)
+    except (TypeError, ValueError):
+        return 0.0
 
 
 def load_text_file(path: Path) -> Optional[str]:

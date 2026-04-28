@@ -3,3 +3,4 @@
 # Optional helpers:
 # - pytest, for running the test suite
 # - openai, for AI-assisted matchup summaries
+# - pypdf, for extracting the official base-size guide PDF
