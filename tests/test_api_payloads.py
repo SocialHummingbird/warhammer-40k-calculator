@@ -94,5 +94,5 @@ def test_optional_unit_id_normalises_blank_values():
 def test_query_limit_clamps_to_supported_range():
     assert query_limit("bad") == 300
     assert query_limit("0") == 1
-    assert query_limit("2000") == 1000
+    assert query_limit("2000") == 2000
     assert query_limit("25") == 25

@@ -127,6 +127,14 @@ def battlefield_resolve_payload(payload: Dict[str, Any], *, state: AppState) -> 
     return result
 
 
+def battlefield_advance_phase_payload(payload: Dict[str, Any], *, state: AppState) -> Dict[str, Any]:
+    edition = requested_rules_edition(payload.get("edition"), state=state)
+    dataset = state.dataset_for_edition(edition)
+    result = battlefield_service.advance_phase_payload(payload, dataset)
+    result["edition"] = edition
+    return result
+
+
 def battlefield_ai_plan_payload(payload: Dict[str, Any], *, state: AppState) -> Dict[str, Any]:
     edition = requested_rules_edition(payload.get("edition"), state=state)
     dataset = state.dataset_for_edition(edition)
@@ -139,6 +147,14 @@ def battlefield_autoplay_payload(payload: Dict[str, Any], *, state: AppState) ->
     edition = requested_rules_edition(payload.get("edition"), state=state)
     dataset = state.dataset_for_edition(edition)
     result = battlefield_service.autoplay_payload(payload, dataset, edition=edition)
+    result["edition"] = edition
+    return result
+
+
+def battlefield_new_state_payload(payload: Dict[str, Any], *, state: AppState) -> Dict[str, Any]:
+    edition = requested_rules_edition(payload.get("edition"), state=state)
+    dataset = state.dataset_for_edition(edition)
+    result = battlefield_service.new_state_payload(payload, dataset)
     result["edition"] = edition
     return result
 

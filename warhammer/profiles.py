@@ -349,6 +349,7 @@ class WeaponProfile:
     melta: Optional[int] = None
     rapid_fire: Optional[int] = None
     anti_rules: List[Tuple[str, int]] = field(default_factory=list)
+    range_inches: Optional[float] = None
     source_file: str = ""
 
     @classmethod
@@ -419,6 +420,7 @@ class WeaponProfile:
             melta=keyword_flags["melta"],
             rapid_fire=keyword_flags["rapid_fire"],
             anti_rules=keyword_flags["anti_rules"],
+            range_inches=_parse_optional_float(data.get("range_inches") or data.get("range")),
             source_file=str(data.get("source_file") or ""),
         )
 

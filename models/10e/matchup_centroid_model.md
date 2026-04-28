@@ -2,48 +2,56 @@
 
 ## Summary
 - Model: `nearest_centroid_classifier`
+- Confidence basis: distance-based
 - Feature set: `pre_match`
 - Model file: `C:\Users\ap010\OneDrive\Documents\dev\Warhammer 40K Calculator\250916 0942 Warhammer 40k damage calculator\models\10e\matchup_centroid_model.json`
 - Feature file: `C:\Users\ap010\OneDrive\Documents\dev\Warhammer 40K Calculator\250916 0942 Warhammer 40k damage calculator\data\ml\10e\matchup_training_rows.csv`
 - Saved feature rows: 10000
-- Saved feature SHA-256: `0b84aae91010141e89adb91ccaa69bb4a0ba873a364bba5991f3b17af2b46d35`
-- Created at: `2026-04-26T15:56:19.585925Z`
+- Saved feature SHA-256: `db55ed1cc68095c89f4f5d9e33a2c3a8d31f1345c0efc5ab0f2f845029753236`
+- Created at: `2026-04-28T07:00:57.549271Z`
 - Label source: `deterministic_calculator`
+- External label overrides: none
 - Labels: `attacker`, `close`, `defender`
 - Training rows: 8000
 - Validation rows: 2000
-- Validation accuracy: 0.688
+- Validation accuracy: None
 - Feature CSV completeness: ok
 
 ## Interpretation
 - This is an advisory model, not the rules engine.
 - Labels are generated from deterministic calculator outputs, not real tabletop results.
 - Validation accuracy measures agreement with the calculator-derived labels.
+- Nearest-centroid classification is dependency-free and compares each matchup to saved class centroids.
+- Confidence is based on the gap between the nearest and next-nearest class distance.
 
 ## Class Balance
 ### Feature CSV labels
 
 | Label | Rows | Share |
 | --- | ---: | ---: |
-| `attacker` | 5100 | 51.0% |
-| `close` | 510 | 5.1% |
-| `defender` | 4390 | 43.9% |
+| `attacker` | 5159 | 51.6% |
+| `close` | 485 | 4.9% |
+| `defender` | 4356 | 43.6% |
 | **Total** | **10000** | **100.0%** |
 ### Training labels
 
 | Label | Rows | Share |
 | --- | ---: | ---: |
-| `attacker` | 4080 | 51.0% |
-| `close` | 417 | 5.2% |
-| `defender` | 3503 | 43.8% |
+| `attacker` | 4111 | 51.4% |
+| `close` | 392 | 4.9% |
+| `defender` | 3497 | 43.7% |
 | **Total** | **8000** | **100.0%** |
 
 ## Validation Confusion Matrix
 | Expected \ Predicted | `attacker` | `close` | `defender` |
 | --- | ---: | ---: | ---: |
-| `attacker` | 687 | 300 | 33 |
-| `close` | 14 | 56 | 23 |
-| `defender` | 21 | 233 | 633 |
+| `attacker` | 788 | 226 | 34 |
+| `close` | 18 | 56 | 19 |
+| `defender` | 39 | 237 | 583 |
+
+## Model Parameters
+- Centroids: 3
+- Features per centroid: 42
 
 ## Feature Columns
 - Total columns: 42

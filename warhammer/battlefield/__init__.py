@@ -6,9 +6,11 @@ existing damage calculator. It is not a complete tournament rules simulator.
 
 from .api import (
     actions_payload,
+    advance_phase_payload,
     ai_plan_payload,
     autoplay_payload,
     battlefield_templates_payload,
+    new_state_payload,
     resolve_payload,
     validate_army_payload,
     validate_state_payload,
@@ -16,9 +18,11 @@ from .api import (
 
 __all__ = [
     "actions_payload",
+    "advance_phase_payload",
     "ai_plan_payload",
     "autoplay_payload",
     "battlefield_templates_payload",
+    "new_state_payload",
     "resolve_payload",
     "validate_army_payload",
     "validate_state_payload",

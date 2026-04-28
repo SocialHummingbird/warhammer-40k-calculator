@@ -202,6 +202,8 @@ def test_standalone_html_can_calculate_matchup_in_headless_browser():
                     };
                     wait();
                   });
+                  const initialCalculatorEmptyArt = Boolean(document.querySelector("[data-testid='calculator-empty-art']"));
+                  const initialCalculatorEmptyText = document.querySelector("[data-testid='calculator-empty-state']")?.innerText || "";
                   const choose = (field, predicate) => {
                     const unit = state.units.find(predicate);
                     if (!unit) throw new Error(`Could not find ${field} test unit`);
@@ -215,8 +217,15 @@ def test_standalone_html_can_calculate_matchup_in_headless_browser():
                   document.getElementById("mode").value = "melee";
                   await refreshWeaponSelectors();
                   await calculate();
+                  const resultHeadingBeforeModeSwitch = document.querySelector("#results h3")?.textContent || "";
+                  await showBattlefield();
+                  const battlefieldVisibleBeforeCalculatorReturn = Boolean(document.querySelector("[data-testid='battlefield-view']"));
+                  document.getElementById("nav-calculator").click();
+                  const resultHeadingAfterCalculatorReturn = document.querySelector("#results h3")?.textContent || "";
                   return {
                     units: state.units.length,
+                    initialCalculatorEmptyArt,
+                    initialCalculatorEmptyText,
                     attackerId: state.selectedUnitIds.attacker,
                     defenderId: state.selectedUnitIds.defender,
                     error: document.getElementById("error").textContent,
@@ -239,7 +248,14 @@ def test_standalone_html_can_calculate_matchup_in_headless_browser():
                     outgoingDamage: state.lastResult?.outgoing?.total_damage,
                     incomingDamage: state.lastResult?.incoming?.total_damage,
                     outgoingModels: state.lastResult?.outgoing?.expected_models_destroyed,
-                    incomingModels: state.lastResult?.incoming?.expected_models_destroyed
+                    incomingModels: state.lastResult?.incoming?.expected_models_destroyed,
+                    bodyView: document.body.dataset.view,
+                    calculatorNavPressed: document.getElementById("nav-calculator")?.getAttribute("aria-pressed") || "",
+                    asideDisplay: getComputedStyle(document.querySelector("aside")).display,
+                    battlefieldVisibleBeforeCalculatorReturn,
+                    resultHeadingBeforeModeSwitch,
+                    resultHeadingAfterCalculatorReturn,
+                    resultsView: document.getElementById("results")?.dataset.view || ""
                   };
                 })()
             """
@@ -252,9 +268,17 @@ def test_standalone_html_can_calculate_matchup_in_headless_browser():
                 pytest.fail(str(response["result"]["exceptionDetails"]))
 
             assert result["units"] >= 1400
+            assert result["initialCalculatorEmptyArt"] is True
+            assert "Choose a matchup" in result["initialCalculatorEmptyText"]
             assert result["attackerId"]
             assert result["defenderId"]
             assert result["error"] == ""
+            assert result["bodyView"] == "calculator"
+            assert result["calculatorNavPressed"] == "true"
+            assert result["asideDisplay"] != "none"
+            assert result["battlefieldVisibleBeforeCalculatorReturn"] is True
+            assert result["resultHeadingAfterCalculatorReturn"] == result["resultHeadingBeforeModeSwitch"]
+            assert result["resultsView"] == "calculator"
             assert result["judgement"].startswith("AI judgement:")
             assert result["firstResultHeading"].startswith("AI judgement:")
             assert result["actionTop"] < result["viewportHeight"]
@@ -536,8 +560,11 @@ def test_standalone_html_can_calculate_matchup_in_headless_browser():
                 {
                     "expression": r"""
                         (async () => {
-                          renderDataReview(await loadDataReview());
+                          await showDataReview();
                           return {
+                            bodyView: document.body.dataset.view,
+                            dataReviewNavPressed: document.getElementById("nav-data-review")?.getAttribute("aria-pressed") || "",
+                            asideDisplay: getComputedStyle(document.querySelector("aside")).display,
                             sourceLinks: document.querySelectorAll('.report-markdown a[href*="github.com/BSData/wh40k-10e/blob/"]').length,
                             schemaReviewLink: [...document.querySelectorAll('.review-link')].some((link) => /schema_review\.csv/.test(link.getAttribute("download") || link.textContent || "")),
                             editionStatusLink: [...document.querySelectorAll('.review-link')].some((link) => /edition_status\.json/.test(link.getAttribute("download") || link.textContent || "")),
@@ -570,6 +597,9 @@ def test_standalone_html_can_calculate_matchup_in_headless_browser():
             review_result = review_response["result"]["result"].get("value")
             if review_response["result"].get("exceptionDetails"):
                 pytest.fail(str(review_response["result"]["exceptionDetails"]))
+            assert review_result["bodyView"] == "data-review"
+            assert review_result["dataReviewNavPressed"] == "true"
+            assert review_result["asideDisplay"] == "none"
             assert review_result["sourceLinks"] > 0
             assert review_result["schemaReviewLink"] is True
             assert review_result["editionStatusLink"] is True
@@ -592,11 +622,35 @@ def test_standalone_html_can_calculate_matchup_in_headless_browser():
             assert review_result["reviewStatusExists"] is True
             assert "review sections visible" in review_result["initialFilterStatus"]
 
-            review_filter_response = websocket.call(
+            review_empty_response = websocket.call(
                 "Runtime.evaluate",
                 {
                     "expression": r"""
                         (() => {
+                          renderDataReview({});
+                          return {
+                            emptyArt: Boolean(document.querySelector("[data-testid='data-review-empty-art']")),
+                            emptyText: document.querySelector("[data-testid='data-review-empty-state']")?.innerText || "",
+                            view: document.getElementById("results")?.dataset.view || ""
+                          };
+                        })()
+                    """,
+                    "returnByValue": True,
+                },
+            )
+            review_empty = review_empty_response["result"]["result"].get("value")
+            if review_empty_response["result"].get("exceptionDetails"):
+                pytest.fail(str(review_empty_response["result"]["exceptionDetails"]))
+            assert review_empty["emptyArt"] is True
+            assert "No review artifacts found" in review_empty["emptyText"]
+            assert review_empty["view"] == "data-review"
+
+            review_filter_response = websocket.call(
+                "Runtime.evaluate",
+                {
+                    "expression": r"""
+                        (async () => {
+                          await showDataReview();
                           const search = document.getElementById("data-review-search");
                           const status = document.getElementById("data-review-status");
                           const targetSection = document.getElementById("review-provenance") || document.querySelector("#results .review-section");
@@ -705,6 +759,17 @@ def test_standalone_html_battlefield_mode_smoke():
                             wait();
                           });
                           await showBattlefield();
+                          state.battlefield.state = null;
+                          state.battlefield.plan = null;
+                          renderBattlefield();
+                          const initialBattlefieldEmptyArt = Boolean(document.querySelector("[data-testid='battlefield-empty-art']"));
+                          const initialBattlefieldEmptyText = document.querySelector("[data-testid='battlefield-empty-state']")?.innerText || "";
+                          await updateBattlefieldArmyFaction("red", "Xenos - Orks");
+                          const redFactionValue = document.getElementById("battle-red-faction").value;
+                          const redSelectableText = document.querySelector(".army-card.red .small")?.textContent || "";
+                          const redFactionOptions = [...document.querySelector(".army-card.red .battle-army-unit").options]
+                            .filter((option) => option.value)
+                            .map((option) => option.textContent);
                           document.querySelector(".battle-add-unit[data-side='red']").click();
                           const firstRedCount = document.querySelector(".army-card.red .army-row .battle-army-count");
                           firstRedCount.value = "2";
@@ -713,37 +778,378 @@ def test_standalone_html_battlefield_mode_smoke():
                           const redOptions = [...secondRed.querySelector(".battle-army-unit").options].filter((option) => option.value);
                           secondRed.querySelector(".battle-army-unit").value = redOptions[1]?.value || redOptions[0]?.value || "";
                           secondRed.querySelector(".battle-army-unit").dispatchEvent(new Event("change", { bubbles: true }));
+                          const expectedRedValidationPoints = battlefieldArmies()[0].units.reduce((sum, entry) => {
+                            const unit = state.units.find((row) => row.id === entry.unit_id);
+                            return sum + Number(unit?.points || 0) * Math.max(1, Number(entry.count || 1));
+                          }, 0);
+                          const expectedRedValidationUnitCount = battlefieldArmies()[0].units.reduce((sum, entry) => sum + Math.max(1, Number(entry.count || 1)), 0);
+                          await battlefieldValidate();
+                          const localRedValidationPoints = state.battlefield.validation.red.points;
+                          const localRedValidationUnitCount = state.battlefield.validation.red.unit_count;
+                          const localRedValidationWarnings = state.battlefield.validation.red.warnings.join(" | ");
+                          const localValidationPanelText = [...document.querySelectorAll(".battlefield-panels")].map((node) => node.innerText || "").join("\n");
+                          const savedArmyRowsForInvalidValidation = JSON.parse(JSON.stringify(state.battlefield.armyRows));
+                          state.battlefield.armyRows.red.push({ unitId: "__missing_unit__", count: 3 });
+                          await battlefieldValidate();
+                          const invalidLocalValidationErrors = state.battlefield.validation.red.errors.join(" | ");
+                          const invalidLocalValidationUnitCount = state.battlefield.validation.red.unit_count;
+                          const invalidValidationPanelText = [...document.querySelectorAll(".battlefield-panels")].map((node) => node.innerText || "").join("\n");
+                          state.battlefield.armyRows = savedArmyRowsForInvalidValidation;
+                          renderBattlefield();
                           await battlefieldGenerate();
+                          const boardLabels = [...document.querySelectorAll(".bf-label")];
+                          const boardLabelMaxLength = Math.max(...boardLabels.map((node) => node.textContent.length));
+                          const boardLabelsCentered = boardLabels.every((node) => {
+                            const circle = node.parentElement.querySelector(".bf-unit");
+                            return circle && node.getAttribute("x") === circle.getAttribute("cx") && node.getAttribute("y") === circle.getAttribute("cy");
+                          });
+                          document.getElementById("battle-next-phase").click();
+                          await new Promise((resolve) => setTimeout(resolve, 0));
+                          const nextPhaseAfterClick = state.battlefield.state.phase;
+                          const nextPhaseLogAction = state.battlefield.state.log.at(-1)?.action || "";
+                          const turnTrackerText = document.querySelector("[data-testid='battle-turn-tracker']")?.innerText || "";
+                          const redeployUnitId = state.battlefield.state.units.find((unit) => unit.side === "red").instance_id;
+                          const redeployBefore = { ...state.battlefield.state.units.find((unit) => unit.instance_id === redeployUnitId) };
+                          state.battlefield.state.units.find((unit) => unit.instance_id === redeployUnitId).x = state.battlefield.state.map.width - 2;
+                          state.battlefield.state.units.find((unit) => unit.instance_id === redeployUnitId).y = state.battlefield.state.map.height - 2;
+                          state.battlefield.state.log.push({ turn: 99, side: "red", action: "test" });
+                          await battlefieldRedeploy();
+                          const redeployAfter = state.battlefield.state.units.find((unit) => unit.instance_id === redeployUnitId);
+                          const redeployMapId = state.battlefield.state.map.id;
+                          const redeployClearedLog = state.battlefield.state.log.length === 0;
+                          const armyExport = battlefieldExportPayload("armies");
+                          const stateExport = battlefieldExportPayload("state");
+                          state.battlefield.armyRows = { red: [], blue: [] };
+                          state.battlefield.state = null;
+                          renderBattlefield();
+                          await battlefieldImportJson({ text: async () => JSON.stringify(armyExport) });
+                          const armyImportRedRows = [...document.querySelectorAll(".army-card.red .army-row")].length;
+                          const armyImportRedEntries = battlefieldArmies()[0].units.length;
+                          const armyImportStateCleared = state.battlefield.state === null;
+                          await battlefieldImportJson({ text: async () => JSON.stringify(stateExport) });
+                          const stateImportUnits = state.battlefield.state.units.length;
+                          const stateImportBoard = Boolean(document.getElementById("battle-board"));
+                          const mapExport = battlefieldExportPayload("map");
+                          state.battlefield.state = null;
+                          renderBattlefield();
+                          await battlefieldImportJson({ text: async () => JSON.stringify(mapExport) });
+                          const mapImportBoard = Boolean(document.getElementById("battle-board"));
+                          const mapImportUnits = state.battlefield.state.units.length;
+                          const mapImportId = state.battlefield.state.map.id;
+                          const badMapExport = JSON.parse(JSON.stringify(mapExport));
+                          badMapExport.map.terrain[0].x = badMapExport.map.width + 10;
+                          let badMapError = "";
+                          try {
+                            await battlefieldImportJson({ text: async () => JSON.stringify(badMapExport) });
+                          } catch (error) {
+                            badMapError = error.message;
+                          }
+                          const badStateExport = JSON.parse(JSON.stringify(stateExport));
+                          badStateExport.state.units[0].x = badStateExport.state.map.width + 5;
+                          let badStateError = "";
+                          try {
+                            await battlefieldImportJson({ text: async () => JSON.stringify(badStateExport) });
+                          } catch (error) {
+                            badStateError = error.message;
+                          }
+                          const badStateMetadataExport = JSON.parse(JSON.stringify(stateExport));
+                          badStateMetadataExport.state.turn = 0;
+                          badStateMetadataExport.state.phase = "psychic";
+                          badStateMetadataExport.state.active_side = "green";
+                          badStateMetadataExport.state.score = { red: -1 };
+                          let badStateMetadataError = "";
+                          try {
+                            await battlefieldImportJson({ text: async () => JSON.stringify(badStateMetadataExport) });
+                          } catch (error) {
+                            badStateMetadataError = error.message;
+                          }
+                          const badStateUnitExport = JSON.parse(JSON.stringify(stateExport));
+                          badStateUnitExport.state.units[1].instance_id = badStateUnitExport.state.units[0].instance_id;
+                          badStateUnitExport.state.units[0].unit_id = "missing";
+                          badStateUnitExport.state.units[0].side = "green";
+                          badStateUnitExport.state.units[0].radius = 0;
+                          let badStateUnitError = "";
+                          try {
+                            await battlefieldImportJson({ text: async () => JSON.stringify(badStateUnitExport) });
+                          } catch (error) {
+                            badStateUnitError = error.message;
+                          }
+                          const newerSchemaExport = { ...stateExport, schema_version: 99 };
+                          let newerSchemaError = "";
+                          try {
+                            await battlefieldImportJson({ text: async () => JSON.stringify(newerSchemaExport) });
+                          } catch (error) {
+                            newerSchemaError = error.message;
+                          }
+                          const wrongEditionExport = { ...stateExport, rules_edition: "11e" };
+                          let wrongEditionError = "";
+                          try {
+                            await battlefieldImportJson({ text: async () => JSON.stringify(wrongEditionExport) });
+                          } catch (error) {
+                            wrongEditionError = error.message;
+                          }
+                          const wrongPresetExport = { ...stateExport, rules_preset: "tournament_exact_v2" };
+                          let wrongPresetError = "";
+                          try {
+                            await battlefieldImportJson({ text: async () => JSON.stringify(wrongPresetExport) });
+                          } catch (error) {
+                            wrongPresetError = error.message;
+                          }
+                          const legacyExport = JSON.parse(JSON.stringify(stateExport));
+                          delete legacyExport.schema_version;
+                          delete legacyExport.rules_edition;
+                          delete legacyExport.rules_preset;
+                          await battlefieldImportJson({ text: async () => JSON.stringify(legacyExport) });
+                          const legacyImportUnits = state.battlefield.state.units.length;
+                          const redForCollision = state.battlefield.state.units.find((unit) => unit.side === "red");
+                          const blueForCollision = state.battlefield.state.units.find((unit) => unit.side === "blue");
+                          const originalBluePosition = { x: blueForCollision.x, y: blueForCollision.y };
+                          blueForCollision.x = redForCollision.x;
+                          blueForCollision.y = redForCollision.y;
+                          const collisionErrors = localStateValidationErrors(state.battlefield.state);
+                          blueForCollision.x = originalBluePosition.x;
+                          blueForCollision.y = originalBluePosition.y;
+                          const limitedMove = localMovementLimitedDestination(
+                            state.battlefield.state,
+                            redForCollision,
+                            state.units.find((unit) => unit.id === redForCollision.unit_id),
+                            { x: redForCollision.x + 30, y: redForCollision.y }
+                          );
+                          const limitedMoveDistance = Math.hypot(limitedMove.destination.x - redForCollision.x, limitedMove.destination.y - redForCollision.y);
+                          blueForCollision.x = redForCollision.x + 7;
+                          blueForCollision.y = redForCollision.y;
+                          state.battlefield.state.phase = "charge";
+                          setBattlefieldPhase("charge");
+                          const chargeAction = localBattleActions().find((action) => action.type === "charge");
+                          const chargeOutcome = localResolveBattleAction(chargeAction);
+                          renderBattlefield([{ outcome: chargeOutcome }]);
+                          const chargeLogText = document.querySelector(".battle-history-log")?.innerText || "";
+                          const objective = state.battlefield.state.map.objectives[2];
+                          redForCollision.x = objective.x;
+                          redForCollision.y = objective.y;
+                          state.battlefield.state.phase = "scoring";
+                          setBattlefieldPhase("scoring");
+                          const scoreAction = localBattleActions().find((action) => action.type === "score");
+                          const scoreOutcome = localResolveBattleAction(scoreAction);
+                          renderBattlefield([{ outcome: scoreOutcome }]);
+                          const scoreLogText = document.querySelector(".battle-history-log")?.innerText || "";
+                          const duplicateScoreAction = localBattleActions().find((action) => action.type === "score");
+                          state.battlefield.state.phase = "movement";
+                          setBattlefieldPhase("movement");
                           const firstUnit = document.querySelector(".bf-unit.red");
                           await selectBattleUnit(firstUnit.dataset.unitId);
                           const inspectorText = document.querySelector("[data-testid='battle-unit-inspector']")?.innerText || "";
                           const inspectorWeaponRows = document.querySelectorAll(".inspector-weapon").length;
                           const selectedClassApplied = document.querySelector(".bf-unit.selected") !== null;
+                          const moveRadius = document.querySelector(".bf-move-radius")?.getAttribute("r") || "";
+                          const targetLine = document.querySelector(".bf-target-line") !== null;
+                          const objectiveLine = document.querySelector(".bf-objective-line") !== null;
+                          const manualActions = state.battlefield.manualActions?.length || 0;
+                          const manualButtons = document.querySelectorAll(".battle-resolve-manual-action").length;
+                          const unavailableActionsText = document.querySelector("[data-testid='battle-unavailable-actions']")?.innerText || "";
+                          const selectedForDestroyedNotice = state.battlefield.state.units.find((unit) => unit.instance_id === firstUnit.dataset.unitId);
+                          const selectedBeforeDestroyedNotice = {
+                            models_remaining: selectedForDestroyedNotice.models_remaining,
+                            wounds_remaining: selectedForDestroyedNotice.wounds_remaining,
+                            status_flags: [...(selectedForDestroyedNotice.status_flags || [])]
+                          };
+                          selectedForDestroyedNotice.models_remaining = 0;
+                          selectedForDestroyedNotice.wounds_remaining = 0;
+                          selectedForDestroyedNotice.status_flags = [...selectedBeforeDestroyedNotice.status_flags, "destroyed"];
+                          await battlefieldLoadSelectedActions();
+                          renderBattlefield();
+                          const destroyedSelectedNotice = document.querySelector(".battle-panel .empty")?.innerText || "";
+                          selectedForDestroyedNotice.models_remaining = selectedBeforeDestroyedNotice.models_remaining;
+                          selectedForDestroyedNotice.wounds_remaining = selectedBeforeDestroyedNotice.wounds_remaining;
+                          selectedForDestroyedNotice.status_flags = selectedBeforeDestroyedNotice.status_flags;
+                          await selectBattleUnit(firstUnit.dataset.unitId);
+                          await battlefieldResolveManualAction(0);
+                          const afterManualLogLength = state.battlefield.state.log.length;
+                          const afterManualActionsEmpty = document.querySelector(".battle-resolve-manual-action") === null;
+                          const selectedAfterManual = document.querySelector(".bf-unit.red") || document.querySelector(".bf-unit");
+                          if (selectedAfterManual) await selectBattleUnit(selectedAfterManual.dataset.unitId);
+                          document.getElementById("battle-phase").value = "shooting";
+                          document.getElementById("battle-phase").dispatchEvent(new Event("change", { bubbles: true }));
+                          await new Promise((resolve) => setTimeout(resolve, 0));
+                          const phaseAfterSelect = state.battlefield.state.phase;
+                          const selectedActionsAfterPhaseChange = document.querySelector(".selected-actions-log")?.innerText || "";
                           await battlefieldSuggest();
+                          const planPhaseText = document.querySelector("[data-testid='battle-ai-plan'] .battle-log-entry .small")?.innerText || "";
                           const plannedActions = state.battlefield.plan?.actions?.length || 0;
                           const resolveButtons = document.querySelectorAll(".battle-resolve-action").length;
                           await battlefieldResolvePlannedAction(0);
                           const afterResolveLogLength = state.battlefield.state.log.length;
+                          const resolvedPhase = state.battlefield.state.log.at(-1)?.phase || "";
                           const afterResolvePlanEmpty = document.querySelector(".battle-resolve-action") === null;
                           await battlefieldSuggest();
                           await battlefieldAutoplay();
+                          const oneTurnAfterAutoplay = state.battlefield.state.turn;
+                          const replayExport = battlefieldExportPayload("replay");
+                          state.battlefield.state = null;
+                          state.battlefield.plan = null;
+                          renderBattlefield();
+                          await battlefieldImportJson({ text: async () => JSON.stringify(replayExport) });
+                          const replayImportBoard = Boolean(document.getElementById("battle-board"));
+                          const replayImportLogLength = state.battlefield.state.log.length;
+                          const replayImportText = document.querySelector(".battle-history-log")?.innerText || "";
+                          await battlefieldGenerate();
+                          document.getElementById("battle-autoplay-turns").value = "3";
+                          const battleAutoplayStartTurn = state.battlefield.state.turn;
+                          const outcomeSummaryBeforeAutoplay = document.querySelector("[data-testid='battle-outcome-summary']")?.innerText || "";
+                          await battlefieldAutoplayBattle();
+                          const battleAutoplayTurn = state.battlefield.state.turn;
+                          const battleAutoplayLogLength = state.battlefield.state.log.length;
+                          const autoplayTurns = state.battlefield.autoplayTurns;
+                          const outcomeSummaryAfterAutoplay = document.querySelector("[data-testid='battle-outcome-summary']")?.innerText || "";
+                          const toolbarGroups = document.querySelectorAll(".battlefield-control-group").length;
+                          const toolbarMapText = document.querySelector("[data-testid='battlefield-map-controls']")?.innerText || "";
+                          const toolbarTurnText = document.querySelector("[data-testid='battlefield-turn-controls']")?.innerText || "";
+                          const toolbarFileText = document.querySelector("[data-testid='battlefield-file-controls']")?.innerText || "";
+                          const boardHeaderText = document.querySelector("[data-testid='battlefield-board-header']")?.innerText || "";
+                          const boardLegendText = document.querySelector(".battlefield-board-legend")?.innerText || "";
+                          const boardGridBackground = Boolean(document.querySelector(".bf-board-bg") && document.querySelector("#bf-grid"));
+                          const terrainFeatureCount = document.querySelectorAll(".bf-terrain-feature").length;
+                          const terrainEllipseCount = document.querySelectorAll("ellipse.bf-terrain").length;
+                          const terrainPolygonCount = document.querySelectorAll("polygon.bf-terrain").length;
+                          const terrainLabelText = [...document.querySelectorAll(".bf-terrain-label")].map((node) => node.textContent).join(" ");
+                          const unitNameLabels = document.querySelectorAll(".bf-unit-name-label").length;
+                          const mainGridColumns = getComputedStyle(document.querySelector(".battlefield-main-grid")).gridTemplateColumns;
+                          const deploymentZones = document.querySelectorAll(".bf-deployment").length;
+                          const deploymentLabelText = [...document.querySelectorAll(".bf-deployment-label")].map((node) => node.textContent).join(" ");
+                          const objectiveLabels = [...document.querySelectorAll(".bf-objective-label")].map((node) => node.textContent);
                           return {
                             visible: Boolean(document.querySelector("[data-testid='battlefield-view']")),
                             board: Boolean(document.getElementById("battle-board")),
+                            bodyView: document.body.dataset.view,
+                            battlefieldNavPressed: document.getElementById("nav-battlefield")?.getAttribute("aria-pressed") || "",
+                            asideDisplay: getComputedStyle(document.querySelector("aside")).display,
+                            initialBattlefieldEmptyArt,
+                            initialBattlefieldEmptyText,
+                            boardLabelMaxLength,
+                            boardLabelsCentered,
+                            redFactionValue,
+                            redSelectableText,
+                            redFactionOptions,
+                            expectedRedValidationPoints,
+                            expectedRedValidationUnitCount,
+                            localRedValidationPoints,
+                            localRedValidationUnitCount,
+                            localRedValidationWarnings,
+                            localValidationPanelText,
+                            invalidLocalValidationErrors,
+                            invalidLocalValidationUnitCount,
+                            invalidValidationPanelText,
+                            nextPhaseAfterClick,
+                            nextPhaseLogAction,
+                            turnTrackerText,
+                            redeployBeforeX: redeployBefore.x,
+                            redeployAfterX: redeployAfter?.x || 0,
+                            redeployMapId,
+                            redeployClearedLog,
+                            collisionErrors,
+                            limitedMoveDistance,
+                            limitedMoveNotes: limitedMove.assumptions,
+                            chargeProbability: chargeAction?.context?.charge_probability || 0,
+                            chargeReason: chargeAction?.reason || "",
+                            chargeExpectedDamage: chargeAction?.expected_damage || 0,
+                            chargeFullDamage: chargeAction?.context?.full_melee_damage_if_charge_connects || 0,
+                            chargeOutcomeDamage: chargeOutcome?.damage || 0,
+                            chargeLogText,
+                            scoreReason: scoreAction?.reason || "",
+                            scoreDelta: scoreOutcome?.score_delta?.red || 0,
+                            scoreObjectives: scoreOutcome?.objectives || [],
+                            scoreLogText,
+                            duplicateScoreAvailable: Boolean(duplicateScoreAction),
                             redUnits: [...document.querySelectorAll(".bf-unit.red")].length,
                             blueUnits: [...document.querySelectorAll(".bf-unit.blue")].length,
                             redRows: [...document.querySelectorAll(".army-card.red .army-row")].length,
                             redArmyEntries: battlefieldArmies()[0].units.length,
+                            armyExportFormat: armyExport.format,
+                            armyExportSchemaVersion: armyExport.schema_version,
+                            armyExportEdition: armyExport.rules_edition,
+                            armyExportRulesPreset: armyExport.rules_preset,
+                            armyExportStateMissing: !("state" in armyExport),
+                            stateExportFormat: stateExport.format,
+                            stateExportSchemaVersion: stateExport.schema_version,
+                            stateExportEdition: stateExport.rules_edition,
+                            stateExportRulesPreset: stateExport.rules_preset,
+                            stateExportUnits: stateExport.state?.units?.length || 0,
+                            armyImportRedRows,
+                            armyImportRedEntries,
+                            armyImportStateCleared,
+                            stateImportUnits,
+                            stateImportBoard,
+                            mapExportFormat: mapExport.format,
+                            mapExportSchemaVersion: mapExport.schema_version,
+                            mapExportEdition: mapExport.rules_edition,
+                            mapExportRulesPreset: mapExport.rules_preset,
+                            mapExportId: mapExport.map?.id || "",
+                            mapImportBoard,
+                            mapImportUnits,
+                            mapImportId,
+                            badMapError,
+                            badStateError,
+                            badStateMetadataError,
+                            badStateUnitError,
+                            newerSchemaError,
+                            wrongEditionError,
+                            wrongPresetError,
+                            legacyImportUnits,
+                            replayExportFormat: replayExport.format,
+                            replayExportSchemaVersion: replayExport.schema_version,
+                            replayExportEdition: replayExport.rules_edition,
+                            replayExportRulesPreset: replayExport.rules_preset,
+                            replayExportEntries: replayExport.replay_entries?.length || 0,
+                            replayExportFinalTurn: replayExport.final_state?.turn || 0,
+                            replayImportBoard,
+                            replayImportLogLength,
+                            replayImportText,
+                            oneTurnAfterAutoplay,
+                            battleAutoplayStartTurn,
+                            battleAutoplayTurn,
+                            battleAutoplayLogLength,
+                            autoplayTurns,
+                            outcomeSummaryBeforeAutoplay,
+                            outcomeSummaryAfterAutoplay,
+                            toolbarGroups,
+                            toolbarMapText,
+                            toolbarTurnText,
+                            toolbarFileText,
+                            boardHeaderText,
+                            boardLegendText,
+                            boardGridBackground,
+                            terrainFeatureCount,
+                            terrainEllipseCount,
+                            terrainPolygonCount,
+                            terrainLabelText,
+                            unitNameLabels,
+                            mainGridColumns,
+                            deploymentZones,
+                            deploymentLabelText,
+                            objectiveLabels,
                             inspectorText,
                             inspectorWeaponRows,
                             selectedClassApplied,
+                            moveRadius,
+                            targetLine,
+                            objectiveLine,
+                            manualActions,
+                            manualButtons,
+                            unavailableActionsText,
+                            destroyedSelectedNotice,
+                            afterManualLogLength,
+                            afterManualActionsEmpty,
+                            phaseAfterSelect,
+                            selectedActionsAfterPhaseChange,
+                            planPhaseText,
                             plannedActions,
                             resolveButtons,
                             afterResolveLogLength,
+                            resolvedPhase,
                             afterResolvePlanEmpty,
                             turn: state.battlefield.state.turn,
                             logLength: state.battlefield.state.log.length,
-                            logText: document.querySelector(".battle-log")?.innerText || "",
+                            logText: document.querySelector(".battle-history-log")?.innerText || "",
                             error: document.getElementById("error").textContent
                           };
                         })()
@@ -758,19 +1164,153 @@ def test_standalone_html_battlefield_mode_smoke():
 
             assert result["visible"] is True
             assert result["board"] is True
+            assert result["bodyView"] == "battlefield"
+            assert result["battlefieldNavPressed"] == "true"
+            assert result["asideDisplay"] == "none"
+            assert result["initialBattlefieldEmptyArt"] is True
+            assert "Ready for deployment" in result["initialBattlefieldEmptyText"]
+            assert result["toolbarGroups"] == 3
+            assert "map" in result["toolbarMapText"].lower()
+            assert "Generate map" in result["toolbarMapText"]
+            assert "turn and ai" in result["toolbarTurnText"].lower()
+            assert "Suggest AI action" in result["toolbarTurnText"]
+            assert "files" in result["toolbarFileText"].lower()
+            assert "Export replay" in result["toolbarFileText"]
+            assert "44\" x 60\"" in result["boardHeaderText"]
+            assert "Red" in result["boardHeaderText"]
+            assert "Ruin" in result["boardLegendText"]
+            assert "Woods" in result["boardLegendText"]
+            assert "Crater" in result["boardLegendText"]
+            assert "Barricade" in result["boardLegendText"]
+            assert "storeys" in result["boardLegendText"]
+            assert "Objective" in result["boardLegendText"]
+            assert result["boardGridBackground"] is True
+            assert result["terrainFeatureCount"] >= 7
+            assert result["terrainEllipseCount"] >= 3
+            assert result["terrainPolygonCount"] >= 2
+            assert "2S" in result["terrainLabelText"] or "3S" in result["terrainLabelText"]
+            assert result["unitNameLabels"] >= result["redUnits"] + result["blueUnits"]
+            assert result["mainGridColumns"] != "none"
+            assert result["deploymentZones"] == 2
+            assert "Red DZ" in result["deploymentLabelText"]
+            assert "Blue DZ" in result["deploymentLabelText"]
+            assert len(result["objectiveLabels"]) == 5
+            assert {"R", "B", "W", "C", "E"}.issubset(set(result["objectiveLabels"]))
+            assert result["boardLabelMaxLength"] <= 2
+            assert result["boardLabelsCentered"] is True
+            assert result["redFactionValue"] == "Xenos - Orks"
+            assert "selectable units" in result["redSelectableText"]
+            assert any("Boyz" in option for option in result["redFactionOptions"])
+            assert result["localRedValidationPoints"] == result["expectedRedValidationPoints"]
+            assert result["localRedValidationUnitCount"] == result["expectedRedValidationUnitCount"]
+            assert "unsupported special rules" in result["localRedValidationWarnings"]
+            assert f"{result['expectedRedValidationUnitCount']} units" in result["localValidationPanelText"]
+            assert f"{result['expectedRedValidationPoints']} pts" in result["localValidationPanelText"]
+            assert "Warning:" in result["localValidationPanelText"]
+            assert "Unknown unit id __missing_unit__" in result["invalidLocalValidationErrors"]
+            assert result["invalidLocalValidationUnitCount"] == result["expectedRedValidationUnitCount"] + 3
+            assert "Error:" in result["invalidValidationPanelText"]
+            assert result["nextPhaseAfterClick"] == "shooting"
+            assert result["nextPhaseLogAction"] == "advance_phase"
+            assert "ACTIVE SIDE" in result["turnTrackerText"]
+            assert "Shooting" in result["turnTrackerText"]
+            assert result["redeployAfterX"] == result["redeployBeforeX"]
+            assert result["redeployMapId"] == "strike_force_44x60"
+            assert result["redeployClearedLog"] is True
+            assert any("overlaps" in error for error in result["collisionErrors"])
+            assert result["limitedMoveDistance"] <= 6.01
+            assert any("clamped" in note for note in result["limitedMoveNotes"])
+            assert 0 < result["chargeProbability"] < 1
+            assert "charge probability" in result["chargeReason"]
+            assert result["chargeExpectedDamage"] < result["chargeFullDamage"]
+            assert result["chargeOutcomeDamage"] == 0
+            assert "Follow-up fight" in result["chargeLogText"]
+            assert "controlled objectives" in result["scoreReason"]
+            assert result["scoreDelta"] >= 5
+            assert result["scoreObjectives"]
+            assert "Score Red +" in result["scoreLogText"]
+            assert "Objectives" in result["scoreLogText"]
+            assert result["duplicateScoreAvailable"] is False
             assert result["redRows"] == 2
             assert result["redArmyEntries"] == 2
+            assert result["armyExportFormat"] == "army_list_v1"
+            assert result["armyExportSchemaVersion"] == 1
+            assert result["armyExportEdition"] == "10e"
+            assert result["armyExportRulesPreset"] == "tactical_mvp_v1"
+            assert result["armyExportStateMissing"] is True
+            assert result["stateExportFormat"] == "battle_state_v1"
+            assert result["stateExportSchemaVersion"] == 1
+            assert result["stateExportEdition"] == "10e"
+            assert result["stateExportRulesPreset"] == "tactical_mvp_v1"
+            assert result["stateExportUnits"] >= 4
+            assert result["armyImportRedRows"] == 2
+            assert result["armyImportRedEntries"] == 2
+            assert result["armyImportStateCleared"] is True
+            assert result["stateImportUnits"] == result["stateExportUnits"]
+            assert result["stateImportBoard"] is True
+            assert result["mapExportFormat"] == "battle_map_v1"
+            assert result["mapExportSchemaVersion"] == 1
+            assert result["mapExportEdition"] == "10e"
+            assert result["mapExportRulesPreset"] == "tactical_mvp_v1"
+            assert result["mapExportId"] == "strike_force_44x60"
+            assert result["mapImportBoard"] is True
+            assert result["mapImportUnits"] == result["stateExportUnits"]
+            assert result["mapImportId"] == "strike_force_44x60"
+            assert "Terrain feature" in result["badMapError"]
+            assert "outside the battlefield" in result["badStateError"]
+            assert "Battle turn must be a positive integer" in result["badStateMetadataError"]
+            assert "Battle active side must be red or blue" in result["badStateMetadataError"]
+            assert "Battle phase psychic is not supported" in result["badStateMetadataError"]
+            assert "Battle score for red cannot be negative" in result["badStateMetadataError"]
+            assert "Battle score is missing blue" in result["badStateMetadataError"]
+            assert "Duplicate battlefield unit id" in result["badStateUnitError"]
+            assert "unknown unit id missing" in result["badStateUnitError"]
+            assert "invalid side green" in result["badStateUnitError"]
+            assert "positive footprint radius" in result["badStateUnitError"]
+            assert "newer than this app supports" in result["newerSchemaError"]
+            assert "11th Edition" in result["wrongEditionError"]
+            assert "unsupported rules preset" in result["wrongPresetError"]
+            assert result["legacyImportUnits"] == result["stateExportUnits"]
+            assert result["replayExportFormat"] == "battle_replay_v1"
+            assert result["replayExportSchemaVersion"] == 1
+            assert result["replayExportEdition"] == "10e"
+            assert result["replayExportRulesPreset"] == "tactical_mvp_v1"
+            assert result["replayExportEntries"] >= 1
+            assert result["replayExportFinalTurn"] == 2
+            assert result["replayImportBoard"] is True
+            assert result["replayImportLogLength"] == result["replayExportEntries"]
+            assert "Turn" in result["replayImportText"]
+            assert result["oneTurnAfterAutoplay"] == 2
+            assert result["autoplayTurns"] == 3
+            assert result["battleAutoplayTurn"] >= result["battleAutoplayStartTurn"] + 1
+            assert result["battleAutoplayTurn"] <= result["battleAutoplayStartTurn"] + 3
+            assert result["battleAutoplayLogLength"] >= 1
+            assert "battlefield judgement" in result["outcomeSummaryBeforeAutoplay"].lower()
+            assert "VP" in result["outcomeSummaryAfterAutoplay"]
             assert result["redUnits"] >= 3
             assert result["blueUnits"] >= 1
             assert "Nearest enemy" in result["inspectorText"]
             assert "Wounds remaining" in result["inspectorText"]
             assert result["inspectorWeaponRows"] >= 1
             assert result["selectedClassApplied"] is True
+            assert float(result["moveRadius"]) >= 1
+            assert result["targetLine"] is True
+            assert result["objectiveLine"] is True
+            assert result["manualActions"] >= 1
+            assert result["manualButtons"] >= 1
+            assert "Unavailable:" in result["unavailableActionsText"]
+            assert "has no live models and cannot act" in result["destroyedSelectedNotice"]
+            assert result["afterManualLogLength"] >= 1
+            assert result["afterManualActionsEmpty"] is True
+            assert result["phaseAfterSelect"] == "shooting"
+            assert "Phase Shooting" in result["selectedActionsAfterPhaseChange"]
+            assert "Phase Shooting" in result["planPhaseText"]
             assert result["plannedActions"] >= 1
             assert result["resolveButtons"] >= 1
             assert result["afterResolveLogLength"] >= 1
+            assert result["resolvedPhase"] == "shooting"
             assert result["afterResolvePlanEmpty"] is True
-            assert result["turn"] == 2
+            assert result["turn"] == result["battleAutoplayTurn"]
             assert result["logLength"] >= 1
             assert "Damage" in result["logText"] or "Move toward" in result["logText"]
             assert result["error"] == ""

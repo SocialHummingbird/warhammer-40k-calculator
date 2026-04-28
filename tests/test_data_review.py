@@ -178,9 +178,9 @@ def test_data_review_payload_summarizes_loadouts(tmp_path):
     (tmp_path / "loadout_review.csv").write_text(
         "\n".join(
             [
-                "review_severity,review_category,faction,unit_name,selection_type,source_file,points,models_min,models_max,total_weapons,ranged_weapons,melee_weapons,coverage,review_reason",
-                "warning,many_profiles,Test,Tactical Squad,unit,Test.cat,140,10,10,26,20,6,both,many imported weapon profiles; many ranged profiles",
-                "info,legends_profile,Test,Command Squad [Legends],unit,Test.cat,165,7,7,18,10,8,both,mixed loadout profiles",
+                "review_severity,review_category,faction,unit_name,selection_type,source_file,points,models_min,models_max,total_weapons,ranged_weapons,ranged_weapons_with_range,ranged_weapons_missing_range,melee_weapons,coverage,review_reason",
+                "warning,many_profiles,Test,Tactical Squad,unit,Test.cat,140,10,10,26,20,17,3,6,both,many imported weapon profiles; many ranged profiles",
+                "info,legends_profile,Test,Command Squad [Legends],unit,Test.cat,165,7,7,18,10,10,0,8,both,mixed loadout profiles",
             ]
         ),
         encoding="utf-8",
@@ -195,15 +195,16 @@ def test_data_review_payload_summarizes_loadouts(tmp_path):
     assert summary["by_reason"]["many imported weapon profiles"] == 1
     assert summary["rows"][0]["unit_name"] == "Tactical Squad"
     assert summary["rows"][0]["total_weapons"] == "26"
+    assert summary["rows"][0]["ranged_weapons_missing_range"] == "3"
 
 
 def test_data_review_payload_summarizes_source_catalogues(tmp_path):
     (tmp_path / "source_catalogue_review.csv").write_text(
         "\n".join(
             [
-                "source_file,source_url,factions,units,weapon_profiles,ability_profiles,suspicious_weapon_profiles,unit_profile_issue_rows,loadout_review_rows,duplicate_name_unit_rows,no_weapon_units",
-                "Space Marines.cat,https://example.test/Space%20Marines.cat,Imperium,132,1342,200,0,1,39,10,2",
-                "Orks.cat,https://example.test/Orks.cat,Xenos,97,501,100,7,0,10,4,1",
+                "source_file,source_url,factions,units,weapon_profiles,ability_profiles,suspicious_weapon_profiles,unit_profile_issue_rows,loadout_review_rows,duplicate_name_unit_rows,no_weapon_units,ranged_weapons_missing_range",
+                "Space Marines.cat,https://example.test/Space%20Marines.cat,Imperium,132,1342,200,0,1,39,10,2,12",
+                "Orks.cat,https://example.test/Orks.cat,Xenos,97,501,100,7,0,10,4,1,5",
             ]
         ),
         encoding="utf-8",
@@ -215,6 +216,7 @@ def test_data_review_payload_summarizes_source_catalogues(tmp_path):
     assert summary["total"] == 2
     assert summary["totals"]["units"] == 229
     assert summary["totals"]["suspicious_weapon_profiles"] == 7
+    assert summary["totals"]["ranged_weapons_missing_range"] == 17
     assert summary["rows"][0]["source_file"] == "Space Marines.cat"
     assert summary["rows"][0]["unit_profile_issue_rows"] == "1"
     assert summary["rows"][1]["source_url"] == "https://example.test/Orks.cat"
@@ -250,10 +252,10 @@ def test_data_review_payload_summarizes_weapon_coverage(tmp_path):
     (tmp_path / "unit_weapon_coverage_review.csv").write_text(
         "\n".join(
             [
-                "faction,unit_name,selection_type,unit_id,source_file,points,models_min,models_max,total_weapons,ranged_weapons,melee_weapons,coverage",
-                "Test,Tactical Squad,unit,u1,Test.cat,140,10,10,2,1,1,both",
-                "Test,Drop Pod,model,u2,Test.cat,70,1,1,0,0,0,no_weapons",
-                "Test,Sword Unit,unit,u3,Test.cat,90,5,5,1,0,1,melee_only",
+                "faction,unit_name,selection_type,unit_id,source_file,points,models_min,models_max,total_weapons,ranged_weapons,ranged_weapons_with_range,ranged_weapons_missing_range,melee_weapons,coverage",
+                "Test,Tactical Squad,unit,u1,Test.cat,140,10,10,2,1,1,0,1,both",
+                "Test,Drop Pod,model,u2,Test.cat,70,1,1,0,0,0,0,0,no_weapons",
+                "Test,Sword Unit,unit,u3,Test.cat,90,5,5,1,0,0,0,1,melee_only",
             ]
         ),
         encoding="utf-8",
@@ -265,6 +267,8 @@ def test_data_review_payload_summarizes_weapon_coverage(tmp_path):
     assert summary["total"] == 3
     assert summary["by_coverage"] == {"both": 1, "melee_only": 1, "no_weapons": 1}
     assert summary["no_weapon_total"] == 1
+    assert summary["ranged_weapons_with_range"] == 1
+    assert summary["ranged_weapons_missing_range"] == 0
     assert summary["rows"][0]["unit_name"] == "Drop Pod"
     assert summary["rows"][0]["coverage"] == "no_weapons"
 

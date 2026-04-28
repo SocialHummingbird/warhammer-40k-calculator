@@ -25,6 +25,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         seed=args.seed,
         feature_set=args.feature_set,
         model_type=args.model_type,
+        label_overrides_path=args.labels,
+        label_key_columns=args.label_key_columns,
     )
     validation = model["validation"]
     accuracy = validation["accuracy"]
@@ -63,6 +65,21 @@ def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
         choices=sorted(MODEL_TYPES),
         default="centroid",
         help="Model trainer to use. 'centroid' is dependency-free; 'logistic_regression' uses scikit-learn at training time.",
+    )
+    parser.add_argument(
+        "--labels",
+        type=Path,
+        default=None,
+        help=(
+            "Optional CSV of external matchup labels. Rows are matched to feature rows by "
+            "--label-key-columns and must contain winner_label or label."
+        ),
+    )
+    parser.add_argument(
+        "--label-key-columns",
+        nargs="+",
+        default=["edition", "mode", "attacker_id", "defender_id"],
+        help="Feature/label CSV columns used to match external labels to generated feature rows.",
     )
     parser.add_argument("--validation-fraction", type=float, default=0.2, help="Fraction of rows reserved for validation")
     parser.add_argument("--seed", type=int, default=40, help="Shuffle seed for train/validation split")

@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Warhammer 40K Calculator app icon">
+  <defs>
+    <linearGradient id="bg" x1="32" y1="24" x2="224" y2="232" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#263645"/>
+      <stop offset="1" stop-color="#111820"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="64" y1="42" x2="202" y2="214" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#d9a94a"/>
+      <stop offset="1" stop-color="#9d6b18"/>
+    </linearGradient>
+  </defs>
+  <rect x="18" y="18" width="220" height="220" rx="42" fill="url(#bg)"/>
+  <path d="M68 188h120" stroke="#dfe7ee" stroke-width="12" stroke-linecap="round" opacity=".24"/>
+  <path d="M72 78h112M72 112h112M72 146h112" stroke="#dfe7ee" stroke-width="10" stroke-linecap="round" opacity=".18"/>
+  <circle cx="82" cy="128" r="34" fill="#a5242c"/>
+  <circle cx="174" cy="128" r="34" fill="#21639f"/>
+  <path d="M112 128h40" stroke="url(#gold)" stroke-width="14" stroke-linecap="round"/>
+  <path d="M143 111l24 17-24 17" fill="none" stroke="url(#gold)" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M54 54h148v148H54z" fill="none" stroke="url(#gold)" stroke-width="8" stroke-linejoin="round" opacity=".9"/>
+  <path d="M66 66h124v124H66z" fill="none" stroke="#f7fafc" stroke-width="3" stroke-dasharray="10 9" opacity=".34"/>
+  <text x="82" y="139" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="800" fill="#fff">A</text>
+  <text x="174" y="139" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="800" fill="#fff">D</text>
+</svg>

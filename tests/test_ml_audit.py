@@ -40,6 +40,7 @@ def test_render_model_audit_report_flags_synthetic_labels_and_calculator_feature
     assert "Saved feature rows: 3" in report
     assert "Saved feature SHA-256: `abc123`" in report
     assert "Feature CSV completeness: ok" in report
+    assert "External label overrides: none" in report
     assert "Calculator output metrics are included as features" in report
     assert "| `attacker` | 2 | 66.7% |" in report
     assert "| `defender` | 1 | 33.3% |" in report
@@ -65,6 +66,25 @@ def test_render_model_audit_report_describes_logistic_regression_parameters():
     assert "Coefficient rows: 2" in report
     assert "Coefficients per row: 3" in report
     assert "Intercepts: 2" in report
+
+
+def test_render_model_audit_report_describes_external_label_overrides():
+    model = _model()
+    model.update(
+        {
+            "label_source": "external_labels",
+            "label_overrides": {
+                "source": {"path": "labels.csv", "rows": 2},
+                "summary": {"matched_rows": 1, "skipped_rows": 1},
+            },
+        }
+    )
+
+    report = render_model_audit_report(model)
+
+    assert "External label override file: `labels.csv`" in report
+    assert "External label matches: 1" in report
+    assert "Some or all labels were supplied from an external label CSV" in report
 
 
 def test_write_model_audit_report_creates_parent_directory(tmp_path):

@@ -90,6 +90,8 @@ def run_update(
             seed=args.ml_seed,
             feature_set=args.ml_feature_set,
             model_type=args.ml_model_type,
+            label_overrides_path=args.ml_labels,
+            label_key_columns=args.ml_label_key_columns,
             ml_root=paths.ml_dir,
             model_root=paths.model_dir,
             project_root=project_root,

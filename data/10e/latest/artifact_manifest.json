@@ -1,79 +1,79 @@
 {
-  "generated_at": "2026-04-26T18:05:34.082048Z",
+  "generated_at": "2026-04-28T07:01:00.231690Z",
   "source": {
     "path": "C:\\Users\\ap010\\OneDrive\\Documents\\dev\\Warhammer 40K Calculator\\250916 0942 Warhammer 40k damage calculator\\data\\wh40k-10e",
     "remote_origin": "https://github.com/BSData/wh40k-10e.git",
     "branch": "main",
-    "commit": "32b4525d9f69f062f3458d517c6cf82512ef6fef",
-    "commit_date": "2026-04-21 17:44:59 +0100",
-    "commit_subject": "Fixes #7066",
+    "commit": "1228d35e79bcf02a5e70ec94e422b7ffce4f980e",
+    "commit_date": "2026-04-28 00:10:49 +0100",
+    "commit_subject": "Armageddon Faction Pack update",
     "dirty": false
   },
   "artifact_count": 22,
   "artifacts": {
     "units.csv": {
-      "bytes": 194232,
-      "sha256": "8d80600b3c57e10bc480f5e5709dac3819d11fa17dd3ad5ce7347272779d8ee6"
+      "bytes": 195218,
+      "sha256": "2abb7df4c42bd855f36c5ab962c4ab61b9d867c1b961dc5a32de4b9f7deb8608"
     },
     "weapons.csv": {
-      "bytes": 1268236,
-      "sha256": "3ecc054d0538b8f61f8204250a1c23db0c71e4ac59374453639c9b193831b3ef"
+      "bytes": 1291959,
+      "sha256": "e0b493394162858124b8bdac86301ac031e6785f5312ef72f4876aab4519edec"
     },
     "abilities.csv": {
-      "bytes": 939790,
-      "sha256": "806929d017a25674f97349d62d1019985981beb18ea427796ff1c053120f5b4c"
+      "bytes": 946383,
+      "sha256": "ac66f2e9e1ee1845d69ca2a24800b1a369f412bc5cda259fdf2cdfd46f0d097f"
     },
     "keywords.csv": {
-      "bytes": 47094,
-      "sha256": "16a9d2dcd30d6f18ab079f44c4891fe5ba16e25e17ec971f1f4d3d0e2dc12cd6"
+      "bytes": 47280,
+      "sha256": "99a16d52e3a5928e0400389ac14fc0ae5c2605e37c69936ebfbd23aee0254894"
     },
     "unit_keywords.csv": {
-      "bytes": 314947,
-      "sha256": "2a2d4b129ea23f9a26fb7ad290ad19acba6162978e0a0455faa16d1053f30915"
+      "bytes": 316702,
+      "sha256": "44ddcebcbd06bb6aa5958ec60181a9d12a7c26089fc8c3f08196f6550126c3fc"
     },
     "metadata.json": {
       "bytes": 1195,
-      "sha256": "2f9a4ed866fb8bab44e1c45e21b8e14883b9083db1246fee151ce0c5e6d60e31"
+      "sha256": "0df4d07c76047044d2724e0f107f070b4649e499b6c4bcd7bb95cccbbee565df"
     },
     "edition_status.json": {
-      "bytes": 3590,
-      "sha256": "63f0520383411eb75c88e3e4409a824ca5b10af1ae8bbe593939d0ce57e5cb6b"
+      "bytes": 3724,
+      "sha256": "59de7a2d4884b6a0166b217f293b3eea87612ac3e0b7b03eed90f9563fbc3fed"
     },
     "edition_readiness.md": {
       "bytes": 2015,
-      "sha256": "965b2c3075dafbf0bb8d5bbc3696c1f2ac89ef76e8ac12cb184cc7b0696eac03"
+      "sha256": "f566461d7a7afffa7efd933f133959455980ba79ef5121595fedf0c533272117"
     },
     "audit_report.json": {
       "bytes": 816,
-      "sha256": "eae1af83ae8d52876a75f1358408be1143c616d5b1359ef84d7285b71792d97c"
+      "sha256": "2fab6ac930be739380420a81daf7a470a8371249bf21c7595a75d4860595422e"
     },
     "schema_review.csv": {
-      "bytes": 1307,
-      "sha256": "3b4e52ef4c23363ea47cc5eb88428123c454440c2d3089f1bea2131a0cb93317"
+      "bytes": 1321,
+      "sha256": "5915cabaf314a5bb6848428ad9016b4527f1c702eb3b24a1d24ca04a081d6e5f"
     },
     "import_diff.json": {
-      "bytes": 4492,
-      "sha256": "71a5529978e708b9779ff372299a780cde1695e85340bb61b0d3c68057671878"
+      "bytes": 2315,
+      "sha256": "a8fc5c44d8e7868d9fa12bb6fffd2f4249d3c96f4a78636bd36b432b08e6b9d8"
     },
     "update_report.md": {
-      "bytes": 4338,
-      "sha256": "72103fdea6f3a2bac6e35269b5121d7728fa38df47b9f46ef315d44d0d9533bf"
+      "bytes": 2723,
+      "sha256": "0bd2fde55a2a5dfa3441bbca51bd7dd7a1777aae55a089117be7e5957afcda6f"
     },
     "weapon_profile_review.csv": {
-      "bytes": 2088005,
-      "sha256": "97e6be07bf1996987fab70c28efca34a904a94ae411f1c7e1ebe3d94ef51946b"
+      "bytes": 2114210,
+      "sha256": "910502732430068091cf94bb4ce14525dee3676a735813af907b801b1a8bf3df"
     },
     "suspicious_weapon_review.csv": {
-      "bytes": 17491,
-      "sha256": "4c13856e62704d147cae4ccdf4be175dcd0ba6830ef1075c48695d8d445bea55"
+      "bytes": 17669,
+      "sha256": "74a37f0bc3d2273f2f095ce2c3ea16d4f6a2e8a1107c1bf0ac01a9f0076f7255"
     },
     "unit_profile_review.csv": {
-      "bytes": 223834,
-      "sha256": "c579df66e42302e29975a468183b3663213cd607652a8477615867ab6f0c0900"
+      "bytes": 224960,
+      "sha256": "a23501ea234a6000cc7c6d6976eccbb3391c2ac6a68cf00d792f20af454d411e"
     },
     "ability_profile_review.csv": {
-      "bytes": 1171054,
-      "sha256": "e02bcbf9953012bc682f41384b1d9a4a2ab0802d3cc70369bcad527b2da4adb3"
+      "bytes": 1179132,
+      "sha256": "012a0f61fa8e7d4c99bbc869b697072f2ea809ef23ba229d18f5f855949b150a"
     },
     "ability_modifier_review.csv": {
       "bytes": 81842,
@@ -84,20 +84,20 @@
       "sha256": "e9f1a45fb439454d1fbe4756416ee394d28c84a1d734f619afa35c76f4df2e5c"
     },
     "unit_weapon_coverage_review.csv": {
-      "bytes": 179835,
-      "sha256": "c0c0d10315409de7ef3ef68778501ab0f813ff7c426b22097e3a55b917fe353c"
+      "bytes": 186784,
+      "sha256": "5494467c653b2a1c4d2217c9c388bc0dd9d7af6d8174e622291fa980b387f379"
     },
     "loadout_review.csv": {
-      "bytes": 60879,
-      "sha256": "479e4be5efc23e0a0b9a297986c0da4094b559618b5820c6736f9cfcc2fc7023"
+      "bytes": 62243,
+      "sha256": "a94ecaf750f3abfc87217487144873c98546785d9b312f85fdcf69b48f506090"
     },
     "source_catalogue_review.csv": {
-      "bytes": 7369,
-      "sha256": "184b3609b4a911d66928408fec100ff804f656af5bd95334e93c2d90e19d7e64"
+      "bytes": 7472,
+      "sha256": "5be99f67c4b1a967716683a13e9ba76d1de495f37ea95ceefbcf0f63ce677080"
     },
     "profile_review.md": {
-      "bytes": 8039,
-      "sha256": "9966a8b0a1476ccf43d5f5971460742227c8d7f37a2a67938459fc8833571607"
+      "bytes": 8264,
+      "sha256": "e01d5f3e6d873e1c7ee2a999cf1643e83d88e7d1b984c3443e9115d2b0db84f1"
     }
   },
   "linked_ml_artifacts": {
@@ -108,23 +108,23 @@
     "artifacts": {
       "feature_csv": {
         "path": "data/ml/10e/matchup_training_rows.csv",
-        "bytes": 5786381,
-        "sha256": "0b84aae91010141e89adb91ccaa69bb4a0ba873a364bba5991f3b17af2b46d35"
+        "bytes": 5790535,
+        "sha256": "db55ed1cc68095c89f4f5d9e33a2c3a8d31f1345c0efc5ab0f2f845029753236"
       },
       "model_json": {
         "path": "models/10e/matchup_centroid_model.json",
-        "bytes": 10470,
-        "sha256": "b0596758cf7541149b115704e617847dc32b75e0395d430681f59426e06b4a85"
+        "bytes": 10448,
+        "sha256": "c2460531015d9df49eb9440015799a52c934bfe79f7f23eee95ee970ff2bffe9"
       },
       "model_audit": {
         "path": "models/10e/matchup_centroid_model.md",
-        "bytes": 2946,
-        "sha256": "98fe2c6cebe38e3193665edd8b2dd1375ed86fd6834a1866b6555f933f17233b"
+        "bytes": 3276,
+        "sha256": "76760e2d265de62e5e1900034615f1d0c95b5219e61b973f84069e645fd5be46"
       },
       "model_comparison": {
         "path": "models/10e/model_comparison.md",
         "bytes": 397,
-        "sha256": "dad72e58e3e65d2594421b338845a7151a704e042e3728ad4af79f9ccca316b4"
+        "sha256": "d7658e49495ad50cc6067b570f4b8563c20c7749e5e856a19fe11144bf2333a4"
       }
     }
   }

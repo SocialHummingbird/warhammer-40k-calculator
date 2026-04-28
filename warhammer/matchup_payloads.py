@@ -25,6 +25,7 @@ def unit_summary(unit: UnitProfile) -> Dict[str, Any]:
         "toughness": unit.toughness,
         "save": unit.save_label,
         "wounds": unit.wounds,
+        "objective_control": unit.objective_control,
         "points": unit.points,
         "models_min": unit.models_min,
         "models_max": unit.models_max,
@@ -52,6 +53,7 @@ def weapon_detail(weapon: WeaponProfile) -> Dict[str, Any]:
         "strength": weapon.strength_label or str(weapon.strength),
         "ap": weapon.ap,
         "damage": weapon.damage.label,
+        "range_inches": weapon.range_inches,
         "keywords": weapon.keywords,
         "source_file": weapon.source_file,
     }

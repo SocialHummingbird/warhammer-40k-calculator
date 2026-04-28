@@ -13,6 +13,8 @@ class TerrainFeature:
     y: float
     width: float
     height: float
+    shape: str = "rectangle"
+    stories: int = 1
     grants_cover: bool = True
     blocks_line_of_sight: bool = True
     movement_penalty: float = 0.0
@@ -138,6 +140,8 @@ def terrain_from_dict(data: Dict[str, Any]) -> TerrainFeature:
         y=float(data.get("y") or 0),
         width=float(data.get("width") or 0),
         height=float(data.get("height") or 0),
+        shape=str(data.get("shape") or "rectangle"),
+        stories=max(1, int(data.get("stories") or data.get("levels") or 1)),
         grants_cover=bool(data.get("grants_cover", True)),
         blocks_line_of_sight=bool(data.get("blocks_line_of_sight", True)),
         movement_penalty=float(data.get("movement_penalty") or 0),

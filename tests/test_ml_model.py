@@ -5,6 +5,7 @@ import pytest
 from warhammer.ml.model import (
     DEFAULT_FEATURE_COLUMNS,
     PRE_MATCH_FEATURE_COLUMNS,
+    apply_label_overrides,
     evaluate_model,
     feature_csv_provenance,
     feature_columns_for_set,
@@ -21,8 +22,12 @@ def _row(label, *, outgoing_damage, incoming_damage):
     row = {column: 0 for column in DEFAULT_FEATURE_COLUMNS}
     row.update(
         {
+            "edition": "10e",
+            "mode": "ranged",
             "label_source": "deterministic_calculator",
             "winner_label": label,
+            "attacker_id": "attacker-id",
+            "defender_id": "defender-id",
             "outgoing_damage": outgoing_damage,
             "incoming_damage": incoming_damage,
             "damage_delta": outgoing_damage - incoming_damage,
@@ -72,7 +77,7 @@ def test_train_from_csv_writes_loadable_model(tmp_path):
     ]
     features = tmp_path / "features.csv"
     with features.open("w", encoding="utf-8", newline="") as handle:
-        writer = csv.DictWriter(handle, fieldnames=["label_source", "winner_label", *DEFAULT_FEATURE_COLUMNS])
+        writer = csv.DictWriter(handle, fieldnames=["edition", "mode", "label_source", "winner_label", "attacker_id", "defender_id", *DEFAULT_FEATURE_COLUMNS])
         writer.writeheader()
         writer.writerows(rows)
 
@@ -106,7 +111,7 @@ def test_train_from_csv_can_write_pre_match_model(tmp_path):
     rows[1]["defender_points"] = 200
     features = tmp_path / "features.csv"
     with features.open("w", encoding="utf-8", newline="") as handle:
-        writer = csv.DictWriter(handle, fieldnames=["label_source", "winner_label", *DEFAULT_FEATURE_COLUMNS])
+        writer = csv.DictWriter(handle, fieldnames=["edition", "mode", "label_source", "winner_label", "attacker_id", "defender_id", *DEFAULT_FEATURE_COLUMNS])
         writer.writeheader()
         writer.writerows(rows)
 
@@ -116,6 +121,79 @@ def test_train_from_csv_can_write_pre_match_model(tmp_path):
     assert loaded["feature_set"] == "pre_match"
     assert loaded["feature_columns"] == PRE_MATCH_FEATURE_COLUMNS
     assert "outgoing_damage" not in loaded["feature_columns"]
+
+
+def test_apply_label_overrides_replaces_matching_labels_only():
+    rows = [
+        _row("attacker", outgoing_damage=5, incoming_damage=1),
+        {**_row("defender", outgoing_damage=1, incoming_damage=5), "defender_id": "other-defender"},
+    ]
+    labels = [
+        {
+            "edition": "10e",
+            "mode": "ranged",
+            "attacker_id": "attacker-id",
+            "defender_id": "defender-id",
+            "winner_label": "defender",
+        },
+        {
+            "edition": "10e",
+            "mode": "ranged",
+            "attacker_id": "missing",
+            "defender_id": "defender-id",
+            "winner_label": "attacker",
+        },
+    ]
+
+    updated, summary = apply_label_overrides(rows, labels)
+
+    assert updated[0]["winner_label"] == "defender"
+    assert updated[0]["label_source"] == "external_labels"
+    assert updated[1]["winner_label"] == "defender"
+    assert summary["matched_rows"] == 1
+    assert summary["override_rows"] == 2
+    assert summary["skipped_rows"] == 0
+
+
+def test_train_from_csv_records_external_label_override_metadata(tmp_path):
+    rows = [
+        _row("attacker", outgoing_damage=5, incoming_damage=1),
+        {**_row("defender", outgoing_damage=1, incoming_damage=5), "defender_id": "other-defender"},
+    ]
+    features = tmp_path / "features.csv"
+    fieldnames = [
+        "edition",
+        "mode",
+        "label_source",
+        "winner_label",
+        "attacker_id",
+        "defender_id",
+        *DEFAULT_FEATURE_COLUMNS,
+    ]
+    with features.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(rows)
+    labels = tmp_path / "labels.csv"
+    with labels.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=["edition", "mode", "attacker_id", "defender_id", "winner_label"])
+        writer.writeheader()
+        writer.writerow(
+            {
+                "edition": "10e",
+                "mode": "ranged",
+                "attacker_id": "attacker-id",
+                "defender_id": "defender-id",
+                "winner_label": "defender",
+            }
+        )
+
+    model = train_from_csv(features, tmp_path / "model.json", validation_fraction=0, seed=1, label_overrides_path=labels)
+
+    assert model["label_overrides"]["source"]["rows"] == 1
+    assert model["label_overrides"]["summary"]["matched_rows"] == 1
+    assert model["label_overrides"]["summary"]["key_columns"] == ["edition", "mode", "attacker_id", "defender_id"]
+    assert model["label_source"] == ""
 
 
 def test_train_logistic_regression_model_predicts_labels():
@@ -147,7 +225,7 @@ def test_train_from_csv_can_write_logistic_regression_model(tmp_path):
     ]
     features = tmp_path / "features.csv"
     with features.open("w", encoding="utf-8", newline="") as handle:
-        writer = csv.DictWriter(handle, fieldnames=["label_source", "winner_label", *DEFAULT_FEATURE_COLUMNS])
+        writer = csv.DictWriter(handle, fieldnames=["edition", "mode", "label_source", "winner_label", "attacker_id", "defender_id", *DEFAULT_FEATURE_COLUMNS])
         writer.writeheader()
         writer.writerows(rows)
 

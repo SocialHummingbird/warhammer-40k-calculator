@@ -1,6 +1,6 @@
 # Imported Profile Review
 
-Generated: 2026-04-26T15:56:15.870004Z
+Generated: 2026-04-28T07:00:54.297218Z
 
 ## Files
 
@@ -18,15 +18,17 @@ Generated: 2026-04-26T15:56:15.870004Z
 
 | Item | Count |
 | --- | ---: |
-| Units | 1464 |
-| Weapon profiles | 8628 |
+| Units | 1471 |
+| Weapon profiles | 8655 |
+| Ranged weapon profiles with range | 5577 |
+| Ranged weapon profiles missing range | 2 |
 | Suspicious weapon profiles | 58 |
-| Unit profile review rows | 1464 |
+| Unit profile review rows | 1471 |
 | Unit profile issue rows | 5 |
-| Ability profiles | 3124 |
+| Ability profiles | 3143 |
 | Ability modifier rows | 368 |
 | Duplicate-name unit rows | 186 |
-| Weapon coverage rows | 1464 |
+| Weapon coverage rows | 1471 |
 | Loadout review rows | 302 |
 | Source catalogue rows | 37 |
 
@@ -36,14 +38,14 @@ Generated: 2026-04-26T15:56:15.870004Z
 | --- | ---: |
 | Imperium - Adeptus Astartes - Space Marines | 132 |
 | Aeldari - Aeldari Library | 127 |
-| Imperium - Astra Militarum - Library | 115 |
-| Xenos - Orks | 97 |
+| Imperium - Astra Militarum - Library | 119 |
+| Xenos - Orks | 98 |
 | Chaos - Chaos Space Marines | 84 |
 | Chaos - Daemons Library | 68 |
 | Xenos - T'au Empire | 68 |
 | Xenos - Necrons | 67 |
 | Chaos - Death Guard | 51 |
-| Imperium - Agents of the Imperium | 49 |
+| Imperium - Agents of the Imperium | 50 |
 | Imperium - Adeptus Mechanicus | 44 |
 | Chaos - Thousand Sons | 42 |
 
@@ -51,18 +53,18 @@ Generated: 2026-04-26T15:56:15.870004Z
 
 | Source File | Factions | Units | Weapons | Suspicious Weapons | Unit Issues | Loadout Rows |
 | --- | --- | ---: | ---: | ---: | ---: | ---: |
-| [Imperium - Space Marines.cat](https://github.com/BSData/wh40k-10e/blob/32b4525d9f69f062f3458d517c6cf82512ef6fef/Imperium%20-%20Space%20Marines.cat) | Imperium - Adeptus Astartes - Space Marines | 132 | 1342 | 0 | 1 | 39 |
-| [Aeldari - Aeldari Library.cat](https://github.com/BSData/wh40k-10e/blob/32b4525d9f69f062f3458d517c6cf82512ef6fef/Aeldari%20-%20Aeldari%20Library.cat) | Aeldari - Aeldari Library | 127 | 667 | 1 | 0 | 22 |
-| [Imperium - Astra Militarum - Library.cat](https://github.com/BSData/wh40k-10e/blob/32b4525d9f69f062f3458d517c6cf82512ef6fef/Imperium%20-%20Astra%20Militarum%20-%20Library.cat) | Imperium - Astra Militarum - Library | 115 | 746 | 4 | 0 | 36 |
-| [Orks.cat](https://github.com/BSData/wh40k-10e/blob/32b4525d9f69f062f3458d517c6cf82512ef6fef/Orks.cat) | Xenos - Orks | 97 | 501 | 7 | 0 | 10 |
-| [Chaos - Chaos Space Marines.cat](https://github.com/BSData/wh40k-10e/blob/32b4525d9f69f062f3458d517c6cf82512ef6fef/Chaos%20-%20Chaos%20Space%20Marines.cat) | Chaos - Chaos Space Marines | 84 | 532 | 0 | 1 | 24 |
-| [T'au Empire.cat](https://github.com/BSData/wh40k-10e/blob/32b4525d9f69f062f3458d517c6cf82512ef6fef/T%27au%20Empire.cat) | Xenos - T'au Empire | 68 | 440 | 10 | 0 | 17 |
-| [Chaos - Chaos Daemons Library.cat](https://github.com/BSData/wh40k-10e/blob/32b4525d9f69f062f3458d517c6cf82512ef6fef/Chaos%20-%20Chaos%20Daemons%20Library.cat) | Chaos - Daemons Library | 68 | 232 | 0 | 0 | 3 |
-| [Necrons.cat](https://github.com/BSData/wh40k-10e/blob/32b4525d9f69f062f3458d517c6cf82512ef6fef/Necrons.cat) | Xenos - Necrons | 67 | 241 | 5 | 0 | 3 |
-| [Chaos - Death Guard.cat](https://github.com/BSData/wh40k-10e/blob/32b4525d9f69f062f3458d517c6cf82512ef6fef/Chaos%20-%20Death%20Guard.cat) | Chaos - Death Guard | 51 | 308 | 0 | 0 | 11 |
-| [Imperium - Agents of the Imperium.cat](https://github.com/BSData/wh40k-10e/blob/32b4525d9f69f062f3458d517c6cf82512ef6fef/Imperium%20-%20Agents%20of%20the%20Imperium.cat) | Imperium - Agents of the Imperium | 49 | 416 | 0 | 0 | 18 |
-| [Imperium - Adeptus Mechanicus.cat](https://github.com/BSData/wh40k-10e/blob/32b4525d9f69f062f3458d517c6cf82512ef6fef/Imperium%20-%20Adeptus%20Mechanicus.cat) | Imperium - Adeptus Mechanicus | 44 | 267 | 0 | 0 | 7 |
-| [Chaos - Thousand Sons.cat](https://github.com/BSData/wh40k-10e/blob/32b4525d9f69f062f3458d517c6cf82512ef6fef/Chaos%20-%20Thousand%20Sons.cat) | Chaos - Thousand Sons | 42 | 255 | 0 | 0 | 8 |
+| [Imperium - Space Marines.cat](https://github.com/BSData/wh40k-10e/blob/1228d35e79bcf02a5e70ec94e422b7ffce4f980e/Imperium%20-%20Space%20Marines.cat) | Imperium - Adeptus Astartes - Space Marines | 132 | 1342 | 0 | 1 | 39 |
+| [Aeldari - Aeldari Library.cat](https://github.com/BSData/wh40k-10e/blob/1228d35e79bcf02a5e70ec94e422b7ffce4f980e/Aeldari%20-%20Aeldari%20Library.cat) | Aeldari - Aeldari Library | 127 | 667 | 1 | 0 | 22 |
+| [Imperium - Astra Militarum - Library.cat](https://github.com/BSData/wh40k-10e/blob/1228d35e79bcf02a5e70ec94e422b7ffce4f980e/Imperium%20-%20Astra%20Militarum%20-%20Library.cat) | Imperium - Astra Militarum - Library | 119 | 760 | 4 | 0 | 36 |
+| [Orks.cat](https://github.com/BSData/wh40k-10e/blob/1228d35e79bcf02a5e70ec94e422b7ffce4f980e/Orks.cat) | Xenos - Orks | 98 | 505 | 7 | 0 | 10 |
+| [Chaos - Chaos Space Marines.cat](https://github.com/BSData/wh40k-10e/blob/1228d35e79bcf02a5e70ec94e422b7ffce4f980e/Chaos%20-%20Chaos%20Space%20Marines.cat) | Chaos - Chaos Space Marines | 84 | 532 | 0 | 1 | 24 |
+| [T'au Empire.cat](https://github.com/BSData/wh40k-10e/blob/1228d35e79bcf02a5e70ec94e422b7ffce4f980e/T%27au%20Empire.cat) | Xenos - T'au Empire | 68 | 440 | 10 | 0 | 17 |
+| [Chaos - Chaos Daemons Library.cat](https://github.com/BSData/wh40k-10e/blob/1228d35e79bcf02a5e70ec94e422b7ffce4f980e/Chaos%20-%20Chaos%20Daemons%20Library.cat) | Chaos - Daemons Library | 68 | 232 | 0 | 0 | 3 |
+| [Necrons.cat](https://github.com/BSData/wh40k-10e/blob/1228d35e79bcf02a5e70ec94e422b7ffce4f980e/Necrons.cat) | Xenos - Necrons | 67 | 241 | 5 | 0 | 3 |
+| [Chaos - Death Guard.cat](https://github.com/BSData/wh40k-10e/blob/1228d35e79bcf02a5e70ec94e422b7ffce4f980e/Chaos%20-%20Death%20Guard.cat) | Chaos - Death Guard | 51 | 308 | 0 | 0 | 11 |
+| [Imperium - Agents of the Imperium.cat](https://github.com/BSData/wh40k-10e/blob/1228d35e79bcf02a5e70ec94e422b7ffce4f980e/Imperium%20-%20Agents%20of%20the%20Imperium.cat) | Imperium - Agents of the Imperium | 50 | 420 | 0 | 0 | 18 |
+| [Imperium - Adeptus Mechanicus.cat](https://github.com/BSData/wh40k-10e/blob/1228d35e79bcf02a5e70ec94e422b7ffce4f980e/Imperium%20-%20Adeptus%20Mechanicus.cat) | Imperium - Adeptus Mechanicus | 44 | 267 | 0 | 0 | 7 |
+| [Chaos - Thousand Sons.cat](https://github.com/BSData/wh40k-10e/blob/1228d35e79bcf02a5e70ec94e422b7ffce4f980e/Chaos%20-%20Thousand%20Sons.cat) | Chaos - Thousand Sons | 42 | 255 | 0 | 0 | 8 |
 
 ## Units With Most Weapon Profiles
 
@@ -126,7 +128,7 @@ Generated: 2026-04-26T15:56:15.870004Z
 | Severity | Rows |
 | --- | ---: |
 | info | 5 |
-| ok | 1459 |
+| ok | 1466 |
 
 ## Unit Profile Review Reasons
 
@@ -140,7 +142,7 @@ Generated: 2026-04-26T15:56:15.870004Z
 | Category | Rows |
 | --- | ---: |
 | model_points_unset | 5 |
-| ok | 1459 |
+| ok | 1466 |
 
 ## Derived Ability Modifiers
 
@@ -170,10 +172,17 @@ Generated: 2026-04-26T15:56:15.870004Z
 
 | Coverage | Units |
 | --- | ---: |
-| both | 1260 |
+| both | 1267 |
 | melee_only | 145 |
 | no_weapons | 16 |
 | ranged_only | 43 |
+
+## Ranged Weapon Range Coverage
+
+| Status | Weapon Profiles |
+| --- | ---: |
+| Explicit range | 5577 |
+| Missing range | 2 |
 
 ## Loadout Review Reasons
 

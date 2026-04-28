@@ -89,8 +89,10 @@ def create_handler(state: AppState) -> type[SimpleHTTPRequestHandler]:
                 "/api/battlefield/state/validate": web_api_service.battlefield_validate_state_payload,
                 "/api/battlefield/actions": web_api_service.battlefield_actions_payload,
                 "/api/battlefield/resolve": web_api_service.battlefield_resolve_payload,
+                "/api/battlefield/phase/next": web_api_service.battlefield_advance_phase_payload,
                 "/api/battlefield/ai-plan": web_api_service.battlefield_ai_plan_payload,
                 "/api/battlefield/autoplay": web_api_service.battlefield_autoplay_payload,
+                "/api/battlefield/state/new": web_api_service.battlefield_new_state_payload,
             }
             if parsed.path != "/api/calculate" and parsed.path not in battlefield_routes:
                 self._send_error(HTTPStatus.NOT_FOUND, "Unknown endpoint")

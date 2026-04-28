@@ -1,0 +1,78 @@
+{
+  "generated_at": "2026-04-28T07:00:53.681245Z",
+  "source_before": {
+    "path": "C:\\Users\\ap010\\OneDrive\\Documents\\dev\\Warhammer 40K Calculator\\250916 0942 Warhammer 40k damage calculator\\data\\wh40k-10e",
+    "remote_origin": "https://github.com/BSData/wh40k-10e.git",
+    "branch": "main",
+    "commit": "1228d35e79bcf02a5e70ec94e422b7ffce4f980e",
+    "commit_date": "2026-04-28 00:10:49 +0100",
+    "commit_subject": "Armageddon Faction Pack update",
+    "dirty": false
+  },
+  "source_after": {
+    "path": "C:\\Users\\ap010\\OneDrive\\Documents\\dev\\Warhammer 40K Calculator\\250916 0942 Warhammer 40k damage calculator\\data\\wh40k-10e",
+    "remote_origin": "https://github.com/BSData/wh40k-10e.git",
+    "branch": "main",
+    "commit": "1228d35e79bcf02a5e70ec94e422b7ffce4f980e",
+    "commit_date": "2026-04-28 00:10:49 +0100",
+    "commit_subject": "Armageddon Faction Pack update",
+    "dirty": false
+  },
+  "tables": {
+    "units": {
+      "before_count": 1471,
+      "after_count": 1471,
+      "delta": 0,
+      "added_count": 0,
+      "removed_count": 0,
+      "changed_count": 0,
+      "added_samples": [],
+      "removed_samples": [],
+      "changed_samples": []
+    },
+    "weapons": {
+      "before_count": 8655,
+      "after_count": 8655,
+      "delta": 0,
+      "added_count": 0,
+      "removed_count": 0,
+      "changed_count": 0,
+      "added_samples": [],
+      "removed_samples": [],
+      "changed_samples": []
+    },
+    "abilities": {
+      "before_count": 3143,
+      "after_count": 3143,
+      "delta": 0,
+      "added_count": 0,
+      "removed_count": 0,
+      "changed_count": 0,
+      "added_samples": [],
+      "removed_samples": [],
+      "changed_samples": []
+    },
+    "keywords": {
+      "before_count": 1413,
+      "after_count": 1413,
+      "delta": 0,
+      "added_count": 0,
+      "removed_count": 0,
+      "changed_count": 0,
+      "added_samples": [],
+      "removed_samples": [],
+      "changed_samples": []
+    },
+    "unit_keywords": {
+      "before_count": 9576,
+      "after_count": 9576,
+      "delta": 0,
+      "added_count": 0,
+      "removed_count": 0,
+      "changed_count": 0,
+      "added_samples": [],
+      "removed_samples": [],
+      "changed_samples": []
+    }
+  }
+}

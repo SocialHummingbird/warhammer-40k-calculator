@@ -93,10 +93,63 @@ MODEL_TYPES = {
     "logistic_regression": "logistic_regression_classifier",
 }
 
+DEFAULT_LABEL_KEY_COLUMNS = ["edition", "mode", "attacker_id", "defender_id"]
+
 
 def read_feature_csv(path: Path) -> list[dict[str, str]]:
     with Path(path).open("r", encoding="utf-8", newline="") as handle:
         return list(csv.DictReader(handle))
+
+
+def read_label_override_csv(path: Path) -> list[dict[str, str]]:
+    with Path(path).open("r", encoding="utf-8", newline="") as handle:
+        return list(csv.DictReader(handle))
+
+
+def apply_label_overrides(
+    feature_rows: Iterable[dict[str, Any]],
+    label_rows: Iterable[dict[str, Any]],
+    *,
+    key_columns: Sequence[str] = DEFAULT_LABEL_KEY_COLUMNS,
+    label_column: str = "winner_label",
+    override_label_column: str | None = None,
+    label_source: str = "external_labels",
+) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+    rows = [dict(row) for row in feature_rows]
+    overrides: dict[tuple[str, ...], str] = {}
+    duplicate_keys = 0
+    skipped_rows = 0
+    source_column = "label_source"
+    override_label_column = override_label_column or label_column
+
+    for label_row in label_rows:
+        key = _label_key(label_row, key_columns)
+        label = str(label_row.get(override_label_column) or label_row.get("label") or "").strip()
+        if not all(key) or not label:
+            skipped_rows += 1
+            continue
+        if key in overrides:
+            duplicate_keys += 1
+        overrides[key] = label
+
+    matched_rows = 0
+    for row in rows:
+        key = _label_key(row, key_columns)
+        if key in overrides:
+            row[label_column] = overrides[key]
+            row[source_column] = label_source
+            matched_rows += 1
+
+    return rows, {
+        "key_columns": list(key_columns),
+        "label_column": label_column,
+        "override_label_column": override_label_column,
+        "label_source": label_source,
+        "override_rows": len(overrides),
+        "matched_rows": matched_rows,
+        "skipped_rows": skipped_rows,
+        "duplicate_keys": duplicate_keys,
+    }
 
 
 def feature_columns_for_set(name: str) -> list[str]:
@@ -124,9 +177,20 @@ def train_from_csv(
     feature_set: str = "full",
     label_column: str = "winner_label",
     model_type: str = "centroid",
+    label_overrides_path: Path | None = None,
+    label_key_columns: Sequence[str] = DEFAULT_LABEL_KEY_COLUMNS,
 ) -> dict[str, Any]:
     input_path = Path(input_path)
     rows = read_feature_csv(input_path)
+    label_override_summary = None
+    if label_overrides_path is not None:
+        label_rows = read_label_override_csv(Path(label_overrides_path))
+        rows, label_override_summary = apply_label_overrides(
+            rows,
+            label_rows,
+            key_columns=label_key_columns,
+            label_column=label_column,
+        )
     model = train_model(
         rows,
         validation_fraction=validation_fraction,
@@ -137,6 +201,11 @@ def train_from_csv(
         model_type=model_type,
     )
     model["training_source"] = feature_csv_provenance(input_path, rows=rows)
+    if label_overrides_path is not None:
+        model["label_overrides"] = {
+            "source": feature_csv_provenance(Path(label_overrides_path), rows=read_label_override_csv(Path(label_overrides_path))),
+            "summary": label_override_summary,
+        }
     write_model(model, output_path)
     return model
 
@@ -376,6 +445,10 @@ def _csv_data_row_count(path: Path) -> int:
         return 0
     with path.open("r", encoding="utf-8", newline="") as handle:
         return max(0, sum(1 for _ in handle) - 1)
+
+
+def _label_key(row: dict[str, Any], key_columns: Sequence[str]) -> tuple[str, ...]:
+    return tuple(str(row.get(column) or "").strip().lower() for column in key_columns)
 
 
 def _validation_count(row_count: int, validation_fraction: float) -> int:

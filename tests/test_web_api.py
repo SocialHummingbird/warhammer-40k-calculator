@@ -92,6 +92,7 @@ def test_units_payload_applies_query_filter_and_factions(tmp_path):
     payload = web_api.units_payload_from_query({"q": ["vehicle"], "limit": ["1"]}, state=_State(tmp_path))
 
     assert [unit["name"] for unit in payload["units"]] == ["Beta"]
+    assert payload["units"][0]["objective_control"] == 2
     assert payload["factions"] == ["Faction A", "Faction B"]
     assert payload["edition"] == "10e"
 
@@ -99,7 +100,10 @@ def test_units_payload_applies_query_filter_and_factions(tmp_path):
 def test_unit_payload_uses_unit_id_and_reports_missing_unit(tmp_path):
     state = _State(tmp_path)
 
-    assert web_api.unit_payload_from_query({"id": ["u2"], "name": ["ignored"]}, state=state)["unit"]["name"] == "Beta"
+    payload = web_api.unit_payload_from_query({"id": ["u2"], "name": ["ignored"]}, state=state)
+
+    assert payload["unit"]["name"] == "Beta"
+    assert payload["unit"]["objective_control"] == 2
     with pytest.raises(web_api.WebApiNotFound, match="Unknown unit"):
         web_api.unit_payload_from_query({"name": ["Missing"]}, state=state)
 
@@ -183,6 +187,73 @@ def test_battlefield_ai_plan_payload_returns_state_and_actions(tmp_path):
     assert payload["actions"]
 
 
+def test_battlefield_new_state_payload_accepts_imported_map(tmp_path):
+    state = _State(tmp_path)
+    plan = web_api.battlefield_ai_plan_payload(
+        {
+            "edition": "10e",
+            "template_id": "strike_force_44x60",
+            "armies": [
+                {"side": "red", "units": [{"unit_id": "u1"}]},
+                {"side": "blue", "units": [{"unit_id": "u2"}]},
+            ],
+            "limit": 1,
+        },
+        state=state,
+    )
+    battle_map = plan["state"]["map"]
+    battle_map["id"] = "imported-map"
+    battle_map["width"] = 50
+
+    payload = web_api.battlefield_new_state_payload(
+        {
+            "edition": "10e",
+            "map": battle_map,
+            "armies": [
+                {"side": "red", "units": [{"unit_id": "u1"}]},
+                {"side": "blue", "units": [{"unit_id": "u2"}]},
+            ],
+        },
+        state=state,
+    )
+
+    assert payload["edition"] == "10e"
+    assert payload["state"]["map"]["id"] == "imported-map"
+    assert payload["state"]["map"]["width"] == 50
+    assert {unit["side"] for unit in payload["state"]["units"]} == {"red", "blue"}
+
+
+def test_battlefield_new_state_payload_rejects_invalid_imported_map(tmp_path):
+    state = _State(tmp_path)
+    plan = web_api.battlefield_ai_plan_payload(
+        {
+            "edition": "10e",
+            "template_id": "strike_force_44x60",
+            "armies": [
+                {"side": "red", "units": [{"unit_id": "u1"}]},
+                {"side": "blue", "units": [{"unit_id": "u2"}]},
+            ],
+            "limit": 1,
+        },
+        state=state,
+    )
+    battle_map = plan["state"]["map"]
+    battle_map["terrain"][0]["x"] = battle_map["width"] + 5
+
+    with pytest.raises(ValueError, match="Terrain feature"):
+        web_api.battlefield_new_state_payload(
+            {
+                "edition": "10e",
+                "map": battle_map,
+                "armies": [
+                    {"side": "red", "units": [{"unit_id": "u1"}]},
+                    {"side": "blue", "units": [{"unit_id": "u2"}]},
+                ],
+            },
+            state=state,
+        )
+
+
 def test_battlefield_resolve_score_uses_objective_control(tmp_path):
     state = _State(tmp_path)
     plan = web_api.battlefield_ai_plan_payload(
@@ -202,6 +273,7 @@ def test_battlefield_resolve_score_uses_objective_control(tmp_path):
     red_unit = next(unit for unit in battle_state["units"] if unit["side"] == "red")
     red_unit["x"] = objective["x"]
     red_unit["y"] = objective["y"]
+    battle_state["phase"] = "scoring"
 
     payload = web_api.battlefield_resolve_payload(
         {
@@ -214,3 +286,104 @@ def test_battlefield_resolve_score_uses_objective_control(tmp_path):
 
     assert payload["state"]["score"]["red"] >= objective["points"]
     assert payload["outcome"]["log_entry"]["score_delta"]["red"] >= objective["points"]
+
+
+def test_battlefield_autoplay_payload_accepts_turn_limit(tmp_path):
+    payload = web_api.battlefield_autoplay_payload(
+        {
+            "edition": "10e",
+            "template_id": "strike_force_44x60",
+            "armies": [
+                {"side": "red", "units": [{"unit_id": "u1"}]},
+                {"side": "blue", "units": [{"unit_id": "u2"}]},
+            ],
+            "turns": 3,
+        },
+        state=_State(tmp_path),
+    )
+
+    assert payload["completed_turns"] == 3
+    assert payload["state"]["turn"] == 4
+    assert payload["replay"]
+    assert payload["summary"]["basis"] in {"vp", "points_remaining", "even", "wipeout"}
+    assert set(payload["summary"]) >= {"red", "blue", "leading_side", "reason"}
+
+
+def test_battlefield_actions_payload_includes_unavailable_diagnostics(tmp_path):
+    state = _State(tmp_path)
+    plan = web_api.battlefield_ai_plan_payload(
+        {
+            "edition": "10e",
+            "template_id": "strike_force_44x60",
+            "armies": [
+                {"side": "red", "units": [{"unit_id": "u1"}]},
+                {"side": "blue", "units": [{"unit_id": "u2"}]},
+            ],
+        },
+        state=state,
+    )
+    battle_state = plan["state"]
+    red = next(unit for unit in battle_state["units"] if unit["side"] == "red")
+    blue = next(unit for unit in battle_state["units"] if unit["side"] == "blue")
+    red["x"] = 10
+    red["y"] = 10
+    blue["x"] = 12
+    blue["y"] = 10
+    battle_state["phase"] = "shooting"
+
+    payload = web_api.battlefield_actions_payload({"edition": "10e", "state": battle_state}, state=state)
+
+    assert payload["unavailable_actions"]
+    assert any(row["type"] == "shoot" and "engaged" in row["reason"] for row in payload["unavailable_actions"])
+
+
+def test_battlefield_autoplay_payload_reports_completed_battle(tmp_path):
+    state = _State(tmp_path)
+    plan = web_api.battlefield_ai_plan_payload(
+        {
+            "edition": "10e",
+            "template_id": "strike_force_44x60",
+            "armies": [
+                {"side": "red", "units": [{"unit_id": "u1"}]},
+                {"side": "blue", "units": [{"unit_id": "u2"}]},
+            ],
+        },
+        state=state,
+    )
+    battle_state = plan["state"]
+    blue_unit = next(unit for unit in battle_state["units"] if unit["side"] == "blue")
+    blue_unit["models_remaining"] = 0
+    blue_unit["wounds_remaining"] = 0
+    blue_unit["status_flags"] = ["destroyed"]
+
+    payload = web_api.battlefield_autoplay_payload({"edition": "10e", "state": battle_state, "turns": 1}, state=state)
+
+    assert payload["completed_turns"] == 0
+    assert payload["battle_complete"] is True
+    assert payload["winner"] == "red"
+    assert payload["summary"]["winner"] == "red"
+    assert payload["summary"]["basis"] == "wipeout"
+    assert payload["state"]["turn"] == 1
+
+
+def test_battlefield_advance_phase_payload_updates_state(tmp_path):
+    state = _State(tmp_path)
+    plan = web_api.battlefield_ai_plan_payload(
+        {
+            "edition": "10e",
+            "template_id": "strike_force_44x60",
+            "armies": [
+                {"side": "red", "units": [{"unit_id": "u1"}]},
+                {"side": "blue", "units": [{"unit_id": "u2"}]},
+            ],
+            "limit": 1,
+        },
+        state=state,
+    )
+
+    payload = web_api.battlefield_advance_phase_payload({"edition": "10e", "state": plan["state"]}, state=state)
+
+    assert payload["edition"] == "10e"
+    assert payload["state"]["phase"] == "shooting"
+    assert payload["state"]["active_side"] == "red"
+    assert payload["log_entry"]["action"] == "advance_phase"

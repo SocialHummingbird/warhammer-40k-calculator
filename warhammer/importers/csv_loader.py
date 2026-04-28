@@ -57,6 +57,7 @@ def load_units_from_directory(directory: Path) -> Dict[str, UnitProfile]:
             "strength": row.get("strength") or 0,
             "ap": row.get("ap") or 0,
             "damage": row.get("damage") or "1",
+            "range_inches": _to_optional_float(row.get("range_inches")),
             "hit_modifier": row.get("hit_modifier") or "0",
             "wound_modifier": row.get("wound_modifier") or "0",
             "keywords": row.get("keywords") or "",

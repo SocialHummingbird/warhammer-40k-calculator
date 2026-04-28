@@ -26,6 +26,66 @@ def test_load_units_includes_leadership_and_objective_control(tmp_path):
     assert unit.source_file == "Test.cat"
 
 
+def test_load_units_preserves_optional_weapon_range(tmp_path):
+    data_dir = tmp_path
+    (data_dir / "units.csv").write_text(
+        "unit_id,faction,name,toughness,save,invulnerable_save,wounds,leadership,objective_control,points,models_min,models_max,feel_no_pain,damage_cap,selection_type,source_file\n"
+        "u1,Test,Fictional Unit,4,3+,,2,6,2,100,1,1,,,,Test.cat\n",
+        encoding="utf-8",
+    )
+    (data_dir / "weapons.csv").write_text(
+        "weapon_id,unit_id,name,weapon_type,attacks,skill,strength,ap,damage,keywords,range_inches,hit_modifier,wound_modifier,reroll_hits,reroll_wounds,lethal_hits,sustained_hits,devastating_wounds\n"
+        "w1,u1,Bolt rifle,ranged,2,3+,4,-1,1,Assault,24,,,,,,,\n",
+        encoding="utf-8",
+    )
+    (data_dir / "abilities.csv").write_text("ability_id,source_type,source_id,name,text\n", encoding="utf-8")
+    (data_dir / "keywords.csv").write_text("keyword_id,keyword\n", encoding="utf-8")
+    (data_dir / "unit_keywords.csv").write_text("unit_id,keyword_id\n", encoding="utf-8")
+
+    profiles = load_units_from_directory(data_dir)
+
+    assert profiles["u1"].weapons[0].range_inches == 24
+
+
+def test_bsdata_importer_extracts_weapon_range_inches(tmp_path):
+    catalogue = tmp_path / "test.cat"
+    catalogue.write_text(
+        """<?xml version="1.0" encoding="UTF-8"?>
+<catalogue name="Test Faction">
+  <selectionEntries>
+    <selectionEntry type="unit" import="true" name="Line Unit" id="unit-1">
+      <profiles>
+        <profile name="Line Unit" typeName="Unit">
+          <characteristics>
+            <characteristic name="T">4</characteristic>
+            <characteristic name="SV">3+</characteristic>
+            <characteristic name="W">2</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Bolt Rifle" typeName="Ranged Weapons">
+          <characteristics>
+            <characteristic name="Range">24&quot;</characteristic>
+            <characteristic name="A">2</characteristic>
+            <characteristic name="BS">3+</characteristic>
+            <characteristic name="S">4</characteristic>
+            <characteristic name="AP">-1</characteristic>
+            <characteristic name="D">1</characteristic>
+            <characteristic name="Keywords">Assault</characteristic>
+          </characteristics>
+        </profile>
+      </profiles>
+    </selectionEntry>
+  </selectionEntries>
+</catalogue>
+""",
+        encoding="utf-8",
+    )
+
+    _units, weapons, _abilities, _keywords, _unit_keywords = import_catalogues([catalogue])
+
+    assert weapons[0].range_inches == "24"
+
+
 def test_importer_does_not_attach_child_upgrade_abilities_to_unit(tmp_path):
     catalogue = tmp_path / "test.cat"
     catalogue.write_text(

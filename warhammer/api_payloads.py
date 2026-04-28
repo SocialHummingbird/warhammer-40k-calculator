@@ -79,4 +79,4 @@ def query_limit(raw: Any) -> int:
         value = int(raw)
     except (TypeError, ValueError):
         value = 300
-    return max(1, min(1000, value))
+    return max(1, min(2000, value))

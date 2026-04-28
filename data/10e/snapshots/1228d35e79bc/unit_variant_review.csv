@@ -1,0 +1,187 @@
+unit_name,variant_count,unit_id,source_file,faction,selection_type,points,models_min,models_max,toughness,save,wounds
+Attack Bike,2,332e-608d-ea45-d78c,Imperium - Space Marines.cat,Imperium - Adeptus Astartes - Space Marines,model,55,1,1,5,3+,5
+Attack Bike,2,a266-8dbe-3546-e001,Imperium - Space Marines.cat,Imperium - Adeptus Astartes - Space Marines,model,55,1,1,5,3+,5
+Beasts of Nurgle,2,2de0-5897-f724-a592,Chaos - Chaos Daemons Library.cat,Chaos - Daemons Library,unit,65,1,2,9,6+,7
+Beasts of Nurgle,2,5f38-3bbb-ce09-485b,Chaos - Death Guard.cat,Chaos - Death Guard,unit,65,1,2,9,6+,7
+Bloodcrushers,2,2f31-9132-b703-5fd8,Chaos - Chaos Daemons Library.cat,Chaos - Daemons Library,unit,110,3,6,7,3+,4
+Bloodcrushers,2,e65f-c7c7-1d18-1a60,Chaos - World Eaters.cat,Chaos - World Eaters,unit,110,3,6,7,3+,4
+Bloodletters,2,4ecc-6aa5-da28-2c57,Chaos - Chaos Daemons Library.cat,Chaos - Daemons Library,unit,110,10,10,4,7+,1
+Bloodletters,2,9188-4709-00ba-e5e0,Chaos - World Eaters.cat,Chaos - World Eaters,unit,90,10,10,4,7+,1
+Bloodthirster,2,a018-ca33-afd0-be83,Chaos - Chaos Daemons Library.cat,Chaos - Daemons Library,model,305,1,1,11,3+,18
+Bloodthirster,2,4ad2-bd20-6dfe-776b,Chaos - World Eaters.cat,Chaos - World Eaters,model,305,1,1,11,3+,18
+Blue Horrors,2,b795-b936-ad61-e407,Chaos - Chaos Daemons Library.cat,Chaos - Daemons Library,unit,125,10,10,3,7+,1
+Blue Horrors,2,aec5-4419-39e7-3e63,Chaos - Thousand Sons.cat,Chaos - Thousand Sons,unit,90,10,10,3,7+,1
+Chaos Land Raider,5,6de7-36d5-6015-7a51,Chaos - Chaos Space Marines.cat,Chaos - Chaos Space Marines,model,220,1,1,12,2+,16
+Chaos Land Raider,5,89d-b0c0-6e19-f017,Chaos - Death Guard.cat,Chaos - Death Guard,model,220,1,1,12,2+,16
+Chaos Land Raider,5,f10c-5f3e-c09d-0b12,Chaos - Emperor's Children.cat,Chaos - Emperor's Children,model,220,1,1,12,2+,16
+Chaos Land Raider,5,dfde-eaff-e63e-3aae,Chaos - Thousand Sons.cat,Chaos - Thousand Sons,model,220,1,1,12,2+,16
+Chaos Land Raider,5,4251-bd4f-f7ac-9487,Chaos - World Eaters.cat,Chaos - World Eaters,model,220,1,1,12,2+,16
+Chaos Lord on Disc of Tzeentch [Legends],2,7456-b122-14c3-eca9,Chaos - Chaos Space Marines.cat,Chaos - Chaos Space Marines,model,100,1,1,4,3+,6
+Chaos Lord on Disc of Tzeentch [Legends],2,dc89-ef5-e91d-b155,Chaos - Thousand Sons.cat,Chaos - Thousand Sons,model,100,1,1,4,3+,6
+Chaos Lord on Palanquin of Nurgle [Legends],2,2af2-8812-7aa9-3db7,Chaos - Chaos Space Marines.cat,Chaos - Chaos Space Marines,model,90,1,1,5,3+,8
+Chaos Lord on Palanquin of Nurgle [Legends],2,1d25-87a1-2d17-5d02,Chaos - Death Guard.cat,Chaos - Death Guard,model,90,1,1,5,3+,8
+Chaos Predator Annihilator,4,279e-62d4-bff1-141,Chaos - Chaos Space Marines.cat,Chaos - Chaos Space Marines,model,135,1,1,10,3+,11
+Chaos Predator Annihilator,4,9b58-210d-c12f-4d46,Chaos - Death Guard.cat,Chaos - Death Guard,model,135,1,1,10,3+,11
+Chaos Predator Annihilator,4,a619-beee-4bde-d049,Chaos - Thousand Sons.cat,Chaos - Thousand Sons,model,130,1,1,10,3+,11
+Chaos Predator Annihilator,4,497c-f787-5a7e-1020,Chaos - World Eaters.cat,Chaos - World Eaters,model,145,1,1,10,3+,11
+Chaos Predator Destructor,4,3dfb-3b2a-94b-2fbe,Chaos - Chaos Space Marines.cat,Chaos - Chaos Space Marines,model,140,1,1,10,3+,11
+Chaos Predator Destructor,4,ab4e-466d-e9e8-89d5,Chaos - Death Guard.cat,Chaos - Death Guard,model,145,1,1,10,3+,11
+Chaos Predator Destructor,4,4819-dbbe-8547-4e23,Chaos - Thousand Sons.cat,Chaos - Thousand Sons,model,130,1,1,10,3+,11
+Chaos Predator Destructor,4,04a0-269e-3bab-2c61,Chaos - World Eaters.cat,Chaos - World Eaters,model,145,1,1,10,3+,11
+Chaos Rhino,5,e981-27ae-112f-aa9a,Chaos - Chaos Space Marines.cat,Chaos - Chaos Space Marines,model,75,1,1,9,3+,10
+Chaos Rhino,5,b899-92e2-693a-975f,Chaos - Death Guard.cat,Chaos - Death Guard,model,85,1,1,9,3+,10
+Chaos Rhino,5,8ae1-aa47-e1d1-1b31,Chaos - Emperor's Children.cat,Chaos - Emperor's Children,model,80,1,1,9,3+,10
+Chaos Rhino,5,8d9b-b949-2557-dcc4,Chaos - Thousand Sons.cat,Chaos - Thousand Sons,model,90,1,1,9,3+,10
+Chaos Rhino,5,e849-ce40-ee43-7623,Chaos - World Eaters.cat,Chaos - World Eaters,model,85,1,1,9,3+,10
+Chaos Spawn,5,7263-70e5-b424-61eb,Chaos - Chaos Space Marines.cat,Chaos - Chaos Space Marines,unit,70,2,2,5,4+,4
+Chaos Spawn,5,1d85-475f-5ab-9823,Chaos - Death Guard.cat,Chaos - Death Guard,unit,80,2,2,7,4+,4
+Chaos Spawn,5,896c-5816-3abd-5199,Chaos - Emperor's Children.cat,Chaos - Emperor's Children,unit,70,2,2,5,4+,4
+Chaos Spawn,5,60de-4c77-95e1-1337,Chaos - Thousand Sons.cat,Chaos - Thousand Sons,unit,65,2,2,5,4+,4
+Chaos Spawn,5,edde-57bf-bccc-d8b2,Chaos - World Eaters.cat,Chaos - World Eaters,unit,90,2,2,5,4+,4
+Chaos Terminators,2,5926-4deb-a85d-c73a,Chaos - Emperor's Children.cat,Chaos - Emperor's Children,unit,145,5,5,5,2+,3
+Chaos Terminators,2,45f6-8429-a1d9-2a51,Chaos - World Eaters.cat,Chaos - World Eaters,unit,175,5,10,5,2+,3
+Chaos Vindicator,2,e687-6d7a-bb28-dcaa,Chaos - Chaos Space Marines.cat,Chaos - Chaos Space Marines,model,185,1,1,11,2+,11
+Chaos Vindicator,2,3413-b8fd-e22c-da4f,Chaos - Thousand Sons.cat,Chaos - Thousand Sons,model,185,1,1,11,2+,11
+Corvus Blackstar,2,d861-972b-54f9-bdfa,Imperium - Deathwatch.cat,Imperium - Adeptus Astartes - Deathwatch,model,180,1,1,10,3+,14
+Corvus Blackstar,2,8b98-0ac7-a0ba-dedf,Imperium - Agents of the Imperium.cat,Imperium - Agents of the Imperium,model,180,1,1,10,3+,14
+Daemonettes,2,41c2-d2e6-ae43-3beb,Chaos - Chaos Daemons Library.cat,Chaos - Daemons Library,unit,100,10,10,3,7+,1
+Daemonettes,2,06f6-b870-4e43-4ed9,Chaos - Emperor's Children.cat,Chaos - Emperor's Children,unit,90,10,10,3,7+,1
+Defiler,5,29f9-fc47-787e-d9d3,Chaos - Chaos Space Marines.cat,Chaos - Chaos Space Marines,model,250,1,1,11,3+,18
+Defiler,5,bc88-0833-743e-0146,Chaos - Death Guard.cat,Chaos - Death Guard,model,250,1,1,11,3+,18
+Defiler,5,b541-3292-a5cc-dbeb,Chaos - Emperor's Children.cat,Chaos - Emperor's Children,model,250,1,1,11,3+,18
+Defiler,5,f158-2979-c38b-65b5,Chaos - Thousand Sons.cat,Chaos - Thousand Sons,model,250,1,1,11,3+,18
+Defiler,5,ea51-5575-9e74-9346,Chaos - World Eaters.cat,Chaos - World Eaters,model,250,1,1,11,3+,18
+Fiends,2,d1ee-8d05-4fae-1727,Chaos - Chaos Daemons Library.cat,Chaos - Daemons Library,unit,95,3,6,5,7+,4
+Fiends,2,c2ca-f754-cc05-0743,Chaos - Emperor's Children.cat,Chaos - Emperor's Children,unit,95,3,6,5,7+,4
+Flamers,2,5f23-4d6-f2f9-5973,Chaos - Chaos Daemons Library.cat,Chaos - Daemons Library,unit,65,3,6,4,7+,3
+Flamers,2,694f-a205-b260-783c,Chaos - Thousand Sons.cat,Chaos - Thousand Sons,unit,65,3,6,4,7+,3
+Flesh Hounds,2,fd31-64a2-b20f-f0bc,Chaos - Chaos Daemons Library.cat,Chaos - Daemons Library,unit,75,5,10,4,7+,2
+Flesh Hounds,2,b657-1743-6e3a-0838,Chaos - World Eaters.cat,Chaos - World Eaters,unit,75,5,10,4,7+,2
+Forgefiend,3,45b-19f6-38d2-703f,Chaos - Chaos Space Marines.cat,Chaos - Chaos Space Marines,model,170,1,1,10,3+,12
+Forgefiend,3,d2f1-7a0b-f7cd-9b46,Chaos - Thousand Sons.cat,Chaos - Thousand Sons,model,130,1,1,10,3+,12
+Forgefiend,3,81e1-b212-69c1-308f,Chaos - World Eaters.cat,Chaos - World Eaters,model,165,1,1,10,3+,12
+Gellerpox Infected [Legends],2,e1c2-8417-403a-68,Chaos - Chaos Space Marines.cat,Chaos - Chaos Space Marines,unit,125,7,7,5,6+,1
+Gellerpox Infected [Legends],2,6d29-1c06-c787-64e0,Chaos - Death Guard.cat,Chaos - Death Guard,unit,125,7,7,5,6+,1
+Gladiator Lancer,2,7dec-dc3d-c40a-8ce,Imperium - Black Templars.cat,Imperium - Adeptus Astartes - Black Templars,model,160,1,1,10,3+,12
+Gladiator Lancer,2,7814-107b-a498-96f6,Imperium - Space Marines.cat,Imperium - Adeptus Astartes - Space Marines,model,160,1,1,10,3+,12
+Gladiator Reaper,2,bfb6-4320-74cf-bbda,Imperium - Black Templars.cat,Imperium - Adeptus Astartes - Black Templars,model,160,1,1,10,3+,12
+Gladiator Reaper,2,ed20-824b-7419-aebc,Imperium - Space Marines.cat,Imperium - Adeptus Astartes - Space Marines,model,160,1,1,10,3+,12
+Gladiator Valiant,2,5704-ffe4-4a53-8789,Imperium - Black Templars.cat,Imperium - Adeptus Astartes - Black Templars,model,150,1,1,10,3+,12
+Gladiator Valiant,2,6b89-8147-9b6b-6db1,Imperium - Space Marines.cat,Imperium - Adeptus Astartes - Space Marines,model,150,1,1,10,3+,12
+Great Unclean One,2,d490-6c4d-e83b-b183,Chaos - Chaos Daemons Library.cat,Chaos - Daemons Library,model,250,1,1,12,5+,20
+Great Unclean One,2,2425-13a7-77f0-0112,Chaos - Death Guard.cat,Chaos - Death Guard,model,250,1,1,12,5+,20
+Helbrute,4,9ff2-45e0-fe97-65f8,Chaos - Chaos Space Marines.cat,Chaos - Chaos Space Marines,model,130,1,1,9,2+,8
+Helbrute,4,2a2b-643e-860e-b524,Chaos - Death Guard.cat,Chaos - Death Guard,model,115,1,1,9,2+,8
+Helbrute,4,5b9d-e3c1-3d55-8276,Chaos - Thousand Sons.cat,Chaos - Thousand Sons,model,110,1,1,9,2+,8
+Helbrute,4,273a-db24-3f7c-b977,Chaos - World Eaters.cat,Chaos - World Eaters,model,120,1,1,9,2+,8
+Heldrake,4,79e5-a673-cca5-91a4,Chaos - Chaos Space Marines.cat,Chaos - Chaos Space Marines,model,205,1,1,9,3+,12
+Heldrake,4,3750-df25-165d-d003,Chaos - Emperor's Children.cat,Chaos - Emperor's Children,model,195,1,1,10,3+,14
+Heldrake,4,637a-d542-35aa-e95c,Chaos - Thousand Sons.cat,Chaos - Thousand Sons,model,215,1,1,9,3+,12
+Heldrake,4,de2e-8fae-9d22-24a4,Chaos - World Eaters.cat,Chaos - World Eaters,model,200,1,1,9,3+,12
+Hell Talon [Legends],4,4893-c42f-4ca8-2b3d,Chaos - Chaos Space Marines.cat,Chaos - Chaos Space Marines,model,140,1,1,9,3+,14
+Hell Talon [Legends],4,8cba-21cc-a3b3-91ed,Chaos - Death Guard.cat,Chaos - Death Guard,model,140,1,1,9,3+,14
+Hell Talon [Legends],4,3a8-a34f-76aa-b56a,Chaos - Thousand Sons.cat,Chaos - Thousand Sons,model,140,1,1,9,3+,14
+Hell Talon [Legends],4,4e04-74aa-2c2f-66d0,Chaos - World Eaters.cat,Chaos - World Eaters,model,140,1,1,9,3+,14
+Hellblade [Legends],4,8373-f06d-7680-9de,Chaos - Chaos Space Marines.cat,Chaos - Chaos Space Marines,model,115,1,1,8,3+,10
+Hellblade [Legends],4,3e86-ef61-9b87-3658,Chaos - Death Guard.cat,Chaos - Death Guard,model,115,1,1,8,3+,10
+Hellblade [Legends],4,c4ab-b52d-3ac0-5d56,Chaos - Thousand Sons.cat,Chaos - Thousand Sons,model,115,1,1,8,3+,10
+Hellblade [Legends],4,7320-3dba-703c-b3f0,Chaos - World Eaters.cat,Chaos - World Eaters,model,115,1,1,8,3+,10
+Impulsor,2,fa27-4bc1-72c9-894f,Imperium - Black Templars.cat,Imperium - Adeptus Astartes - Black Templars,model,85,1,1,9,3+,11
+Impulsor,2,bfb1-7512-e1a3-9fa2,Imperium - Space Marines.cat,Imperium - Adeptus Astartes - Space Marines,model,80,1,1,9,3+,11
+Kairos Fateweaver,2,6df5-f246-6bd-55b8,Chaos - Chaos Daemons Library.cat,Chaos - Daemons Library,model,295,1,1,10,6+,20
+Kairos Fateweaver,2,8f70-9bec-9b83-216b,Chaos - Thousand Sons.cat,Chaos - Thousand Sons,model,295,1,1,10,6+,20
+Keeper of Secrets,2,a903-dd97-339d-6899,Chaos - Chaos Daemons Library.cat,Chaos - Daemons Library,model,240,1,1,10,5+,18
+Keeper of Secrets,2,7b2b-4508-263d-f20f,Chaos - Emperor's Children.cat,Chaos - Emperor's Children,model,240,1,1,10,5+,18
+Khorne Berzerkers,2,3832-4208-11e9-ca22,Chaos - Chaos Space Marines.cat,Chaos - Chaos Space Marines,unit,180,10,20,4,3+,2
+Khorne Berzerkers,2,f909-00c7-8ba4-018a,Chaos - World Eaters.cat,Chaos - World Eaters,unit,180,10,20,4,3+,2
+Khorne Lord of Skulls,2,b27f-1c85-5e7f-4e7d,Chaos - Chaos Space Marines.cat,Chaos - Chaos Space Marines,model,450,1,1,13,3+,24
+Khorne Lord of Skulls,2,836c-f65b-6bcb-9663,Chaos - World Eaters.cat,Chaos - World Eaters,model,505,1,1,13,3+,24
+Kill Team Cassius [Legends],2,4042-67ce-8d45-ed33,Imperium - Deathwatch.cat,Imperium - Adeptus Astartes - Deathwatch,unit,220,11,11,4,3+,4
+Kill Team Cassius [Legends],2,88af-6e47-7162-b1be,Imperium - Agents of the Imperium.cat,Imperium - Agents of the Imperium,unit,220,11,11,4,3+,4
+Land Raider,2,8cca-9318-3bec-d360,Imperium - Space Marines.cat,Imperium - Adeptus Astartes - Space Marines,model,220,1,1,12,2+,16
+Land Raider,2,512d-b972-911e-4cac,Imperium - Grey Knights.cat,Imperium - Grey Knights,model,220,1,1,12,2+,16
+Land Raider Crusader,3,8525-2de1-14fd-c1f5,Imperium - Black Templars.cat,Imperium - Adeptus Astartes - Black Templars,model,220,1,1,12,2+,16
+Land Raider Crusader,3,1d65-c592-2e16-b045,Imperium - Space Marines.cat,Imperium - Adeptus Astartes - Space Marines,model,220,1,1,12,2+,16
+Land Raider Crusader,3,4c63-cca-8d26-6330,Imperium - Grey Knights.cat,Imperium - Grey Knights,model,220,1,1,12,2+,16
+Land Raider Redeemer,2,d361-a36e-1448-264d,Imperium - Space Marines.cat,Imperium - Adeptus Astartes - Space Marines,model,270,1,1,12,2+,16
+Land Raider Redeemer,2,ada7-eb0b-c920-d77f,Imperium - Grey Knights.cat,Imperium - Grey Knights,model,270,1,1,12,2+,16
+Lord of Change,2,3600-9f92-933-bf54,Chaos - Chaos Daemons Library.cat,Chaos - Daemons Library,model,285,1,1,10,6+,18
+Lord of Change,2,c964-c75a-2a9d-e451,Chaos - Thousand Sons.cat,Chaos - Thousand Sons,model,285,1,1,10,6+,18
+Master of Executions,2,da34-7071-8658-a453,Chaos - Chaos Space Marines.cat,Chaos - Chaos Space Marines,model,80,1,1,4,3+,4
+Master of Executions,2,1b56-682c-ac33-bc5f,Chaos - World Eaters.cat,Chaos - World Eaters,model,60,1,1,4,3+,4
+Maulerfiend,4,d37d-7e8f-341b-c67c,Chaos - Chaos Space Marines.cat,Chaos - Chaos Space Marines,model,130,1,1,10,3+,12
+Maulerfiend,4,656c-8b78-8e59-0591,Chaos - Emperor's Children.cat,Chaos - Emperor's Children,model,130,1,1,10,3+,12
+Maulerfiend,4,f2aa-19fd-335a-09b3,Chaos - Thousand Sons.cat,Chaos - Thousand Sons,model,120,1,1,10,3+,12
+Maulerfiend,4,a619-8a52-be03-3bd5,Chaos - World Eaters.cat,Chaos - World Eaters,model,150,1,1,10,3+,12
+Ministorum Priest,3,599d-1e2a-eb0e-430e,Imperium - Adepta Sororitas.cat,Imperium - Adepta Sororitas,model,50,1,1,3,6+,3
+Ministorum Priest,3,7554-37de-cd68-68a7,Imperium - Agents of the Imperium.cat,Imperium - Agents of the Imperium,model,40,1,1,3,6+,3
+Ministorum Priest,3,ba72-7b05-33c9-a1c0,Imperium - Astra Militarum - Library.cat,Imperium - Astra Militarum - Library,model,35,1,1,3,6+,3
+Mutoid Vermin [Legends],2,afed-8173-a1e0-cbae,Chaos - Chaos Space Marines.cat,Chaos - Chaos Space Marines,unit,85,16,16,2,7+,1
+Mutoid Vermin [Legends],2,2dfd-cddb-9fef-494b,Chaos - Death Guard.cat,Chaos - Death Guard,unit,85,16,16,2,7+,1
+Myphitic Blight-hauler,2,35b2-7490-1a7b-cd99,Chaos - Death Guard.cat,Chaos - Death Guard,unit,100,1,2,9,3+,10
+Myphitic Blight-hauler,2,364c-e8a8-cc5b-5b02,Chaos - Death Guard.cat,Chaos - Death Guard,model,100,1,1,9,3+,10
+Noise Marines,2,371f-09ee-951e-88b3,Chaos - Chaos Space Marines.cat,Chaos - Chaos Space Marines,unit,145,6,6,5,3+,2
+Noise Marines,2,5817-0d6c-973c-68f8,Chaos - Emperor's Children.cat,Chaos - Emperor's Children,unit,145,6,6,5,3+,2
+Nurglings,2,e403-3a9-279e-41b7,Chaos - Chaos Daemons Library.cat,Chaos - Daemons Library,unit,40,3,6,3,7+,4
+Nurglings,2,7e32-0162-71e2-57a0,Chaos - Death Guard.cat,Chaos - Death Guard,unit,40,3,6,3,7+,4
+Pink Horrors,2,e7b8-aa40-6da7-778e,Chaos - Chaos Daemons Library.cat,Chaos - Daemons Library,unit,140,10,10,3,7+,1
+Pink Horrors,2,4c73-cbd1-f052-80c3,Chaos - Thousand Sons.cat,Chaos - Thousand Sons,unit,115,10,10,3,7+,1
+Plague Drones,2,d620-146a-41cd-f28f,Chaos - Chaos Daemons Library.cat,Chaos - Daemons Library,unit,110,3,6,8,6+,5
+Plague Drones,2,cd03-e1f3-fa31-a271,Chaos - Death Guard.cat,Chaos - Death Guard,unit,115,3,6,8,6+,5
+Plague Marines,2,9030-f62d-417-fc92,Chaos - Chaos Space Marines.cat,Chaos - Chaos Space Marines,unit,95,5,10,6,3+,2
+Plague Marines,2,8467-b3a2-2597-de0d,Chaos - Death Guard.cat,Chaos - Death Guard,unit,95,5,10,6,3+,2
+Plaguebearers,2,d1eb-b092-d944-e729,Chaos - Chaos Daemons Library.cat,Chaos - Daemons Library,unit,110,10,10,5,7+,2
+Plaguebearers,2,904b-0319-7b2e-2145,Chaos - Death Guard.cat,Chaos - Death Guard,unit,110,10,10,5,7+,2
+Razorback,2,ed11-25b9-a0eb-89f4,Imperium - Space Marines.cat,Imperium - Adeptus Astartes - Space Marines,model,95,1,1,9,3+,10
+Razorback,2,841f-98b-fbf3-c8ee,Imperium - Grey Knights.cat,Imperium - Grey Knights,model,85,1,1,9,3+,10
+Repulsor,2,c3e8-3cde-8b39-4b19,Imperium - Black Templars.cat,Imperium - Adeptus Astartes - Black Templars,model,180,1,1,12,3+,16
+Repulsor,2,e8e-fc5c-c689-99ca,Imperium - Space Marines.cat,Imperium - Adeptus Astartes - Space Marines,model,180,1,1,12,3+,16
+Repulsor Executioner,2,a344-192f-aae2-16e5,Imperium - Black Templars.cat,Imperium - Adeptus Astartes - Black Templars,model,235,1,1,12,3+,16
+Repulsor Executioner,2,9259-f166-15f2-7f79,Imperium - Space Marines.cat,Imperium - Adeptus Astartes - Space Marines,model,230,1,1,12,3+,16
+Rhino,2,a14e-75ca-ef91-397f,Imperium - Space Marines.cat,Imperium - Adeptus Astartes - Space Marines,model,75,1,1,9,3+,10
+Rhino,2,5ffd-f698-a1bb-fba7,Imperium - Grey Knights.cat,Imperium - Grey Knights,model,80,1,1,9,3+,10
+Rotigus,2,cff8-7388-a2c9-946c,Chaos - Chaos Daemons Library.cat,Chaos - Daemons Library,model,265,1,1,12,5+,22
+Rotigus,2,66dd-f8c9-f9a6-0e6b,Chaos - Death Guard.cat,Chaos - Death Guard,model,265,1,1,12,5+,22
+Rubric Marines,2,f2e7-80c9-853d-2c6c,Chaos - Chaos Space Marines.cat,Chaos - Chaos Space Marines,unit,100,5,10,4,3+,2
+Rubric Marines,2,5d3d-e13b-8b76-dad3,Chaos - Thousand Sons.cat,Chaos - Thousand Sons,unit,100,5,10,4,3+,2
+Sanctifiers,2,eade-6ec7-7236-bfdb,Imperium - Adepta Sororitas.cat,Imperium - Adepta Sororitas,unit,110,9,11,3,6+,1
+Sanctifiers,2,4e74-3710-7a66-9d6c,Imperium - Agents of the Imperium.cat,Imperium - Agents of the Imperium,unit,100,9,11,3,6+,1
+Screamers,2,550b-c5ab-5e27-f59b,Chaos - Chaos Daemons Library.cat,Chaos - Daemons Library,unit,80,3,6,4,6+,3
+Screamers,2,7cbe-2406-8e67-aff5,Chaos - Thousand Sons.cat,Chaos - Thousand Sons,unit,80,3,6,4,6+,3
+Seekers,2,112d-8078-777f-76a5,Chaos - Chaos Daemons Library.cat,Chaos - Daemons Library,unit,80,5,10,4,7+,2
+Seekers,2,c9df-2c38-25e5-ffc7,Chaos - Emperor's Children.cat,Chaos - Emperor's Children,unit,80,5,10,4,7+,2
+Servitors [Legends],2,2183-5b38-1726-2a11,Imperium - Adeptus Mechanicus.cat,Imperium - Adeptus Mechanicus,unit,50,4,4,3,4+,1
+Servitors [Legends],2,35ed-7890-6c56-18b7,Imperium - Grey Knights.cat,Imperium - Grey Knights,unit,50,4,4,4,4+,1
+Shalaxi Helbane,2,c49d-5ebc-4ee4-689e,Chaos - Chaos Daemons Library.cat,Chaos - Daemons Library,model,340,1,1,10,3+,20
+Shalaxi Helbane,2,20df-143c-fc59-77e0,Chaos - Emperor's Children.cat,Chaos - Emperor's Children,model,340,1,1,10,3+,20
+Skarbrand,2,7998-d0a-baa4-e8b3,Chaos - Chaos Daemons Library.cat,Chaos - Daemons Library,model,305,1,1,11,3+,20
+Skarbrand,2,71d9-9dc2-2b9a-6db3,Chaos - World Eaters.cat,Chaos - World Eaters,model,305,1,1,11,3+,20
+Sorcerer,3,980d-c80a-19b2-f641,Chaos - Chaos Space Marines.cat,Chaos - Chaos Space Marines,model,60,1,1,4,3+,4
+Sorcerer,3,2cd1-13f5-d59d-cc7f,Chaos - Emperor's Children.cat,Chaos - Emperor's Children,model,60,1,1,4,3+,4
+Sorcerer,3,af1e-9a3d-785c-47f8,Chaos - Thousand Sons.cat,Chaos - Thousand Sons,model,80,1,1,4,3+,4
+Sorcerer in Terminator Armour,2,683f-bfb2-f8d0-c39e,Chaos - Chaos Space Marines.cat,Chaos - Chaos Space Marines,model,80,1,1,5,2+,5
+Sorcerer in Terminator Armour,2,c6d1-e73b-9d26-5d8b,Chaos - Thousand Sons.cat,Chaos - Thousand Sons,model,85,1,1,5,2+,5
+Sorcerer on Disc of Tzeentch [Legends],2,5205-d436-bedd-e3df,Chaos - Chaos Space Marines.cat,Chaos - Chaos Space Marines,model,80,1,1,4,3+,5
+Sorcerer on Disc of Tzeentch [Legends],2,ef19-b2dd-72ae-4f96,Chaos - Thousand Sons.cat,Chaos - Thousand Sons,model,80,1,1,4,3+,5
+Sorcerer on Palanquin of Nurgle [Legends],2,c8b4-e13c-1a3a-7b55,Chaos - Chaos Space Marines.cat,Chaos - Chaos Space Marines,model,80,1,1,5,3+,7
+Sorcerer on Palanquin of Nurgle [Legends],2,474-6b31-df19-2b49,Chaos - Death Guard.cat,Chaos - Death Guard,model,80,1,1,5,3+,7
+Sternguard Veteran Squad,2,a499-86fa-4d0c-b06d,Imperium - Black Templars.cat,Imperium - Adeptus Astartes - Black Templars,unit,85,6,11,4,3+,2
+Sternguard Veteran Squad,2,907f-11-c4d1-ec21,Imperium - Space Marines.cat,Imperium - Adeptus Astartes - Space Marines,unit,100,6,11,4,3+,2
+Stormhawk Interceptor,2,3d99-47aa-8cf3-883f,Imperium - Space Marines.cat,Imperium - Adeptus Astartes - Space Marines,model,155,1,1,9,3+,10
+Stormhawk Interceptor,2,fa-e288-2107-d22e,Imperium - Grey Knights.cat,Imperium - Grey Knights,model,160,1,1,9,3+,10
+Stormraven Gunship,2,469b-3370-30f3-473a,Imperium - Space Marines.cat,Imperium - Adeptus Astartes - Space Marines,model,280,1,1,10,3+,14
+Stormraven Gunship,2,2efe-459b-9562-e7a9,Imperium - Grey Knights.cat,Imperium - Grey Knights,model,280,1,1,10,3+,14
+Stormtalon Gunship,2,1bb6-878e-7af1-5bdb,Imperium - Space Marines.cat,Imperium - Adeptus Astartes - Space Marines,model,165,1,1,8,3+,10
+Stormtalon Gunship,2,84ac-b9ea-921f-9082,Imperium - Grey Knights.cat,Imperium - Grey Knights,model,170,1,1,9,3+,10
+Tech-Priest Enginseer,2,c0e0-4d86-96d2-ec86,Imperium - Adeptus Mechanicus.cat,Imperium - Adeptus Mechanicus,model,55,1,1,4,3+,3
+Tech-Priest Enginseer,2,f556-a33d-dc90-d6fc,Imperium - Astra Militarum - Library.cat,Imperium - Astra Militarum - Library,model,45,1,1,4,3+,3
+Terminator Squad,2,80ad-6e62-65e3-e667,Imperium - Black Templars.cat,Imperium - Adeptus Astartes - Black Templars,unit,175,6,11,5,2+,3
+Terminator Squad,2,4808-a80b-309a-7933,Imperium - Space Marines.cat,Imperium - Adeptus Astartes - Space Marines,unit,170,6,11,5,2+,3
+Terrax-Pattern Termite [Legends],2,3639-75ba-cab2-c159,Imperium - Adeptus Mechanicus.cat,Imperium - Adeptus Mechanicus,model,200,1,1,10,3+,14
+Terrax-pattern Termite [Legends],2,3d36-e9d7-54c5-deb7,Library - Astartes Heresy Legends.cat,Library - Astartes Heresy Legends,model,200,1,1,10,3+,14
+Venerable Dreadnought,2,c125-1106-f06d-9682,Imperium - Space Wolves.cat,Imperium - Adeptus Astartes - Space Wolves,model,130,1,1,9,2+,8
+Venerable Dreadnought,2,bd43-b303-66e0-4c10,Imperium - Grey Knights.cat,Imperium - Grey Knights,model,140,1,1,9,2+,8
+Watch Captain Artemis,2,3d7c-2de-31ea-b028,Imperium - Deathwatch.cat,Imperium - Adeptus Astartes - Deathwatch,model,65,1,1,4,3+,4
+Watch Captain Artemis,2,f158-1e0b-585b-bf40,Imperium - Agents of the Imperium.cat,Imperium - Agents of the Imperium,model,65,1,1,4,3+,4
+Watch Master,2,f7c3-45d2-a7ac-d8bc,Imperium - Deathwatch.cat,Imperium - Adeptus Astartes - Deathwatch,model,95,1,1,4,2+,5
+Watch Master,2,cfa5-df26-a886-9975,Imperium - Agents of the Imperium.cat,Imperium - Agents of the Imperium,model,95,1,1,4,2+,5

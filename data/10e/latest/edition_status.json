@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-26T18:05:34.025471Z",
+  "generated_at": "2026-04-28T07:00:54.316906Z",
   "edition": "10e",
   "requested_edition": "10e",
   "metadata_edition": "10e",
@@ -126,21 +126,21 @@
   "calculations_enabled": true,
   "status": "ready",
   "blockers": [],
-  "data_dir": "data\\10e\\latest",
+  "data_dir": "C:\\Users\\ap010\\OneDrive\\Documents\\dev\\Warhammer 40K Calculator\\250916 0942 Warhammer 40k damage calculator\\data\\10e\\latest",
   "source": {
     "remote_origin": "https://github.com/BSData/wh40k-10e.git",
     "branch": "main",
-    "commit": "32b4525d9f69f062f3458d517c6cf82512ef6fef",
-    "commit_date": "2026-04-21 17:44:59 +0100",
-    "commit_subject": "Fixes #7066",
+    "commit": "1228d35e79bcf02a5e70ec94e422b7ffce4f980e",
+    "commit_date": "2026-04-28 00:10:49 +0100",
+    "commit_subject": "Armageddon Faction Pack update",
     "dirty": false
   },
   "counts": {
-    "units": 1464,
-    "weapons": 8628,
-    "abilities": 3124,
-    "keywords": 1407,
-    "unit_keywords": 9523
+    "units": 1471,
+    "weapons": 8655,
+    "abilities": 3143,
+    "keywords": 1413,
+    "unit_keywords": 9576
   },
   "audit_summary": {
     "error": 0,

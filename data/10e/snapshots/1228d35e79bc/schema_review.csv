@@ -1,0 +1,6 @@
+table,file,status,required_count,actual_count,missing_columns,extra_columns,required_columns,actual_columns
+units,units.csv,pass,17,17,,,unit_id; faction; name; toughness; save; invulnerable_save; wounds; move; leadership; objective_control; points; models_min; models_max; feel_no_pain; damage_cap; selection_type; source_file,unit_id; faction; name; toughness; save; invulnerable_save; wounds; move; leadership; objective_control; points; models_min; models_max; feel_no_pain; damage_cap; selection_type; source_file
+weapons,weapons.csv,pass,18,19,,,weapon_id; unit_id; name; weapon_type; attacks; skill; strength; ap; damage; keywords; hit_modifier; wound_modifier; reroll_hits; reroll_wounds; lethal_hits; sustained_hits; devastating_wounds; source_file,weapon_id; unit_id; name; weapon_type; attacks; skill; strength; ap; damage; keywords; range_inches; hit_modifier; wound_modifier; reroll_hits; reroll_wounds; lethal_hits; sustained_hits; devastating_wounds; source_file
+abilities,abilities.csv,pass,6,6,,,ability_id; source_type; source_id; name; text; source_file,ability_id; source_type; source_id; name; text; source_file
+keywords,keywords.csv,pass,3,3,,,keyword_id; keyword; description,keyword_id; keyword; description
+unit_keywords,unit_keywords.csv,pass,2,2,,,unit_id; keyword_id,unit_id; keyword_id

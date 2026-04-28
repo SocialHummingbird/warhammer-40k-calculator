@@ -35,9 +35,12 @@ def render_model_audit_report(
     labels = [str(label) for label in model.get("labels", [])]
     validation = model.get("validation") if isinstance(model.get("validation"), dict) else {}
     training_source = model.get("training_source") if isinstance(model.get("training_source"), dict) else {}
+    label_overrides = model.get("label_overrides") if isinstance(model.get("label_overrides"), dict) else {}
+    label_override_summary = label_overrides.get("summary") if isinstance(label_overrides.get("summary"), dict) else {}
     feature_columns = [str(column) for column in model.get("feature_columns", [])]
     calculator_features = [column for column in feature_columns if column in CALCULATOR_OUTPUT_FEATURES]
     missing_columns = missing_feature_columns(rows, feature_columns) if rows else []
+    interpretation = _label_interpretation_lines(model, label_override_summary)
 
     lines = [
         "# ML Model Audit",
@@ -52,6 +55,7 @@ def render_model_audit_report(
         f"- Saved feature SHA-256: `{training_source.get('sha256') or 'unknown'}`",
         f"- Created at: `{model.get('created_at', '') or 'unknown'}`",
         f"- Label source: `{model.get('label_source', '') or 'unknown'}`",
+        *_label_override_summary_lines(label_overrides, label_override_summary),
         f"- Labels: {', '.join(f'`{label}`' for label in labels) or 'none'}",
         f"- Training rows: {_int_text(model.get('training_rows'))}",
         f"- Validation rows: {_int_text(model.get('validation_rows'))}",
@@ -60,8 +64,7 @@ def render_model_audit_report(
         "",
         "## Interpretation",
         "- This is an advisory model, not the rules engine.",
-        "- Labels are generated from deterministic calculator outputs, not real tabletop results.",
-        "- Validation accuracy measures agreement with the calculator-derived labels.",
+        *interpretation,
         *_model_interpretation_lines(model),
     ]
     if calculator_features:
@@ -112,6 +115,31 @@ def write_model_audit_report(
         ),
         encoding="utf-8",
     )
+
+
+def _label_override_summary_lines(label_overrides: dict[str, Any], summary: dict[str, Any]) -> list[str]:
+    if not label_overrides:
+        return ["- External label overrides: none"]
+    source = label_overrides.get("source") if isinstance(label_overrides.get("source"), dict) else {}
+    return [
+        f"- External label override file: `{source.get('path') or 'unknown'}`",
+        f"- External label override rows: {_int_text(source.get('rows'))}",
+        f"- External label matches: {_int_text(summary.get('matched_rows'))}",
+        f"- External label skipped rows: {_int_text(summary.get('skipped_rows'))}",
+    ]
+
+
+def _label_interpretation_lines(model: dict[str, Any], label_override_summary: dict[str, Any]) -> list[str]:
+    source = str(model.get("label_source") or "")
+    if source == "external_labels" or int(label_override_summary.get("matched_rows") or 0) > 0:
+        return [
+            "- Some or all labels were supplied from an external label CSV.",
+            "- Validation accuracy measures agreement with the selected training labels, which may include real or curated outcomes.",
+        ]
+    return [
+        "- Labels are generated from deterministic calculator outputs, not real tabletop results.",
+        "- Validation accuracy measures agreement with the calculator-derived labels.",
+    ]
 
 
 def _label_counts(rows: Sequence[dict[str, Any]], label_column: str) -> dict[str, int]:

@@ -6,18 +6,18 @@
 - Calculations enabled: yes
 - Ruleset available: yes
 - Supported rulesets: `10e`
-- Data directory: `data/latest`
-- Source commit: `32b4525d9f69f062f3458d517c6cf82512ef6fef`
+- Data directory: `data/10e/latest`
+- Source commit: `1228d35e79bcf02a5e70ec94e422b7ffce4f980e`
 
 ## Data Counts
 
 | Table | Rows |
 | --- | ---: |
-| units | 1464 |
-| weapons | 8628 |
-| abilities | 3124 |
-| keywords | 1407 |
-| unit_keywords | 9523 |
+| units | 1471 |
+| weapons | 8655 |
+| abilities | 3143 |
+| keywords | 1413 |
+| unit_keywords | 9576 |
 
 ## Audit Summary
 

@@ -32,7 +32,8 @@ def battlefield_templates_payload() -> Dict[str, Any]:
         "rules": {
             "preset": "tactical_mvp_v1",
             "assumptions": [
-                "Terrain uses rectangular footprints with cover and line-of-sight flags.",
+                "Terrain uses varied visual shapes with rectangular rules footprints for MVP movement and line-of-sight checks.",
+                "Multi-storey terrain records a storey count for display and future vertical movement rules.",
                 "Deployment zones are fixed rectangles for the MVP.",
                 "Objective control is based on unit centre distance to the objective marker.",
             ],
@@ -53,11 +54,13 @@ def generated_map_payload(template_id: str = "strike_force_44x60") -> Dict[str, 
 def _generated_map(template_id: str, name: str, width: float, height: float) -> BattleMap:
     dz_depth = 10.0 if height <= 60 else 14.0
     terrain = [
-        TerrainFeature("ruin-nw", "Northwest ruin", "ruin", 5, height * 0.22, 10, 8, True, True, 2),
-        TerrainFeature("ruin-se", "Southeast ruin", "ruin", width - 15, height * 0.64, 10, 8, True, True, 2),
-        TerrainFeature("forest-sw", "Southwest woods", "woods", 7, height * 0.68, 8, 7, True, False, 1),
-        TerrainFeature("forest-ne", "Northeast woods", "woods", width - 15, height * 0.2, 8, 7, True, False, 1),
-        TerrainFeature("crater-mid", "Central crater", "crater", width / 2 - 5, height / 2 - 4, 10, 8, True, False, 0),
+        TerrainFeature("ruin-nw", "Northwest ruin", "ruin", 5, height * 0.22, 10, 8, "rectangle", 2, True, True, 2),
+        TerrainFeature("ruin-se", "Southeast ruin", "ruin", width - 15, height * 0.64, 10, 8, "rectangle", 3, True, True, 2),
+        TerrainFeature("forest-sw", "Southwest woods", "woods", 7, height * 0.68, 8, 7, "ellipse", 1, True, False, 1),
+        TerrainFeature("forest-ne", "Northeast woods", "woods", width - 15, height * 0.2, 8, 7, "ellipse", 1, True, False, 1),
+        TerrainFeature("crater-mid", "Central crater", "crater", width / 2 - 5, height / 2 - 4, 10, 8, "ellipse", 1, True, False, 0),
+        TerrainFeature("barricade-west", "West barricade", "barricade", width * 0.18, height * 0.47, 7, 1.2, "diamond", 1, True, False, 0.5),
+        TerrainFeature("barricade-east", "East barricade", "barricade", width * 0.66, height * 0.47, 7, 1.2, "diamond", 1, True, False, 0.5),
     ]
     objectives = [
         Objective("obj-home-red", "Red home", width / 2, dz_depth / 2, 3, 5),

@@ -60,10 +60,13 @@ _ERROR_ISSUES = {
 
 _REQUIRED_CSV_HEADERS = {
     "units": UNIT_HEADERS,
-    "weapons": WEAPON_HEADERS,
+    "weapons": [header for header in WEAPON_HEADERS if header != "range_inches"],
     "abilities": ABILITY_HEADERS,
     "keywords": KEYWORD_HEADERS,
     "unit_keywords": UNIT_KEYWORD_HEADERS,
+}
+_OPTIONAL_CSV_HEADERS = {
+    "weapons": ["range_inches"],
 }
 
 _CSV_FILENAMES = {
@@ -265,7 +268,8 @@ def build_schema_review_rows(csv_dir: Path) -> List[Dict[str, str]]:
         _rows, actual_headers = _load_optional_csv_with_headers(csv_dir, filename)
         required = list(required_headers)
         missing = [header for header in required if header not in actual_headers]
-        extra = [header for header in actual_headers if header not in required]
+        optional = _OPTIONAL_CSV_HEADERS.get(table, [])
+        extra = [header for header in actual_headers if header not in required and header not in optional]
         rows.append(
             {
                 "table": table,

@@ -1,38 +1,38 @@
-source_file,source_url,factions,units,weapon_profiles,ability_profiles,suspicious_weapon_profiles,unit_profile_issue_rows,loadout_review_rows,duplicate_name_unit_rows,no_weapon_units
-Imperium - Space Marines.cat,https://github.com/BSData/wh40k-10e/blob/32b4525d9f69f062f3458d517c6cf82512ef6fef/Imperium%20-%20Space%20Marines.cat,Imperium - Adeptus Astartes - Space Marines,132,1342,212,0,1,39,18,1
-Aeldari - Aeldari Library.cat,https://github.com/BSData/wh40k-10e/blob/32b4525d9f69f062f3458d517c6cf82512ef6fef/Aeldari%20-%20Aeldari%20Library.cat,Aeldari - Aeldari Library,127,667,380,1,0,22,0,1
-Imperium - Astra Militarum - Library.cat,https://github.com/BSData/wh40k-10e/blob/32b4525d9f69f062f3458d517c6cf82512ef6fef/Imperium%20-%20Astra%20Militarum%20-%20Library.cat,Imperium - Astra Militarum - Library,115,746,154,4,0,36,2,2
-Orks.cat,https://github.com/BSData/wh40k-10e/blob/32b4525d9f69f062f3458d517c6cf82512ef6fef/Orks.cat,Xenos - Orks,97,501,145,7,0,10,0,1
-Chaos - Chaos Space Marines.cat,https://github.com/BSData/wh40k-10e/blob/32b4525d9f69f062f3458d517c6cf82512ef6fef/Chaos%20-%20Chaos%20Space%20Marines.cat,Chaos - Chaos Space Marines,84,532,192,0,1,24,27,0
-T'au Empire.cat,https://github.com/BSData/wh40k-10e/blob/32b4525d9f69f062f3458d517c6cf82512ef6fef/T%27au%20Empire.cat,Xenos - T'au Empire,68,440,104,10,0,17,0,2
-Chaos - Chaos Daemons Library.cat,https://github.com/BSData/wh40k-10e/blob/32b4525d9f69f062f3458d517c6cf82512ef6fef/Chaos%20-%20Chaos%20Daemons%20Library.cat,Chaos - Daemons Library,68,232,201,0,0,3,22,2
-Necrons.cat,https://github.com/BSData/wh40k-10e/blob/32b4525d9f69f062f3458d517c6cf82512ef6fef/Necrons.cat,Xenos - Necrons,67,241,153,5,0,3,0,0
-Chaos - Death Guard.cat,https://github.com/BSData/wh40k-10e/blob/32b4525d9f69f062f3458d517c6cf82512ef6fef/Chaos%20-%20Death%20Guard.cat,Chaos - Death Guard,51,308,116,0,0,11,22,0
-Imperium - Agents of the Imperium.cat,https://github.com/BSData/wh40k-10e/blob/32b4525d9f69f062f3458d517c6cf82512ef6fef/Imperium%20-%20Agents%20of%20the%20Imperium.cat,Imperium - Agents of the Imperium,49,416,136,0,0,18,6,0
-Imperium - Adeptus Mechanicus.cat,https://github.com/BSData/wh40k-10e/blob/32b4525d9f69f062f3458d517c6cf82512ef6fef/Imperium%20-%20Adeptus%20Mechanicus.cat,Imperium - Adeptus Mechanicus,44,267,99,0,0,7,3,0
-Chaos - Thousand Sons.cat,https://github.com/BSData/wh40k-10e/blob/32b4525d9f69f062f3458d517c6cf82512ef6fef/Chaos%20-%20Thousand%20Sons.cat,Chaos - Thousand Sons,42,255,111,0,0,8,24,0
-Tyranids.cat,https://github.com/BSData/wh40k-10e/blob/32b4525d9f69f062f3458d517c6cf82512ef6fef/Tyranids.cat,Xenos - Tyranids,41,101,61,1,0,2,0,0
-Imperium - Space Wolves.cat,https://github.com/BSData/wh40k-10e/blob/32b4525d9f69f062f3458d517c6cf82512ef6fef/Imperium%20-%20Space%20Wolves.cat,Imperium - Adeptus Astartes - Space Wolves,40,145,92,0,0,12,1,0
-Library - Astartes Heresy Legends.cat,https://github.com/BSData/wh40k-10e/blob/32b4525d9f69f062f3458d517c6cf82512ef6fef/Library%20-%20Astartes%20Heresy%20Legends.cat,Library - Astartes Heresy Legends,37,274,50,1,0,10,1,1
-Imperium - Grey Knights.cat,https://github.com/BSData/wh40k-10e/blob/32b4525d9f69f062f3458d517c6cf82512ef6fef/Imperium%20-%20Grey%20Knights.cat,Imperium - Grey Knights,35,278,61,0,0,8,10,0
-Chaos - World Eaters.cat,https://github.com/BSData/wh40k-10e/blob/32b4525d9f69f062f3458d517c6cf82512ef6fef/Chaos%20-%20World%20Eaters.cat,Chaos - World Eaters,35,191,86,0,0,6,21,1
-Imperium - Adepta Sororitas.cat,https://github.com/BSData/wh40k-10e/blob/32b4525d9f69f062f3458d517c6cf82512ef6fef/Imperium%20-%20Adepta%20Sororitas.cat,Imperium - Adepta Sororitas,34,211,102,0,1,6,2,1
-Imperium - Adeptus Custodes.cat,https://github.com/BSData/wh40k-10e/blob/32b4525d9f69f062f3458d517c6cf82512ef6fef/Imperium%20-%20Adeptus%20Custodes.cat,Imperium - Adeptus Custodes,34,141,70,0,0,3,0,0
-Imperium - Blood Angels.cat,https://github.com/BSData/wh40k-10e/blob/32b4525d9f69f062f3458d517c6cf82512ef6fef/Imperium%20-%20Blood%20Angels.cat,Imperium - Adeptus Astartes - Blood Angels,27,54,63,0,0,7,0,0
-Leagues of Votann.cat,https://github.com/BSData/wh40k-10e/blob/32b4525d9f69f062f3458d517c6cf82512ef6fef/Leagues%20of%20Votann.cat,Xenos - Leagues of Votann,26,199,55,0,0,5,0,0
-Chaos - Emperor's Children.cat,https://github.com/BSData/wh40k-10e/blob/32b4525d9f69f062f3458d517c6cf82512ef6fef/Chaos%20-%20Emperor%27s%20Children.cat,Chaos - Emperor's Children,26,178,66,0,0,6,14,0
-Genestealer Cults.cat,https://github.com/BSData/wh40k-10e/blob/32b4525d9f69f062f3458d517c6cf82512ef6fef/Genestealer%20Cults.cat,Xenos - Genestealer Cults,26,166,55,0,0,5,0,0
-Imperium - Imperial Knights - Library.cat,https://github.com/BSData/wh40k-10e/blob/32b4525d9f69f062f3458d517c6cf82512ef6fef/Imperium%20-%20Imperial%20Knights%20-%20Library.cat,Imperium - Imperial Knights - Library,22,152,25,4,0,7,0,0
-Unaligned Forces.cat,https://github.com/BSData/wh40k-10e/blob/32b4525d9f69f062f3458d517c6cf82512ef6fef/Unaligned%20Forces.cat,Unaligned Forces,22,60,21,2,2,1,0,4
-Chaos - Chaos Knights Library.cat,https://github.com/BSData/wh40k-10e/blob/32b4525d9f69f062f3458d517c6cf82512ef6fef/Chaos%20-%20Chaos%20Knights%20Library.cat,Chaos - Chaos Knights Library,20,112,51,3,0,2,0,0
-Imperium - Black Templars.cat,https://github.com/BSData/wh40k-10e/blob/32b4525d9f69f062f3458d517c6cf82512ef6fef/Imperium%20-%20Black%20Templars.cat,Imperium - Adeptus Astartes - Black Templars,20,45,44,0,0,8,9,0
-Imperium - Dark Angels.cat,https://github.com/BSData/wh40k-10e/blob/32b4525d9f69f062f3458d517c6cf82512ef6fef/Imperium%20-%20Dark%20Angels.cat,Imperium - Adeptus Astartes - Dark Angels,19,72,67,0,0,2,0,0
-Library - Tyranids.cat,https://github.com/BSData/wh40k-10e/blob/32b4525d9f69f062f3458d517c6cf82512ef6fef/Library%20-%20Tyranids.cat,Library - Tyranids,16,138,25,4,0,3,0,0
-Imperium - Ultramarines.cat,https://github.com/BSData/wh40k-10e/blob/32b4525d9f69f062f3458d517c6cf82512ef6fef/Imperium%20-%20Ultramarines.cat,Imperium - Adeptus Astartes - Ultramarines,15,32,43,0,0,1,0,0
-Imperium - Deathwatch.cat,https://github.com/BSData/wh40k-10e/blob/32b4525d9f69f062f3458d517c6cf82512ef6fef/Imperium%20-%20Deathwatch.cat,Imperium - Adeptus Astartes - Deathwatch,10,75,27,0,0,7,4,0
-Library - Titans.cat,https://github.com/BSData/wh40k-10e/blob/32b4525d9f69f062f3458d517c6cf82512ef6fef/Library%20-%20Titans.cat,Library - Titans,4,36,17,16,0,3,0,0
-Imperium - Imperial Fists.cat,https://github.com/BSData/wh40k-10e/blob/32b4525d9f69f062f3458d517c6cf82512ef6fef/Imperium%20-%20Imperial%20Fists.cat,Imperium - Adeptus Astartes - Imperial Fists,3,5,11,0,0,0,0,0
-Imperium - Iron Hands.cat,https://github.com/BSData/wh40k-10e/blob/32b4525d9f69f062f3458d517c6cf82512ef6fef/Imperium%20-%20Iron%20Hands.cat,Imperium - Adeptus Astartes - Iron Hands,2,5,8,0,0,0,0,0
-Imperium - Salamanders.cat,https://github.com/BSData/wh40k-10e/blob/32b4525d9f69f062f3458d517c6cf82512ef6fef/Imperium%20-%20Salamanders.cat,Imperium - Adeptus Astartes - Salamanders,2,4,7,0,0,0,0,0
-Imperium - White Scars.cat,https://github.com/BSData/wh40k-10e/blob/32b4525d9f69f062f3458d517c6cf82512ef6fef/Imperium%20-%20White%20Scars.cat,Imperium - Adeptus Astartes - White Scars,2,4,7,0,0,0,0,0
-Imperium - Raven Guard.cat,https://github.com/BSData/wh40k-10e/blob/32b4525d9f69f062f3458d517c6cf82512ef6fef/Imperium%20-%20Raven%20Guard.cat,Imperium - Adeptus Astartes - Raven Guard,2,3,7,0,0,0,0,0
+source_file,source_url,factions,units,weapon_profiles,ability_profiles,suspicious_weapon_profiles,unit_profile_issue_rows,loadout_review_rows,duplicate_name_unit_rows,no_weapon_units,ranged_weapons_missing_range
+Imperium - Space Marines.cat,https://github.com/BSData/wh40k-10e/blob/1228d35e79bcf02a5e70ec94e422b7ffce4f980e/Imperium%20-%20Space%20Marines.cat,Imperium - Adeptus Astartes - Space Marines,132,1342,212,0,1,39,18,1,0
+Aeldari - Aeldari Library.cat,https://github.com/BSData/wh40k-10e/blob/1228d35e79bcf02a5e70ec94e422b7ffce4f980e/Aeldari%20-%20Aeldari%20Library.cat,Aeldari - Aeldari Library,127,667,380,1,0,22,0,1,0
+Imperium - Astra Militarum - Library.cat,https://github.com/BSData/wh40k-10e/blob/1228d35e79bcf02a5e70ec94e422b7ffce4f980e/Imperium%20-%20Astra%20Militarum%20-%20Library.cat,Imperium - Astra Militarum - Library,119,760,167,4,0,36,2,2,1
+Orks.cat,https://github.com/BSData/wh40k-10e/blob/1228d35e79bcf02a5e70ec94e422b7ffce4f980e/Orks.cat,Xenos - Orks,98,505,148,7,0,10,0,1,0
+Chaos - Chaos Space Marines.cat,https://github.com/BSData/wh40k-10e/blob/1228d35e79bcf02a5e70ec94e422b7ffce4f980e/Chaos%20-%20Chaos%20Space%20Marines.cat,Chaos - Chaos Space Marines,84,532,191,0,1,24,27,0,0
+T'au Empire.cat,https://github.com/BSData/wh40k-10e/blob/1228d35e79bcf02a5e70ec94e422b7ffce4f980e/T%27au%20Empire.cat,Xenos - T'au Empire,68,440,104,10,0,17,0,2,0
+Chaos - Chaos Daemons Library.cat,https://github.com/BSData/wh40k-10e/blob/1228d35e79bcf02a5e70ec94e422b7ffce4f980e/Chaos%20-%20Chaos%20Daemons%20Library.cat,Chaos - Daemons Library,68,232,201,0,0,3,22,2,0
+Necrons.cat,https://github.com/BSData/wh40k-10e/blob/1228d35e79bcf02a5e70ec94e422b7ffce4f980e/Necrons.cat,Xenos - Necrons,67,241,153,5,0,3,0,0,0
+Chaos - Death Guard.cat,https://github.com/BSData/wh40k-10e/blob/1228d35e79bcf02a5e70ec94e422b7ffce4f980e/Chaos%20-%20Death%20Guard.cat,Chaos - Death Guard,51,308,116,0,0,11,22,0,0
+Imperium - Agents of the Imperium.cat,https://github.com/BSData/wh40k-10e/blob/1228d35e79bcf02a5e70ec94e422b7ffce4f980e/Imperium%20-%20Agents%20of%20the%20Imperium.cat,Imperium - Agents of the Imperium,50,420,138,0,0,18,6,0,0
+Imperium - Adeptus Mechanicus.cat,https://github.com/BSData/wh40k-10e/blob/1228d35e79bcf02a5e70ec94e422b7ffce4f980e/Imperium%20-%20Adeptus%20Mechanicus.cat,Imperium - Adeptus Mechanicus,44,267,99,0,0,7,3,0,0
+Chaos - Thousand Sons.cat,https://github.com/BSData/wh40k-10e/blob/1228d35e79bcf02a5e70ec94e422b7ffce4f980e/Chaos%20-%20Thousand%20Sons.cat,Chaos - Thousand Sons,42,255,111,0,0,8,24,0,0
+Tyranids.cat,https://github.com/BSData/wh40k-10e/blob/1228d35e79bcf02a5e70ec94e422b7ffce4f980e/Tyranids.cat,Xenos - Tyranids,41,101,61,1,0,2,0,0,0
+Imperium - Space Wolves.cat,https://github.com/BSData/wh40k-10e/blob/1228d35e79bcf02a5e70ec94e422b7ffce4f980e/Imperium%20-%20Space%20Wolves.cat,Imperium - Adeptus Astartes - Space Wolves,40,145,92,0,0,12,1,0,0
+Library - Astartes Heresy Legends.cat,https://github.com/BSData/wh40k-10e/blob/1228d35e79bcf02a5e70ec94e422b7ffce4f980e/Library%20-%20Astartes%20Heresy%20Legends.cat,Library - Astartes Heresy Legends,37,274,50,1,0,10,1,1,1
+Imperium - Grey Knights.cat,https://github.com/BSData/wh40k-10e/blob/1228d35e79bcf02a5e70ec94e422b7ffce4f980e/Imperium%20-%20Grey%20Knights.cat,Imperium - Grey Knights,35,278,61,0,0,8,10,0,0
+Imperium - Adepta Sororitas.cat,https://github.com/BSData/wh40k-10e/blob/1228d35e79bcf02a5e70ec94e422b7ffce4f980e/Imperium%20-%20Adepta%20Sororitas.cat,Imperium - Adepta Sororitas,35,216,104,0,1,6,2,1,0
+Chaos - World Eaters.cat,https://github.com/BSData/wh40k-10e/blob/1228d35e79bcf02a5e70ec94e422b7ffce4f980e/Chaos%20-%20World%20Eaters.cat,Chaos - World Eaters,35,191,86,0,0,6,21,1,0
+Imperium - Adeptus Custodes.cat,https://github.com/BSData/wh40k-10e/blob/1228d35e79bcf02a5e70ec94e422b7ffce4f980e/Imperium%20-%20Adeptus%20Custodes.cat,Imperium - Adeptus Custodes,34,141,70,0,0,3,0,0,0
+Imperium - Blood Angels.cat,https://github.com/BSData/wh40k-10e/blob/1228d35e79bcf02a5e70ec94e422b7ffce4f980e/Imperium%20-%20Blood%20Angels.cat,Imperium - Adeptus Astartes - Blood Angels,27,54,63,0,0,7,0,0,0
+Leagues of Votann.cat,https://github.com/BSData/wh40k-10e/blob/1228d35e79bcf02a5e70ec94e422b7ffce4f980e/Leagues%20of%20Votann.cat,Xenos - Leagues of Votann,26,199,55,0,0,5,0,0,0
+Chaos - Emperor's Children.cat,https://github.com/BSData/wh40k-10e/blob/1228d35e79bcf02a5e70ec94e422b7ffce4f980e/Chaos%20-%20Emperor%27s%20Children.cat,Chaos - Emperor's Children,26,178,66,0,0,6,14,0,0
+Genestealer Cults.cat,https://github.com/BSData/wh40k-10e/blob/1228d35e79bcf02a5e70ec94e422b7ffce4f980e/Genestealer%20Cults.cat,Xenos - Genestealer Cults,26,166,55,0,0,5,0,0,0
+Imperium - Imperial Knights - Library.cat,https://github.com/BSData/wh40k-10e/blob/1228d35e79bcf02a5e70ec94e422b7ffce4f980e/Imperium%20-%20Imperial%20Knights%20-%20Library.cat,Imperium - Imperial Knights - Library,22,152,25,4,0,7,0,0,0
+Unaligned Forces.cat,https://github.com/BSData/wh40k-10e/blob/1228d35e79bcf02a5e70ec94e422b7ffce4f980e/Unaligned%20Forces.cat,Unaligned Forces,22,60,21,2,2,1,0,4,0
+Chaos - Chaos Knights Library.cat,https://github.com/BSData/wh40k-10e/blob/1228d35e79bcf02a5e70ec94e422b7ffce4f980e/Chaos%20-%20Chaos%20Knights%20Library.cat,Chaos - Chaos Knights Library,20,112,51,3,0,2,0,0,0
+Imperium - Black Templars.cat,https://github.com/BSData/wh40k-10e/blob/1228d35e79bcf02a5e70ec94e422b7ffce4f980e/Imperium%20-%20Black%20Templars.cat,Imperium - Adeptus Astartes - Black Templars,20,45,44,0,0,8,9,0,0
+Imperium - Dark Angels.cat,https://github.com/BSData/wh40k-10e/blob/1228d35e79bcf02a5e70ec94e422b7ffce4f980e/Imperium%20-%20Dark%20Angels.cat,Imperium - Adeptus Astartes - Dark Angels,19,72,67,0,0,2,0,0,0
+Library - Tyranids.cat,https://github.com/BSData/wh40k-10e/blob/1228d35e79bcf02a5e70ec94e422b7ffce4f980e/Library%20-%20Tyranids.cat,Library - Tyranids,16,138,25,4,0,3,0,0,0
+Imperium - Ultramarines.cat,https://github.com/BSData/wh40k-10e/blob/1228d35e79bcf02a5e70ec94e422b7ffce4f980e/Imperium%20-%20Ultramarines.cat,Imperium - Adeptus Astartes - Ultramarines,15,32,43,0,0,1,0,0,0
+Imperium - Deathwatch.cat,https://github.com/BSData/wh40k-10e/blob/1228d35e79bcf02a5e70ec94e422b7ffce4f980e/Imperium%20-%20Deathwatch.cat,Imperium - Adeptus Astartes - Deathwatch,10,75,27,0,0,7,4,0,0
+Library - Titans.cat,https://github.com/BSData/wh40k-10e/blob/1228d35e79bcf02a5e70ec94e422b7ffce4f980e/Library%20-%20Titans.cat,Library - Titans,4,36,17,16,0,3,0,0,0
+Imperium - Imperial Fists.cat,https://github.com/BSData/wh40k-10e/blob/1228d35e79bcf02a5e70ec94e422b7ffce4f980e/Imperium%20-%20Imperial%20Fists.cat,Imperium - Adeptus Astartes - Imperial Fists,3,5,11,0,0,0,0,0,0
+Imperium - Iron Hands.cat,https://github.com/BSData/wh40k-10e/blob/1228d35e79bcf02a5e70ec94e422b7ffce4f980e/Imperium%20-%20Iron%20Hands.cat,Imperium - Adeptus Astartes - Iron Hands,2,5,8,0,0,0,0,0,0
+Imperium - Salamanders.cat,https://github.com/BSData/wh40k-10e/blob/1228d35e79bcf02a5e70ec94e422b7ffce4f980e/Imperium%20-%20Salamanders.cat,Imperium - Adeptus Astartes - Salamanders,2,4,7,0,0,0,0,0,0
+Imperium - White Scars.cat,https://github.com/BSData/wh40k-10e/blob/1228d35e79bcf02a5e70ec94e422b7ffce4f980e/Imperium%20-%20White%20Scars.cat,Imperium - Adeptus Astartes - White Scars,2,4,7,0,0,0,0,0,0
+Imperium - Raven Guard.cat,https://github.com/BSData/wh40k-10e/blob/1228d35e79bcf02a5e70ec94e422b7ffce4f980e/Imperium%20-%20Raven%20Guard.cat,Imperium - Adeptus Astartes - Raven Guard,2,3,7,0,0,0,0,0,0

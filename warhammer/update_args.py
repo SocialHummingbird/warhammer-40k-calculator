@@ -6,6 +6,8 @@ from pathlib import Path
 
 from warhammer.update_config import DEFAULT_EDITION, UpdatePaths, edition_latest_dir, edition_snapshot_dir
 
+DEFAULT_ML_LABEL_KEY_COLUMNS = ["edition", "mode", "attacker_id", "defender_id"]
+
 
 def build_update_arg_parser(
     *,
@@ -25,6 +27,18 @@ def build_update_arg_parser(
     parser.add_argument("--ml-strategy", choices=["sample", "sequential"], default="sample", help="ML feature row selection strategy")
     parser.add_argument("--ml-seed", type=int, default=40, help="Random seed for sampled ML feature exports")
     parser.add_argument("--ml-feature-set", choices=["pre_match", "full"], default="pre_match", help="ML feature set to train")
+    parser.add_argument(
+        "--ml-labels",
+        type=Path,
+        default=None,
+        help="Optional external matchup label CSV to use when training and comparing ML advisory models",
+    )
+    parser.add_argument(
+        "--ml-label-key-columns",
+        nargs="+",
+        default=DEFAULT_ML_LABEL_KEY_COLUMNS,
+        help="Feature/label CSV columns used to match --ml-labels rows to generated ML feature rows",
+    )
     parser.add_argument(
         "--ml-model-type",
         choices=sorted(model_types),

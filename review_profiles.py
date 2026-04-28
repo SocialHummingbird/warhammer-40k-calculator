@@ -28,6 +28,7 @@ WEAPON_REVIEW_HEADERS = [
     "weapon_id",
     "weapon_name",
     "weapon_type",
+    "range_inches",
     "attacks",
     "skill",
     "strength",
@@ -118,6 +119,8 @@ UNIT_WEAPON_COVERAGE_HEADERS = [
     "models_max",
     "total_weapons",
     "ranged_weapons",
+    "ranged_weapons_with_range",
+    "ranged_weapons_missing_range",
     "melee_weapons",
     "coverage",
 ]
@@ -141,6 +144,7 @@ SOURCE_CATALOGUE_REVIEW_HEADERS = [
     "loadout_review_rows",
     "duplicate_name_unit_rows",
     "no_weapon_units",
+    "ranged_weapons_missing_range",
 ]
 
 UNIT_PROFILE_REVIEW_HEADERS = [
@@ -265,6 +269,7 @@ def build_weapon_review_rows(
                 "weapon_id": weapon.get("weapon_id", ""),
                 "weapon_name": weapon.get("name", ""),
                 "weapon_type": weapon.get("weapon_type", ""),
+                "range_inches": weapon.get("range_inches", ""),
                 "attacks": weapon.get("attacks", ""),
                 "skill": weapon.get("skill", ""),
                 "strength": weapon.get("strength", ""),
@@ -697,18 +702,25 @@ def build_unit_weapon_coverage_rows(
     weapons: Iterable[Dict[str, str]],
 ) -> List[Dict[str, str]]:
     counts: Dict[str, Counter[str]] = {}
+    range_counts: Dict[str, Counter[str]] = {}
     for weapon in weapons:
         unit_id = weapon.get("unit_id", "")
         if not unit_id:
             continue
         weapon_type = (weapon.get("weapon_type") or "").strip().lower()
         counts.setdefault(unit_id, Counter())[weapon_type] += 1
+        if weapon_type == "ranged":
+            bucket = "with_range" if (weapon.get("range_inches") or "").strip() else "missing_range"
+            range_counts.setdefault(unit_id, Counter())[bucket] += 1
 
     rows: List[Dict[str, str]] = []
     for unit in units:
         unit_id = unit.get("unit_id", "")
         unit_counts = counts.get(unit_id, Counter())
+        unit_range_counts = range_counts.get(unit_id, Counter())
         ranged = unit_counts.get("ranged", 0)
+        ranged_with_range = unit_range_counts.get("with_range", 0)
+        ranged_missing_range = unit_range_counts.get("missing_range", 0)
         melee = unit_counts.get("melee", 0)
         total = sum(unit_counts.values())
         if ranged and melee:
@@ -731,6 +743,8 @@ def build_unit_weapon_coverage_rows(
                 "models_max": unit.get("models_max", ""),
                 "total_weapons": str(total),
                 "ranged_weapons": str(ranged),
+                "ranged_weapons_with_range": str(ranged_with_range),
+                "ranged_weapons_missing_range": str(ranged_missing_range),
                 "melee_weapons": str(melee),
                 "coverage": coverage,
             }
@@ -857,6 +871,11 @@ def build_source_catalogue_review_rows(
         for row in weapon_coverage_rows
         if row.get("coverage") == "no_weapons"
     )
+    missing_range_counts: Counter[str] = Counter()
+    for row in weapon_coverage_rows:
+        missing = int(row.get("ranged_weapons_missing_range") or 0)
+        if missing:
+            missing_range_counts[_source_label(row.get("source_file", ""))] += missing
 
     rows: List[Dict[str, str]] = []
     for source in all_sources:
@@ -873,6 +892,7 @@ def build_source_catalogue_review_rows(
                 "loadout_review_rows": str(loadout_counts[source]),
                 "duplicate_name_unit_rows": str(variant_counts[source]),
                 "no_weapon_units": str(no_weapon_counts[source]),
+                "ranged_weapons_missing_range": str(missing_range_counts[source]),
             }
         )
     return sorted(
@@ -940,6 +960,9 @@ def build_profile_review_markdown(
     unit_weapon_counts = Counter(row.get("unit_name", "") or "<unknown unit>" for row in weapon_rows)
     variant_name_counts = Counter(row.get("unit_name", "") or "<unknown unit>" for row in unit_variant_rows)
     coverage_counts = Counter(row.get("coverage", "") or "<unknown>" for row in weapon_coverage_rows)
+    ranged_weapon_rows = [row for row in weapon_rows if (row.get("weapon_type") or "").lower() == "ranged"]
+    ranged_with_range = sum(1 for row in ranged_weapon_rows if (row.get("range_inches") or "").strip())
+    ranged_missing_range = len(ranged_weapon_rows) - ranged_with_range
     modifier_type_counts = Counter(row.get("modifier_type", "") or "<unknown>" for row in ability_modifier_rows)
     unit_profile_issue_counts = Counter(row.get("review_severity") or "ok" for row in unit_profile_rows)
     unit_profile_category_counts = Counter(row.get("review_category") or "ok" for row in unit_profile_rows)
@@ -972,6 +995,8 @@ def build_profile_review_markdown(
         "| --- | ---: |",
         f"| Units | {len(units)} |",
         f"| Weapon profiles | {len(weapon_rows)} |",
+        f"| Ranged weapon profiles with range | {ranged_with_range} |",
+        f"| Ranged weapon profiles missing range | {ranged_missing_range} |",
         f"| Suspicious weapon profiles | {len(suspicious_weapon_rows)} |",
         f"| Unit profile review rows | {len(unit_profile_rows)} |",
         f"| Unit profile issue rows | {sum(count for severity, count in unit_profile_issue_counts.items() if severity != 'ok')} |",
@@ -1174,6 +1199,18 @@ def build_profile_review_markdown(
     )
     for coverage, count in sorted(coverage_counts.items()):
         lines.append(f"| {coverage} | {count} |")
+
+    lines.extend(
+        [
+            "",
+            "## Ranged Weapon Range Coverage",
+            "",
+            "| Status | Weapon Profiles |",
+            "| --- | ---: |",
+            f"| Explicit range | {ranged_with_range} |",
+            f"| Missing range | {ranged_missing_range} |",
+        ]
+    )
 
     loadout_reason_counts = Counter()
     loadout_severity_counts = Counter(row.get("review_severity") or "unknown" for row in loadout_rows)

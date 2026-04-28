@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 import xml.etree.ElementTree as ET
 from pathlib import Path
 from typing import Dict, Iterable, List, Optional, Sequence, Tuple
@@ -502,7 +503,8 @@ def _weapon_from_profile(profile: ET.Element, unit_id: str, *, source_file: str 
         or ""
     )
 
-    range_value = (characteristics.get("Range") or "").strip().lower()
+    range_value_raw = characteristics.get("Range") or ""
+    range_value = range_value_raw.strip().lower()
     type_hint = (profile.get("typeName") or "").strip().lower()
     if "melee" in type_hint:
         weapon_type = "melee"
@@ -524,6 +526,7 @@ def _weapon_from_profile(profile: ET.Element, unit_id: str, *, source_file: str 
         ap=ap,
         damage=damage,
         keywords=keywords,
+        range_inches=_parse_range_inches(range_value_raw),
         reroll_hits=characteristics.get("Reroll Hits", ""),
         reroll_wounds=characteristics.get("Reroll Wounds", ""),
         lethal_hits=characteristics.get("Lethal Hits", ""),
@@ -587,6 +590,17 @@ def _ability_rows_from_entry(
         rows.append(ability_row)
         seen.add(ability_key)
     return rows
+
+
+def _parse_range_inches(value: str) -> str:
+    text = (value or "").strip().lower()
+    if not text or text in {"melee", "-", "n/a", "na", "none"}:
+        return ""
+    match = re.search(r"\d+(?:\.\d+)?", text)
+    if not match:
+        return ""
+    number = float(match.group(0))
+    return str(int(number)) if number.is_integer() else str(number)
 
 
 def _extract_characteristics(profiles: Iterable[ET.Element]) -> Dict[str, str]:

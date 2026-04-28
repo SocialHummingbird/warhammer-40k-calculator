@@ -48,6 +48,52 @@ def test_refresh_ml_artifacts_builds_update_commands(tmp_path):
     assert all(cwd == tmp_path for _, cwd in commands)
 
 
+def test_refresh_ml_artifacts_passes_external_labels_to_training_and_comparison(tmp_path):
+    commands = []
+    csv_dir = tmp_path / "data" / "10e" / "latest"
+    labels_path = tmp_path / "labels.csv"
+    ml_root = tmp_path / "data" / "ml"
+    model_root = tmp_path / "models"
+    csv_dir.mkdir(parents=True)
+    labels_path.write_text("edition,attacker_id,defender_id,winner_label\n", encoding="utf-8")
+
+    def capture(command, cwd):
+        commands.append((list(command), cwd))
+        if command[1] == "export_ml_features.py":
+            output = command[command.index("--output") + 1]
+            path = Path(output)
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text("winner_label\nattacker\n", encoding="utf-8")
+
+    refresh_ml_artifacts(
+        csv_dir=csv_dir,
+        edition="10e",
+        max_rows=500,
+        strategy="sample",
+        seed=42,
+        feature_set="pre_match",
+        model_type="centroid",
+        label_overrides_path=labels_path,
+        label_key_columns=["edition", "attacker_id", "defender_id"],
+        ml_root=ml_root,
+        model_root=model_root,
+        project_root=tmp_path,
+        command_runner=capture,
+        python_executable="python",
+        supported_rulesets={"10e"},
+    )
+
+    train_command = next(command for command, _ in commands if command[1] == "train_ml_model.py")
+    comparison_command = next(command for command, _ in commands if command[1] == "compare_ml_models.py")
+    for command in (train_command, comparison_command):
+        assert command[command.index("--labels") + 1] == str(labels_path)
+        assert command[command.index("--label-key-columns") + 1 : command.index("--label-key-columns") + 4] == [
+            "edition",
+            "attacker_id",
+            "defender_id",
+        ]
+
+
 def test_refresh_ml_artifacts_skips_unsupported_ruleset(tmp_path):
     messages = []
     commands = []

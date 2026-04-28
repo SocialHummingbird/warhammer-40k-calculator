@@ -280,6 +280,8 @@ def _loadout_row(row: Dict[str, str]) -> Dict[str, str]:
         "models_max": row.get("models_max", ""),
         "total_weapons": row.get("total_weapons", ""),
         "ranged_weapons": row.get("ranged_weapons", ""),
+        "ranged_weapons_with_range": row.get("ranged_weapons_with_range", ""),
+        "ranged_weapons_missing_range": row.get("ranged_weapons_missing_range", ""),
         "melee_weapons": row.get("melee_weapons", ""),
         "coverage": row.get("coverage", ""),
         "review_reason": row.get("review_reason", ""),
@@ -303,6 +305,7 @@ def source_catalogue_summary(path: Path, *, row_limit: int = 20) -> Optional[Dic
         "loadout_review_rows": 0,
         "duplicate_name_unit_rows": 0,
         "no_weapon_units": 0,
+        "ranged_weapons_missing_range": 0,
     }
     for row in rows:
         for key in totals:
@@ -340,6 +343,7 @@ def _source_catalogue_row(row: Dict[str, str]) -> Dict[str, str]:
         "loadout_review_rows": row.get("loadout_review_rows", ""),
         "duplicate_name_unit_rows": row.get("duplicate_name_unit_rows", ""),
         "no_weapon_units": row.get("no_weapon_units", ""),
+        "ranged_weapons_missing_range": row.get("ranged_weapons_missing_range", ""),
     }
 
 
@@ -401,6 +405,8 @@ def weapon_coverage_summary(path: Path, *, row_limit: int = 30) -> Optional[Dict
     for row in rows:
         coverage = (row.get("coverage") or "unknown").strip() or "unknown"
         by_coverage[coverage] = by_coverage.get(coverage, 0) + 1
+    ranged_with_range_total = sum(_csv_int(row.get("ranged_weapons_with_range", "")) for row in rows)
+    ranged_missing_range_total = sum(_csv_int(row.get("ranged_weapons_missing_range", "")) for row in rows)
 
     no_weapon_rows = [row for row in rows if (row.get("coverage") or "").strip() == "no_weapons"]
     no_weapon_rows.sort(key=lambda row: (row.get("faction", "").casefold(), row.get("unit_name", "").casefold()))
@@ -408,6 +414,8 @@ def weapon_coverage_summary(path: Path, *, row_limit: int = 30) -> Optional[Dict
         "total": len(rows),
         "by_coverage": dict(sorted(by_coverage.items())),
         "no_weapon_total": len(no_weapon_rows),
+        "ranged_weapons_with_range": ranged_with_range_total,
+        "ranged_weapons_missing_range": ranged_missing_range_total,
         "rows": [_weapon_coverage_row(row) for row in no_weapon_rows[:row_limit]],
         "row_limit": row_limit,
     }
@@ -424,6 +432,8 @@ def _weapon_coverage_row(row: Dict[str, str]) -> Dict[str, str]:
         "models_max": row.get("models_max", ""),
         "total_weapons": row.get("total_weapons", ""),
         "ranged_weapons": row.get("ranged_weapons", ""),
+        "ranged_weapons_with_range": row.get("ranged_weapons_with_range", ""),
+        "ranged_weapons_missing_range": row.get("ranged_weapons_missing_range", ""),
         "melee_weapons": row.get("melee_weapons", ""),
         "coverage": row.get("coverage", ""),
     }

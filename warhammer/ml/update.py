@@ -23,6 +23,8 @@ def refresh_ml_artifacts(
     seed: int,
     feature_set: str,
     model_type: str,
+    label_overrides_path: Path | None = None,
+    label_key_columns: Sequence[str] | None = None,
     ml_root: Path,
     model_root: Path,
     project_root: Path,
@@ -46,6 +48,7 @@ def refresh_ml_artifacts(
     )
     feature_path = paths.feature_path
     model_path = paths.model_path
+    label_key_columns = list(label_key_columns or [])
 
     command_runner(
         [
@@ -66,38 +69,40 @@ def refresh_ml_artifacts(
         ],
         project_root,
     )
-    command_runner(
-        [
-            python_executable,
-            "train_ml_model.py",
-            "--features",
-            str(feature_path),
-            "--output",
-            str(model_path),
-            "--feature-set",
-            feature_set,
-            "--model-type",
-            model_type,
-            "--seed",
-            str(seed),
-        ],
-        project_root,
-    )
-    command_runner(
-        [
-            python_executable,
-            "compare_ml_models.py",
-            "--features",
-            str(feature_path),
-            "--feature-set",
-            feature_set,
-            "--seed",
-            str(seed),
-            "--output",
-            str(paths.comparison_path),
-        ],
-        project_root,
-    )
+    train_command = [
+        python_executable,
+        "train_ml_model.py",
+        "--features",
+        str(feature_path),
+        "--output",
+        str(model_path),
+        "--feature-set",
+        feature_set,
+        "--model-type",
+        model_type,
+        "--seed",
+        str(seed),
+    ]
+    comparison_command = [
+        python_executable,
+        "compare_ml_models.py",
+        "--features",
+        str(feature_path),
+        "--feature-set",
+        feature_set,
+        "--seed",
+        str(seed),
+        "--output",
+        str(paths.comparison_path),
+    ]
+    if label_overrides_path is not None:
+        for command in (train_command, comparison_command):
+            command.extend(["--labels", str(label_overrides_path)])
+            if label_key_columns:
+                command.append("--label-key-columns")
+                command.extend(label_key_columns)
+    command_runner(train_command, project_root)
+    command_runner(comparison_command, project_root)
     command_runner(
         [
             python_executable,

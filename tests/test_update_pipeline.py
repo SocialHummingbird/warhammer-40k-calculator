@@ -67,6 +67,8 @@ def test_run_update_orchestrates_refresh_pipeline(monkeypatch, tmp_path):
     ml_call = next(call for call in calls if call[0] == "ml")
     assert ml_call[1]["ml_root"] == tmp_path / "data" / "ml"
     assert ml_call[1]["model_root"] == tmp_path / "models"
+    assert ml_call[1]["label_overrides_path"] is None
+    assert ml_call[1]["label_key_columns"] == ["edition", "mode", "attacker_id", "defender_id"]
     finalize_call = next(call for call in calls if call[0] == "finalize")
     assert finalize_call[1]["ml_artifacts"]["model_path"] == tmp_path / "models" / "model.json"
     assert finalize_call[1]["snapshot_dir"] == tmp_path / "data" / "10e" / "snapshots"
@@ -417,6 +419,8 @@ def test_update_database_script_help_exposes_update_flags():
     assert completed.returncode == 0
     assert "Update BSData source, regenerate CSVs, audit, diff, and local HTML" in completed.stdout
     assert "--ml-model-type" in completed.stdout
+    assert "--ml-labels" in completed.stdout
+    assert "--ml-label-key-columns" in completed.stdout
     assert "--skip-legacy-latest" in completed.stdout
     assert "--fail-on-review-issues" in completed.stdout
     assert "--review-thresholds" in completed.stdout

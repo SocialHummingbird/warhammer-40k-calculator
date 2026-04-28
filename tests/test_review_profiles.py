@@ -40,6 +40,7 @@ def test_build_weapon_review_rows_joins_unit_context():
             "ap": "-1",
             "damage": "1",
             "keywords": "Assault",
+            "range_inches": "24",
             "source_file": "Space Marines.cat",
         }
     ]
@@ -50,6 +51,7 @@ def test_build_weapon_review_rows_joins_unit_context():
     assert rows[0]["faction"] == "Imperium"
     assert rows[0]["source_file"] == "Space Marines.cat"
     assert rows[0]["weapon_name"] == "Bolt rifle"
+    assert rows[0]["range_inches"] == "24"
     assert rows[0]["models_max"] == "10"
     assert rows[0]["attacks_average"] == "2.00"
     assert rows[0]["strength_average"] == "4.00"
@@ -355,17 +357,21 @@ def test_build_unit_weapon_coverage_rows_counts_ranged_and_melee():
         {"unit_id": "u3", "name": "Support", "faction": "Test", "selection_type": "unit"},
     ]
     weapons = [
-        {"weapon_id": "w1", "unit_id": "u1", "name": "Gun", "weapon_type": "ranged"},
+        {"weapon_id": "w1", "unit_id": "u1", "name": "Gun", "weapon_type": "ranged", "range_inches": "24"},
         {"weapon_id": "w2", "unit_id": "u1", "name": "Blade", "weapon_type": "melee"},
-        {"weapon_id": "w3", "unit_id": "u2", "name": "Gun", "weapon_type": "ranged"},
+        {"weapon_id": "w3", "unit_id": "u2", "name": "Gun", "weapon_type": "ranged", "range_inches": ""},
     ]
 
     rows = {row["unit_id"]: row for row in build_unit_weapon_coverage_rows(units, weapons)}
 
     assert rows["u1"]["coverage"] == "both"
     assert rows["u1"]["ranged_weapons"] == "1"
+    assert rows["u1"]["ranged_weapons_with_range"] == "1"
+    assert rows["u1"]["ranged_weapons_missing_range"] == "0"
     assert rows["u1"]["melee_weapons"] == "1"
     assert rows["u2"]["coverage"] == "ranged_only"
+    assert rows["u2"]["ranged_weapons_with_range"] == "0"
+    assert rows["u2"]["ranged_weapons_missing_range"] == "1"
     assert rows["u3"]["coverage"] == "no_weapons"
 
 
@@ -438,8 +444,13 @@ def test_build_source_catalogue_review_rows_summarizes_review_counts():
             {"unit_id": "u2", "source_file": "Space Marines.cat"},
         ],
         weapon_coverage_rows=[
-            {"unit_id": "u1", "source_file": "Space Marines.cat", "coverage": "both"},
-            {"unit_id": "u3", "source_file": "Orks.cat", "coverage": "no_weapons"},
+            {
+                "unit_id": "u1",
+                "source_file": "Space Marines.cat",
+                "coverage": "both",
+                "ranged_weapons_missing_range": "2",
+            },
+            {"unit_id": "u3", "source_file": "Orks.cat", "coverage": "no_weapons", "ranged_weapons_missing_range": "0"},
         ],
     )
 
@@ -449,6 +460,7 @@ def test_build_source_catalogue_review_rows_summarizes_review_counts():
     assert by_source["Space Marines.cat"]["weapon_profiles"] == "1"
     assert by_source["Space Marines.cat"]["loadout_review_rows"] == "1"
     assert by_source["Space Marines.cat"]["duplicate_name_unit_rows"] == "1"
+    assert by_source["Space Marines.cat"]["ranged_weapons_missing_range"] == "2"
     assert by_source["Orks.cat"]["suspicious_weapon_profiles"] == "1"
     assert by_source["Orks.cat"]["unit_profile_issue_rows"] == "1"
     assert by_source["Orks.cat"]["no_weapon_units"] == "1"
@@ -462,8 +474,8 @@ def test_write_profile_review_outputs_joined_csvs_and_markdown(tmp_path):
         encoding="utf-8",
     )
     (tmp_path / "weapons.csv").write_text(
-        "weapon_id,unit_id,name,weapon_type,attacks,skill,strength,ap,damage,keywords,hit_modifier,wound_modifier,reroll_hits,reroll_wounds,lethal_hits,sustained_hits,devastating_wounds,source_file\n"
-        "w1,u1,Bolt rifle,ranged,2,3+,4,-1,1,Assault,,,,,,,,Space Marines.cat\n",
+        "weapon_id,unit_id,name,weapon_type,attacks,skill,strength,ap,damage,keywords,range_inches,hit_modifier,wound_modifier,reroll_hits,reroll_wounds,lethal_hits,sustained_hits,devastating_wounds,source_file\n"
+        "w1,u1,Bolt rifle,ranged,2,3+,4,-1,1,Assault,24,,,,,,,,Space Marines.cat\n",
         encoding="utf-8",
     )
     (tmp_path / "abilities.csv").write_text(
@@ -519,9 +531,12 @@ def test_write_profile_review_outputs_joined_csvs_and_markdown(tmp_path):
         source_rows = list(csv.DictReader(handle))
     assert weapon_rows[0]["unit_name"] == "Intercessor Squad"
     assert weapon_rows[0]["source_file"] == "Space Marines.cat"
+    assert weapon_rows[0]["range_inches"] == "24"
     assert suspicious_weapon_rows == []
     assert {row["unit_id"] for row in variant_rows} == {"u1", "u2"}
     assert {row["coverage"] for row in coverage_rows} == {"ranged_only", "no_weapons"}
+    assert {row["ranged_weapons_with_range"] for row in coverage_rows} == {"0", "1"}
+    assert {row["ranged_weapons_missing_range"] for row in coverage_rows} == {"0"}
     assert {row["unit_id"] for row in unit_profile_rows} == {"u1", "u2"}
     assert {row["review_severity"] for row in unit_profile_rows} == {""}
     assert modifier_rows == []
@@ -538,6 +553,7 @@ def test_write_profile_review_outputs_joined_csvs_and_markdown(tmp_path):
     assert "Imported Profile Review" in profile_review
     assert "Duplicate Unit Names" in profile_review
     assert "Unit Weapon Coverage" in profile_review
+    assert "Ranged Weapon Range Coverage" in profile_review
     assert "Highest Raw Damage Throughput" in profile_review
     assert "Suspicious Weapon Review Reasons" in profile_review
     assert "Suspicious Weapon Severity" in profile_review

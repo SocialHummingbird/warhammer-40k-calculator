@@ -1,6 +1,10 @@
 # Changelog
 
 ## Planned Work
+- [ ] Add UI/UX polish and appropriate visual art.
+  - [x] Promote Calculator, Battlefield, and Data Review to top-level UI modes.
+  - [x] Compact Battlefield unit labels so map blobs do not obscure terrain or each other.
+  - [x] Add appropriate Warhammer-themed but non-infringing visual assets/art direction for the calculator, Battlefield board, terrain/objective states, empty states, and desktop/local launch experience.
 - [x] Refactor core boundaries before adding ML-heavy features.
   - [x] Extract deterministic matchup orchestration into `warhammer.matchups` so the web API and future ML exporters can share one calculation path.
   - [x] Extract generated review artifact loading into `warhammer.data_review`.
@@ -30,7 +34,10 @@
   - [x] Add `compare_ml_models.py` to compare advisory model families on one feature CSV without overwriting active model artifacts.
   - [x] Generate and expose `model_comparison.md` during database updates so Data Review includes model-family comparison output.
   - [x] Render the ML model comparison report directly inside hosted and standalone Data Review screens.
-  - [ ] Later replace or augment the dependency-free baseline with a stronger optional model once real labels or a better supervised target exist.
+  - [x] Add optional external matchup label CSV support so future real or curated labels can override calculator-derived labels during model training and be recorded in the model audit.
+  - [x] Let `update_database.py --ml-labels` pass curated labels through both active model training and model-family comparison reports.
+  - [x] Let the one-click local HTML refresh launcher pass ML training options and external label files through to `update_database.py`.
+  - [ ] Later replace or augment the dependency-free baseline once enough real labels or a better supervised target exists.
 - [x] Improve data/profile anomaly review.
   - [x] Add severity and category columns to `suspicious_weapon_review.csv` so missing/unparsable/zero damage profiles are separated from high-output warning profiles.
   - [x] Surface suspicious weapon severity, categories, common reasons, and sample rows directly in the Data Review UI.

@@ -512,6 +512,7 @@ e286-849d-8f74-75e6,Imperium - Adepta Sororitas,Celestian Insidiants,3,3+,,1,"6"
 8f3c-d887-6e18-02e8,Imperium - Adepta Sororitas,Militant Commander [Crucible],3,3+,,4,"6""",7+,1,75,1,1,,,model,Imperium - Adepta Sororitas.cat
 622e-1e15-13f1-601a,Imperium - Adepta Sororitas,Inspiring Devotee [Crucible],3,3+,,3,"6""",6+,1,50,1,1,,,model,Imperium - Adepta Sororitas.cat
 1b8d-2b8b-084a-feba,Imperium - Adepta Sororitas,Reliquant Knight [Crucible],7,2+,,4,"8""",7+,2,100,1,1,,,model,Imperium - Adepta Sororitas.cat
+e59a-2a90-e102-940f,Imperium - Adepta Sororitas,Intranzia Fraye,7,3+,,8,"8""",6+,3,150,1,1,,,model,Imperium - Adepta Sororitas.cat
 9e42-7207-9c30-6122,Imperium - Adeptus Custodes,Aleya,3,3+,,4,"6""",6+,1,65,1,1,,,model,Imperium - Adeptus Custodes.cat
 c8a6-a4c5-703e-b717,Imperium - Adeptus Custodes,Allarus Custodians,7,2+,,4,"5""",6+,2,110,2,6,,,unit,Imperium - Adeptus Custodes.cat
 d7cb-7d30-715b-50d2,Imperium - Adeptus Custodes,Anathema Psykana Rhino,9,3+,,10,"12""",6+,2,75,1,1,,,model,Imperium - Adeptus Custodes.cat
@@ -639,6 +640,7 @@ b040-ce24-7e1a-c903,Imperium - Agents of the Imperium,Aquila Kill Team,4,3+,,2,"
 90e0-c5a9-17c5-fba4,Imperium - Agents of the Imperium,Martial Agent [Crucible],3,4+,,4,"6""",6+,1,60,1,1,,,model,Imperium - Agents of the Imperium.cat
 9a75-f3a2-bff5-9f08,Imperium - Agents of the Imperium,Deathwatch Agent [Crucible],4,3+,,5,"6""",6+,1,105,1,1,,,model,Imperium - Agents of the Imperium.cat
 2b47-b5e8-b297-7bd8,Imperium - Agents of the Imperium,Enthroned Agent [Crucible],7,3+,,9,"8""",6+,3,120,1,1,,,model,Imperium - Agents of the Imperium.cat
+2a3f-b53b-6ea4-6da9,Imperium - Agents of the Imperium,Inquisitor Kroyle,4,3+,,6,"12""",6+,2,100,1,1,,,model,Imperium - Agents of the Imperium.cat
 cb99-456-f100-40ed,Imperium - Astra Militarum - Library,Aegis Defence Line,12,2+,,10,-,7+,0,145,1,1,,,model,Imperium - Astra Militarum - Library.cat
 7e34-20cf-1149-74a1,Imperium - Astra Militarum - Library,Armoured Sentinels,8,2+,,7,"8""",7+,2,65,1,2,,,unit,Imperium - Astra Militarum - Library.cat
 9a8d-8c1-315a-4948,Imperium - Astra Militarum - Library,Armoured Sentinel,8,2+,,7,"8""",7+,2,65,1,1,,,model,Imperium - Astra Militarum - Library.cat
@@ -754,6 +756,10 @@ f4d1-cea9-f487-4501,Imperium - Astra Militarum - Library,Provisionally Prepared 
 4fc5-184d-b305-3551,Imperium - Astra Militarum - Library,Front-line Commander [Crucible],3,5+,,4,"6""",7+,1,55,1,1,,,model,Imperium - Astra Militarum - Library.cat
 7280-8daf-312a-b01d,Imperium - Astra Militarum - Library,Augmented Bone 'Ead [Crucible],3,4+,,3,"6""",6+,1,60,1,1,,,model,Imperium - Astra Militarum - Library.cat
 a040-9715-5d3a-52af,Imperium - Astra Militarum - Library,Sentinel Commander [Crucible],7,3+,,7,"10""",7+,2,75,1,1,,,model,Imperium - Astra Militarum - Library.cat
+3962-1fa9-7088-aedd,Imperium - Astra Militarum - Library,Commissar Yarrick,4,4+,,5,"6""",6+,1,150,1,1,,,model,Imperium - Astra Militarum - Library.cat
+50b8-1f13-9807-0069,Imperium - Astra Militarum - Library,Commissar Graves,8,3+,,12,"12""",6+,5,110,1,1,,,model,Imperium - Astra Militarum - Library.cat
+d624-2be1-87a3-41ca,Imperium - Astra Militarum - Library,Commissar Graves on Foot,3,4+,,4,"6""",6+,1,65,1,1,,,model,Imperium - Astra Militarum - Library.cat
+c871-4769-71ed-c4b3,Imperium - Astra Militarum - Library,Centaur RSV,7,3+,,10,"12""",7+,2,85,1,1,,,model,Imperium - Astra Militarum - Library.cat
 8165-e372-4fd6-3274,Imperium - Adeptus Astartes - Black Templars,Chaplain Grimaldus,4,3+,,1,"6""",8+,1,110,4,4,,,unit,Imperium - Black Templars.cat
 da8a-de9f-1fe7-2513,Imperium - Adeptus Astartes - Black Templars,High Marshal Helbrecht,4,2+,,6,"6""",6+,3,120,1,1,,,model,Imperium - Black Templars.cat
 8bbe-e7fc-44b7-ed94,Imperium - Adeptus Astartes - Black Templars,Crusader Squad,4,3+,,2,"6""",6+,2,150,19,39,,,unit,Imperium - Black Templars.cat
@@ -1332,6 +1338,7 @@ a596-3d99-257e-0ea1,Xenos - Orks,Breaka Boyz,5,4+,,2,"6""",7+,1,140,6,6,,,unit,O
 2ba9-e97a-909d-3ac5,Xenos - Orks,Hordeboss [Crucible],5,4+,,5,"6""",7+,1,75,1,1,,,model,Orks.cat
 54de-2004-bbc1-3ac6,Xenos - Orks,Warphead [Crucible],5,5+,,4,"6""",7+,1,65,1,1,,,model,Orks.cat
 6a69-8e75-49ae-408f,Xenos - Orks,Upstart Gretchin [Crucible],2,7+,,3,"6""",8+,2,40,1,1,,,model,Orks.cat
+2ab7-ab71-0af4-5d39,Xenos - Orks,Wazdakka Gutsmek,8,3+,,10,"14""",6+,3,175,1,1,,,model,Orks.cat
 4d0d-af9d-53c2-bc31,Xenos - T'au Empire,Commander Shadowsun,4,3+,,6,"10""",6+,1,100,1,1,,,model,T'au Empire.cat
 a67c-e2aa-41d7-e91e,Xenos - T'au Empire,Commander Farsight,5,2+,,8,"10""",6+,2,85,1,1,,,model,T'au Empire.cat
 6de0-279f-b471-65ca,Xenos - T'au Empire,Commander in Crisis Battlesuit [Legends],5,3+,,5,"10""",7+,2,80,1,1,,,model,T'au Empire.cat

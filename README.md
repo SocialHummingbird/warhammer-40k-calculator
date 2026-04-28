@@ -52,6 +52,7 @@ To refresh the BSData checkout, rebuild all generated files, and open the standa
 .\update_and_open_local_html.ps1 -FailOnReviewIssues -MaxSuspiciousWeaponWarnings 18 -MaxLoadoutWarnings 143 -MaxNoWeaponUnits 16
 .\update_and_open_local_html.ps1 -FailOnReviewIssues -ReviewThresholds config\review_thresholds_10e.json
 .\update_and_open_local_html.ps1 -WriteReviewThresholds config\review_thresholds_10e.json
+.\update_and_open_local_html.ps1 -MlModelType logistic_regression -MlLabels data\ml\10e\real_matchup_labels.csv
 ```
 
 Regenerate it after refreshing `data\10e\latest`:
@@ -112,7 +113,7 @@ When `data\wh40k-10e` is a local Git checkout, refresh the whole generated datab
 python update_database.py
 ```
 
-The updater fast-forwards the BSData checkout from `https://github.com/BSData/wh40k-10e.git`, regenerates `data\10e\latest`, writes `audit_report.json`, `schema_review.csv`, `edition_status.json`, `edition_readiness.md`, `import_diff.json`, joined profile review files, and a readable `update_report.md`, refreshes the ML feature CSV/model/audit under `data\ml\10e` and `models\10e`, records linked ML artifact hashes in `artifact_manifest.json`, stores a commit-keyed snapshot under `data\10e\snapshots`, rebuilds `warhammer_calculator_local.html`, and mirrors artifacts to `data\latest` for older commands. Use `--skip-ml` to leave existing ML artifacts untouched during a data-only refresh, `--ml-model-type logistic_regression` to have the update pipeline train and embed the optional logistic advisory model, or `--fail-on-review-issues` to make the update exit non-zero when generated artifacts, schema, edition readiness, or error-severity audit rows fail the data review gate. Add `--review-fail-on-warnings` when you want warning rows to block the refresh too, `--review-thresholds config\review_thresholds_10e.json` to use the current accepted warning baseline, `--write-review-thresholds config\review_thresholds_10e.json` to write a new accepted baseline after a successful refresh, or threshold flags such as `--max-suspicious-weapon-warnings`, `--max-loadout-warnings`, and `--max-no-weapon-units` when existing warning rows are accepted but growth should fail the update.
+The updater fast-forwards the BSData checkout from `https://github.com/BSData/wh40k-10e.git`, regenerates `data\10e\latest`, writes `audit_report.json`, `schema_review.csv`, `edition_status.json`, `edition_readiness.md`, `import_diff.json`, joined profile review files, and a readable `update_report.md`, refreshes the ML feature CSV/model/audit under `data\ml\10e` and `models\10e`, records linked ML artifact hashes in `artifact_manifest.json`, stores a commit-keyed snapshot under `data\10e\snapshots`, rebuilds `warhammer_calculator_local.html`, and mirrors artifacts to `data\latest` for older commands. Use `--skip-ml` to leave existing ML artifacts untouched during a data-only refresh, `--ml-model-type logistic_regression` to have the update pipeline train and embed the optional logistic advisory model, `--ml-labels data\ml\10e\real_matchup_labels.csv` to train and compare advisory models against curated labels, or `--fail-on-review-issues` to make the update exit non-zero when generated artifacts, schema, edition readiness, or error-severity audit rows fail the data review gate. Add `--review-fail-on-warnings` when you want warning rows to block the refresh too, `--review-thresholds config\review_thresholds_10e.json` to use the current accepted warning baseline, `--write-review-thresholds config\review_thresholds_10e.json` to write a new accepted baseline after a successful refresh, or threshold flags such as `--max-suspicious-weapon-warnings`, `--max-loadout-warnings`, and `--max-no-weapon-units` when existing warning rows are accepted but growth should fail the update.
 
 Generated metadata records the active rules edition. The current supported value is `10e`; pass `--edition 10e` explicitly when scripting updates that will later coexist with additional edition snapshots. The server discovers `data\<edition>\latest` folders, reports them through `/api/health`, and routes unit search, unit detail, data review, review downloads, and calculations through the selected edition when a matching ruleset exists. If data exists for an edition whose ruleset is not implemented, the server reports it as blocked instead of silently hiding it. Each supported ruleset also publishes machine-readable capability coverage in `edition_status.json` and `/api/health.rulesets`, so future edition work can compare implemented mechanics such as hit rolls, wound rolls, saves, damage handling, and model removal before calculations are enabled. The standalone HTML remains a single embedded dataset but shows the edition used for that export.
 
@@ -142,16 +143,26 @@ The default model type is the dependency-free nearest-centroid baseline. If `sci
 python train_ml_model.py --model-type logistic_regression --features data\ml\10e\matchup_training_rows.csv --output models\10e\matchup_logistic_model.json --report models\10e\matchup_logistic_model.md
 ```
 
+If you have curated or real-world matchup labels, pass them as an external labels CSV instead of relying only on calculator-derived labels. By default, labels are matched on `edition`, `mode`, `attacker_id`, and `defender_id`, and the label file must contain `winner_label` or `label`:
+
+```powershell
+python train_ml_model.py --features data\ml\10e\matchup_training_rows.csv --labels data\ml\10e\real_matchup_labels.csv --output models\10e\matchup_real_label_model.json
+```
+
+Use `--label-key-columns` when your label file uses a different matchup key. The generated model JSON and Markdown audit record the label override file, row count, matched rows, skipped rows, and whether labels came from external data.
+
 The full data update pipeline can train and embed that optional model in one run:
 
 ```powershell
 python update_database.py --ml-model-type logistic_regression
+python update_database.py --ml-labels data\ml\10e\real_matchup_labels.csv --ml-label-key-columns edition mode attacker_id defender_id
 ```
 
 To compare available model families on the same feature CSV without writing or replacing model artifacts:
 
 ```powershell
 python compare_ml_models.py --features data\ml\10e\matchup_training_rows.csv
+python compare_ml_models.py --features data\ml\10e\matchup_training_rows.csv --labels data\ml\10e\real_matchup_labels.csv
 ```
 
 Database updates also write this comparison to `models\10e\model_comparison.md` and expose it in Data Review with the model audit downloads.

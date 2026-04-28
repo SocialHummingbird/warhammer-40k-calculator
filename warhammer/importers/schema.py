@@ -40,6 +40,7 @@ class WeaponRow:
     ap: str
     damage: str
     keywords: str
+    range_inches: str = ""
     hit_modifier: str = ""
     wound_modifier: str = ""
     reroll_hits: str = ""
