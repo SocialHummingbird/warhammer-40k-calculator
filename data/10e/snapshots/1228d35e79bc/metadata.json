@@ -1,12 +1,12 @@
 {
-  "generated_at": "2026-04-28T11:54:29.831692Z",
+  "generated_at": "2026-04-28T17:00:02.138093Z",
   "rules_edition": "10e",
   "supported_rules_editions": [
     "10e"
   ],
   "counts": {
     "units": 1471,
-    "weapons": 8655,
+    "weapons": 8765,
     "abilities": 3143,
     "keywords": 1413,
     "unit_keywords": 9576

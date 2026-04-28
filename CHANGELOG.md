@@ -7,6 +7,7 @@
   - [x] Add appropriate Warhammer-themed but non-infringing visual assets/art direction for the calculator, Battlefield board, terrain/objective states, empty states, and desktop/local launch experience.
   - [x] Improve Battlefield board space usage with a board-plus-side-panel layout, clearer unit labels, a terrain rules key, varied terrain shapes, and multi-storey terrain metadata.
   - [x] Replace the calculator's shared faction filter with separate attacker and defender faction filters.
+  - [x] Fix BSData weapon import identities so same-name ranged and melee profiles both appear in unit weapon selectors.
   - [x] Add richer Battlefield unit markers with model/wound status, model-count badges, and hover summaries.
   - [x] Add official-base-size footprint data to support more accurate Battlefield unit blob sizing.
   - [x] Show Battlefield footprint radius, base size, and footprint source in unit hover text and the selected-unit inspector.
@@ -24,6 +25,22 @@
   - [x] Include footprint review queue counts in the terminal data review summary and release output.
   - [x] Include the prioritized manual-review queue and reviewer action hints in the Markdown footprint report.
   - [x] Let reviewed prioritized queue rows be promoted directly into footprint overrides with `--queue`.
+  - [x] Let reviewed template or queue rows marked `reject` be written to the footprint rejection layer.
+  - [x] Let `plan_footprint_review.py` generate priority-filtered manual review batches.
+  - [x] Add human-readable priority aliases such as `--priority high` for footprint review batching.
+  - [x] Add row-limit and high-score-threshold controls to the footprint review report CLI.
+  - [x] Carry official base-size guide page and source context into footprint suggestions, templates, queues, and review reports.
+  - [x] Render official guide source/page links in Data Review footprint suggestions and queue tables.
+  - [x] Preserve official guide page context when accepting footprint suggestions directly into overrides.
+  - [x] Preserve official guide page context when rejecting footprint suggestions or reviewed queue rows.
+  - [x] Let Battlefield mode use more horizontal space on wide displays and give the board a larger share of the layout.
+  - [x] Expand the Battlefield terrain key to list each terrain feature with shape, storeys, cover, LOS, and movement effects.
+  - [x] Reduce Battlefield map label clutter by showing full unit-name labels only for the selected unit while preserving compact status labels and hover details.
+  - [x] Add an in-app Battlefield unit hover card so model, wound, footprint, range, and nearest-target details are readable without relying on browser-native SVG tooltips.
+  - [x] Extend the Battlefield hover card to terrain and objective markers so storeys, cover, LOS, movement, VP, radius, and position are inspectable on the map.
+  - [x] Expand the Battlefield board key to list each objective with label, name, radius, and VP instead of a generic objective-marker entry.
+  - [x] Add Battlefield board ruler ticks and a 6-inch scale marker so movement and range distances are easier to judge visually.
+  - [x] Fix Battlefield unit dragging so cursor movement maps 1:1 to board coordinates when the SVG viewBox is letterboxed.
 - [x] Refactor core boundaries before adding ML-heavy features.
   - [x] Extract deterministic matchup orchestration into `warhammer.matchups` so the web API and future ML exporters can share one calculation path.
   - [x] Extract generated review artifact loading into `warhammer.data_review`.

@@ -7,8 +7,11 @@ from warhammer.base_sizes import (
     accepted_override_rows_from_template,
     load_footprint_override_template_csv,
     load_footprint_overrides_csv,
+    load_footprint_rejections_csv,
+    rejected_rows_from_template,
     summarize_footprint_override_template,
     write_footprint_overrides_csv,
+    write_footprint_rejections_csv,
 )
 
 
@@ -39,9 +42,25 @@ def main() -> int:
         default=Path("data/base_sizes/unit_footprint_overrides.csv"),
         help="Manual footprint override CSV to update.",
     )
+    parser.add_argument(
+        "--rejections",
+        type=Path,
+        default=Path("data/base_sizes/unit_footprint_rejections.csv"),
+        help="Manual footprint rejection CSV to update when --record-rejections is used.",
+    )
     parser.add_argument("--unit-id", action="append", default=[], help="Promote only a specific unit id. Repeatable.")
     parser.add_argument("--limit", type=int, help="Maximum number of reviewed rows to promote.")
     parser.add_argument("--allow-invalid", action="store_true", help="Allow --apply even when reviewed rows are invalid.")
+    parser.add_argument(
+        "--record-rejections",
+        action="store_true",
+        help="Also write rows marked review_decision=reject into the footprint rejection CSV.",
+    )
+    parser.add_argument(
+        "--rejection-reason",
+        default="Reviewed and not accepted as a safe official base-size match.",
+        help="Review reason to write for rejection rows when --record-rejections is used.",
+    )
     parser.add_argument("--apply", action="store_true", help="Write promoted rows to the overrides CSV.")
     args = parser.parse_args()
 
@@ -84,6 +103,14 @@ def main() -> int:
         unit_ids=unit_ids,
         limit=args.limit,
     )
+    rejections = load_footprint_rejections_csv(args.rejections) if args.rejections.exists() else []
+    selected_rejections = rejected_rows_from_template(
+        template_rows,
+        rejections.copy(),
+        unit_ids=unit_ids,
+        reason=args.rejection_reason,
+        limit=args.limit,
+    )
 
     action = "Would promote" if not args.apply else "Promoted"
     print(f"{action} {len(selected)} reviewed footprint override row(s).")
@@ -91,14 +118,26 @@ def main() -> int:
         base = row.get("base_size_text") or row.get("base_type") or "unknown base"
         print(f"- {row.get('unit_id')}: {row.get('unit_name')} -> {row.get('guide_unit_name')} ({base})")
 
+    rejection_action = "Would record" if not (args.apply and args.record_rejections) else "Recorded"
+    print(f"{rejection_action} {len(selected_rejections)} reviewed footprint rejection row(s).")
+    for row in selected_rejections:
+        base = row.get("base_size_text") or "unknown base"
+        print(f"- reject {row.get('unit_id')}: {row.get('unit_name')} -> {row.get('guide_unit_name')} ({base})")
+
     if args.apply and selected:
         args.overrides.parent.mkdir(parents=True, exist_ok=True)
         write_footprint_overrides_csv([*overrides, *selected], args.overrides)
         print(f"Wrote {len(overrides) + len(selected)} total override row(s) to {args.overrides}.")
+    if args.apply and args.record_rejections and selected_rejections:
+        args.rejections.parent.mkdir(parents=True, exist_ok=True)
+        write_footprint_rejections_csv([*rejections, *selected_rejections], args.rejections)
+        print(f"Wrote {len(rejections) + len(selected_rejections)} total rejection row(s) to {args.rejections}.")
+    elif selected_rejections and not args.record_rejections:
+        print("Rejection rows were not written. Re-run with --record-rejections --apply after review.")
     elif not args.apply:
         print(
             "Dry run only. Set review_decision to accept_suggestion or override, "
-            "then re-run with --apply after reviewing the listed rows. "
+            "or set review_decision to reject and pass --record-rejections, then re-run with --apply after reviewing the listed rows. "
             "You can pass --queue when promoting from unit_footprint_review_queue.csv."
         )
     return 0

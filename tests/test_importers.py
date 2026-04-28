@@ -86,6 +86,62 @@ def test_bsdata_importer_extracts_weapon_range_inches(tmp_path):
     assert weapons[0].range_inches == "24"
 
 
+def test_bsdata_importer_keeps_same_name_ranged_and_melee_profiles(tmp_path):
+    catalogue = tmp_path / "test.cat"
+    catalogue.write_text(
+        """<?xml version="1.0" encoding="UTF-8"?>
+<catalogue name="Test Faction">
+  <selectionEntries>
+    <selectionEntry type="unit" import="true" name="Guard Unit" id="unit-1">
+      <profiles>
+        <profile name="Guard Unit" typeName="Unit">
+          <characteristics>
+            <characteristic name="T">4</characteristic>
+            <characteristic name="SV">3+</characteristic>
+            <characteristic name="W">2</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Guardian Spear" typeName="Ranged Weapons">
+          <characteristics>
+            <characteristic name="Range">24&quot;</characteristic>
+            <characteristic name="A">2</characteristic>
+            <characteristic name="BS">2+</characteristic>
+            <characteristic name="S">4</characteristic>
+            <characteristic name="AP">-1</characteristic>
+            <characteristic name="D">2</characteristic>
+            <characteristic name="Keywords">Assault</characteristic>
+          </characteristics>
+        </profile>
+        <profile name="Guardian Spear" typeName="Melee Weapons">
+          <characteristics>
+            <characteristic name="Range">Melee</characteristic>
+            <characteristic name="A">5</characteristic>
+            <characteristic name="WS">2+</characteristic>
+            <characteristic name="S">7</characteristic>
+            <characteristic name="AP">-2</characteristic>
+            <characteristic name="D">2</characteristic>
+          </characteristics>
+        </profile>
+      </profiles>
+    </selectionEntry>
+  </selectionEntries>
+</catalogue>
+""",
+        encoding="utf-8",
+    )
+
+    _units, weapons, _abilities, _keywords, _unit_keywords = import_catalogues([catalogue])
+
+    assert {(weapon.name, weapon.weapon_type) for weapon in weapons} == {
+        ("Guardian Spear", "ranged"),
+        ("Guardian Spear", "melee"),
+    }
+    assert {weapon.weapon_id for weapon in weapons} == {
+        "unit-1:ranged:guardian-spear",
+        "unit-1:melee:guardian-spear",
+    }
+
+
 def test_importer_does_not_attach_child_upgrade_abilities_to_unit(tmp_path):
     catalogue = tmp_path / "test.cat"
     catalogue.write_text(

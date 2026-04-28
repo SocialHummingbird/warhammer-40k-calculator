@@ -14,7 +14,7 @@
 | Table | Rows |
 | --- | ---: |
 | units | 1471 |
-| weapons | 8655 |
+| weapons | 8765 |
 | abilities | 3143 |
 | keywords | 1413 |
 | unit_keywords | 9576 |

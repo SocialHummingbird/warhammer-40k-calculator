@@ -60,38 +60,38 @@ No high-confidence suggestions remain at this threshold.
 - review_suggestion_medium: 72
 - review_suggestion_high: 26
 
-| Rank | Priority | Unit | Faction | Suggestion | Base | Suggested action |
-| --- | --- | --- | --- | --- | --- | --- |
-| 1 | review_suggestion_high | Commander in Crisis Battlesuit [Legends] | Xenos - T'au Empire | Commander in Enforcer Battlesuit | 60mm | verify same datasheet, then accept/reject/override |
-| 2 | review_suggestion_high | Crisis Battlesuits [Legends] | Xenos - T'au Empire | Crisis Fireknife Battlesuits | 50mm | verify same datasheet, then accept/reject/override |
-| 3 | review_suggestion_high | Proteus Kill Team [Legends] | Imperium - Agents of the Imperium | Spectrus Kill Team | 40mm | verify same datasheet, then accept/reject/override |
-| 4 | review_suggestion_high | Stormfang Gunship [Legends] | Imperium - Adeptus Astartes - Space Wolves | Stormtalon Gunship | 120x92mm Oval Base | verify same datasheet, then accept/reject/override |
-| 5 | review_suggestion_high | Canoptek Tomb Stalker [Legends] | Xenos - Necrons | Canoptek Doomstalker | 90mm | verify same datasheet, then accept/reject/override |
-| 6 | review_suggestion_high | Mortis Dreadnought [Legends] | Imperium - Adeptus Astartes - Space Marines | Brutalis Dreadnought | 90mm | verify same datasheet, then accept/reject/override |
-| 7 | review_suggestion_high | Cultist Mob with Firearms [Legends] | Chaos - Chaos Space Marines | Cultist Mob | 25mm | verify same datasheet, then accept/reject/override |
-| 8 | review_suggestion_high | Relic Terminator Squad [Legends] | Imperium - Adeptus Astartes - Space Marines | Terminator Squad | 40mm | verify same datasheet, then accept/reject/override |
-| 9 | review_suggestion_high | Vanguard Veteran Squad [Legends] | Imperium - Adeptus Astartes - Space Marines | Bladeguard Veteran Squad | 40mm | verify same datasheet, then accept/reject/override |
-| 10 | review_suggestion_high | Death Company Intercessors | Imperium - Adeptus Astartes - Blood Angels | Death Company Marines | 32mm | verify same datasheet, then accept/reject/override |
-| 11 | review_suggestion_high | Sanguinary Priest with Jump Pack [Legends] | Imperium - Adeptus Astartes - Blood Angels | Sanguinary Priest | 40mm | verify same datasheet, then accept/reject/override |
-| 12 | review_suggestion_high | Techmarine on Bike [Legends] | Imperium - Adeptus Astartes - Space Marines | Chaplain on Bike | 90x52.5mm Oval Base | verify same datasheet, then accept/reject/override |
-| 13 | review_suggestion_high | Land Raider Banisher | Imperium - Grey Knights | Land Raider | Hull | verify same datasheet, then accept/reject/override |
-| 14 | review_suggestion_high | Relic Razorback [Legends] | Imperium - Adeptus Astartes - Space Marines | Razorback | Hull | verify same datasheet, then accept/reject/override |
-| 15 | review_suggestion_high | Land Raider Excelsior [Legends] | Imperium - Adeptus Astartes - Space Marines | Land Raider | Hull | verify same datasheet, then accept/reject/override |
-| 16 | review_suggestion_high | Inquisitor Kroyle | Imperium - Agents of the Imperium | Inquisitor | 32mm | verify same datasheet, then accept/reject/override |
-| 17 | review_suggestion_high | Skathach Wraithknight [Legends] | Aeldari - Aeldari Library | Wraithknight | 120x92mm Oval Base | verify same datasheet, then accept/reject/override |
-| 18 | review_suggestion_high | Chaos Lord on Disc of Tzeentch [Legends] | Chaos - Chaos Space Marines | Exalted Sorcerer on Disc of Tzeentch | 40mm | verify same datasheet, then accept/reject/override |
-| 19 | review_suggestion_high | Chaos Lord on Disc of Tzeentch [Legends] | Chaos - Thousand Sons | Exalted Sorcerer on Disc of Tzeentch | 40mm | verify same datasheet, then accept/reject/override |
-| 20 | review_suggestion_high | Celestian Sacresant Aveline [Legends] | Imperium - Adepta Sororitas | Celestian Sacresants | 32mm | verify same datasheet, then accept/reject/override |
-| 21 | review_suggestion_high | Furioso Dreadnought [Legends] | Imperium - Adeptus Astartes - Blood Angels | Dreadnought | 60mm | verify same datasheet, then accept/reject/override |
-| 22 | review_suggestion_high | Land Raider Prometheus [Legends] | Imperium - Adeptus Astartes - Space Marines | Land Raider | Hull | verify same datasheet, then accept/reject/override |
-| 23 | review_suggestion_high | Wolf Guard Battle Leader in Terminator Armour [Legends] | Imperium - Adeptus Astartes - Space Wolves | Wolf Guard Battle Leader | 40mm | verify same datasheet, then accept/reject/override |
-| 24 | review_suggestion_high | Relic Contemptor Dreadnought [Legends] | Library - Astartes Heresy Legends | Venerable Contemptor Dreadnought | 60mm | verify same datasheet, then accept/reject/override |
-| 25 | review_suggestion_high | Tesseract Ark [Legends] | Xenos - Necrons | Tesseract Vault | 120x92mm Oval Base | verify same datasheet, then accept/reject/override |
-| 26 | review_suggestion_high | Carnifex | Xenos - Tyranids | Carnifexes | 105x70mm Oval Base | verify same datasheet, then accept/reject/override |
-| 27 | review_suggestion_medium | Deathwing Command Squad [Legends] | Imperium - Adeptus Astartes - Dark Angels | Ravenwing Command Squad | 75x42mm Oval Base | compare source names before accepting |
-| 28 | review_suggestion_medium | Canoptek Acanthrites [Legends] | Xenos - Necrons | Canoptek Macrocytes | 28.5mm | compare source names before accepting |
-| 29 | review_suggestion_medium | Ultramarines Honour Guard [Legends] | Imperium - Adeptus Astartes - Ultramarines | Victrix Honour Guard | 40mm | compare source names before accepting |
-| 30 | review_suggestion_medium | Chaos Lord on Bike [Legends] | Chaos - Chaos Space Marines | Chaos Lord | 40mm | compare source names before accepting |
+| Rank | Priority | Unit | Faction | Suggestion | Base | Page | Suggested action |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| 1 | review_suggestion_high | Commander in Crisis Battlesuit [Legends] | Xenos - T'au Empire | Commander in Enforcer Battlesuit | 60mm | 48 | verify same datasheet, then accept/reject/override |
+| 2 | review_suggestion_high | Crisis Battlesuits [Legends] | Xenos - T'au Empire | Crisis Fireknife Battlesuits | 50mm | 48 | verify same datasheet, then accept/reject/override |
+| 3 | review_suggestion_high | Proteus Kill Team [Legends] | Imperium - Agents of the Imperium | Spectrus Kill Team | 40mm | 32 | verify same datasheet, then accept/reject/override |
+| 4 | review_suggestion_high | Stormfang Gunship [Legends] | Imperium - Adeptus Astartes - Space Wolves | Stormtalon Gunship | 120x92mm Oval Base | 46 | verify same datasheet, then accept/reject/override |
+| 5 | review_suggestion_high | Canoptek Tomb Stalker [Legends] | Xenos - Necrons | Canoptek Doomstalker | 90mm | 40 | verify same datasheet, then accept/reject/override |
+| 6 | review_suggestion_high | Mortis Dreadnought [Legends] | Imperium - Adeptus Astartes - Space Marines | Brutalis Dreadnought | 90mm | 44 | verify same datasheet, then accept/reject/override |
+| 7 | review_suggestion_high | Cultist Mob with Firearms [Legends] | Chaos - Chaos Space Marines | Cultist Mob | 25mm | 28 | verify same datasheet, then accept/reject/override |
+| 8 | review_suggestion_high | Relic Terminator Squad [Legends] | Imperium - Adeptus Astartes - Space Marines | Terminator Squad | 40mm | 46 | verify same datasheet, then accept/reject/override |
+| 9 | review_suggestion_high | Vanguard Veteran Squad [Legends] | Imperium - Adeptus Astartes - Space Marines | Bladeguard Veteran Squad | 40mm | 44 | verify same datasheet, then accept/reject/override |
+| 10 | review_suggestion_high | Death Company Intercessors | Imperium - Adeptus Astartes - Blood Angels | Death Company Marines | 32mm | 24 | verify same datasheet, then accept/reject/override |
+| 11 | review_suggestion_high | Sanguinary Priest with Jump Pack [Legends] | Imperium - Adeptus Astartes - Blood Angels | Sanguinary Priest | 40mm | 24 | verify same datasheet, then accept/reject/override |
+| 12 | review_suggestion_high | Techmarine on Bike [Legends] | Imperium - Adeptus Astartes - Space Marines | Chaplain on Bike | 90x52.5mm Oval Base | 44 | verify same datasheet, then accept/reject/override |
+| 13 | review_suggestion_high | Land Raider Banisher | Imperium - Grey Knights | Land Raider | Hull | 36 | verify same datasheet, then accept/reject/override |
+| 14 | review_suggestion_high | Relic Razorback [Legends] | Imperium - Adeptus Astartes - Space Marines | Razorback | Hull | 45 | verify same datasheet, then accept/reject/override |
+| 15 | review_suggestion_high | Land Raider Excelsior [Legends] | Imperium - Adeptus Astartes - Space Marines | Land Raider | Hull | 45 | verify same datasheet, then accept/reject/override |
+| 16 | review_suggestion_high | Inquisitor Kroyle | Imperium - Agents of the Imperium | Inquisitor | 32mm | 37 | verify same datasheet, then accept/reject/override |
+| 17 | review_suggestion_high | Skathach Wraithknight [Legends] | Aeldari - Aeldari Library | Wraithknight | 120x92mm Oval Base | 20 | verify same datasheet, then accept/reject/override |
+| 18 | review_suggestion_high | Chaos Lord on Disc of Tzeentch [Legends] | Chaos - Chaos Space Marines | Exalted Sorcerer on Disc of Tzeentch | 40mm | 50 | verify same datasheet, then accept/reject/override |
+| 19 | review_suggestion_high | Chaos Lord on Disc of Tzeentch [Legends] | Chaos - Thousand Sons | Exalted Sorcerer on Disc of Tzeentch | 40mm | 50 | verify same datasheet, then accept/reject/override |
+| 20 | review_suggestion_high | Celestian Sacresant Aveline [Legends] | Imperium - Adepta Sororitas | Celestian Sacresants | 32mm | 15 | verify same datasheet, then accept/reject/override |
+| 21 | review_suggestion_high | Furioso Dreadnought [Legends] | Imperium - Adeptus Astartes - Blood Angels | Dreadnought | 60mm | 44 | verify same datasheet, then accept/reject/override |
+| 22 | review_suggestion_high | Land Raider Prometheus [Legends] | Imperium - Adeptus Astartes - Space Marines | Land Raider | Hull | 45 | verify same datasheet, then accept/reject/override |
+| 23 | review_suggestion_high | Wolf Guard Battle Leader in Terminator Armour [Legends] | Imperium - Adeptus Astartes - Space Wolves | Wolf Guard Battle Leader | 40mm | 47 | verify same datasheet, then accept/reject/override |
+| 24 | review_suggestion_high | Relic Contemptor Dreadnought [Legends] | Library - Astartes Heresy Legends | Venerable Contemptor Dreadnought | 60mm | 16 | verify same datasheet, then accept/reject/override |
+| 25 | review_suggestion_high | Tesseract Ark [Legends] | Xenos - Necrons | Tesseract Vault | 120x92mm Oval Base | 41 | verify same datasheet, then accept/reject/override |
+| 26 | review_suggestion_high | Carnifex | Xenos - Tyranids | Carnifexes | 105x70mm Oval Base | 51 | verify same datasheet, then accept/reject/override |
+| 27 | review_suggestion_medium | Deathwing Command Squad [Legends] | Imperium - Adeptus Astartes - Dark Angels | Ravenwing Command Squad | 75x42mm Oval Base | 30 | compare source names before accepting |
+| 28 | review_suggestion_medium | Canoptek Acanthrites [Legends] | Xenos - Necrons | Canoptek Macrocytes | 28.5mm | 40 | compare source names before accepting |
+| 29 | review_suggestion_medium | Ultramarines Honour Guard [Legends] | Imperium - Adeptus Astartes - Ultramarines | Victrix Honour Guard | 40mm | 46 | compare source names before accepting |
+| 30 | review_suggestion_medium | Chaos Lord on Bike [Legends] | Chaos - Chaos Space Marines | Chaos Lord | 40mm | 28 | compare source names before accepting |
 - 450 additional queue rows omitted from this report sample.
 
 ## Largest Unmatched Factions
@@ -133,6 +133,7 @@ Use the prioritized queue when you want a smaller manual batch. It sorts safer/h
 
 ```powershell
 python plan_footprint_review.py --limit 50 --output data\10e\latest\unit_footprint_review_queue.csv
+python plan_footprint_review.py --priority high --output data\10e\latest\unit_footprint_review_queue_high.csv
 ```
 
 ```powershell
@@ -140,6 +141,7 @@ python promote_footprint_override_template.py --template data\10e\latest\unit_fo
 python promote_footprint_override_template.py --template data\10e\latest\unit_footprint_override_template.csv --apply
 python promote_footprint_override_template.py --queue data\10e\latest\unit_footprint_review_queue.csv
 python promote_footprint_override_template.py --queue data\10e\latest\unit_footprint_review_queue.csv --apply
+python promote_footprint_override_template.py --queue data\10e\latest\unit_footprint_review_queue.csv --record-rejections --apply
 ```
 
 Regenerate generated data after changing overrides or rejections:

@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-04-28T11:54:35.098085Z",
+  "generated_at": "2026-04-28T17:00:08.748325Z",
   "csv_dir": "C:\\Users\\ap010\\OneDrive\\Documents\\dev\\Warhammer 40K Calculator\\250916 0942 Warhammer 40k damage calculator\\data\\10e\\latest",
   "row_counts": {
     "units": 1471,
-    "weapons": 8655,
+    "weapons": 8765,
     "abilities": 3143,
     "keywords": 1413,
     "unit_keywords": 9576

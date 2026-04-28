@@ -131,6 +131,7 @@ def render_footprint_review_report(data_dir: Path, *, high_score_threshold: floa
             "",
             "```powershell",
             "python plan_footprint_review.py --limit 50 --output data\\10e\\latest\\unit_footprint_review_queue.csv",
+            "python plan_footprint_review.py --priority high --output data\\10e\\latest\\unit_footprint_review_queue_high.csv",
             "```",
             "",
             "```powershell",
@@ -138,6 +139,7 @@ def render_footprint_review_report(data_dir: Path, *, high_score_threshold: floa
             "python promote_footprint_override_template.py --template data\\10e\\latest\\unit_footprint_override_template.csv --apply",
             "python promote_footprint_override_template.py --queue data\\10e\\latest\\unit_footprint_review_queue.csv",
             "python promote_footprint_override_template.py --queue data\\10e\\latest\\unit_footprint_review_queue.csv --apply",
+            "python promote_footprint_override_template.py --queue data\\10e\\latest\\unit_footprint_review_queue.csv --record-rejections --apply",
             "```",
             "",
             "Regenerate generated data after changing overrides or rejections:",
@@ -151,10 +153,23 @@ def render_footprint_review_report(data_dir: Path, *, high_score_threshold: floa
     return "\n".join(lines)
 
 
-def write_footprint_review_report(data_dir: Path, output: Path | None = None) -> Path:
+def write_footprint_review_report(
+    data_dir: Path,
+    output: Path | None = None,
+    *,
+    high_score_threshold: float = 0.8,
+    row_limit: int = 30,
+) -> Path:
     output = Path(output) if output else Path(data_dir) / "unit_footprint_review.md"
     output.parent.mkdir(parents=True, exist_ok=True)
-    output.write_text(render_footprint_review_report(data_dir), encoding="utf-8")
+    output.write_text(
+        render_footprint_review_report(
+            data_dir,
+            high_score_threshold=high_score_threshold,
+            row_limit=row_limit,
+        ),
+        encoding="utf-8",
+    )
     return output
 
 
@@ -194,8 +209,8 @@ def _review_queue_table(rows: list[dict[str, str]], *, row_limit: int) -> list[s
         return ["No prioritized queue rows are available."]
     selected = rows[:row_limit]
     lines = [
-        "| Rank | Priority | Unit | Faction | Suggestion | Base | Suggested action |",
-        "| --- | --- | --- | --- | --- | --- | --- |",
+        "| Rank | Priority | Unit | Faction | Suggestion | Base | Page | Suggested action |",
+        "| --- | --- | --- | --- | --- | --- | --- | --- |",
         *[_review_queue_line(row) for row in selected],
     ]
     if len(rows) > row_limit:
@@ -206,6 +221,7 @@ def _review_queue_table(rows: list[dict[str, str]], *, row_limit: int) -> list[s
 def _review_queue_line(row: dict[str, str]) -> str:
     suggestion = row.get("suggested_guide_unit_name", "")
     base = row.get("suggested_base_size_text", "")
+    page = row.get("suggested_source_page", "")
     action = _queue_action_hint(row)
     return (
         f"| {row.get('review_rank', '')} "
@@ -214,6 +230,7 @@ def _review_queue_line(row: dict[str, str]) -> str:
         f"| {_md_cell(row.get('faction_contains', ''))} "
         f"| {_md_cell(suggestion or 'research required')} "
         f"| {_md_cell(base or 'unknown')} "
+        f"| {_md_cell(page or 'unknown')} "
         f"| {_md_cell(action)} |"
     )
 

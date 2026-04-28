@@ -516,7 +516,7 @@ def _weapon_from_profile(profile: ET.Element, unit_id: str, *, source_file: str 
         weapon_type = "ranged"
 
     return WeaponRow(
-        weapon_id=f"{unit_id}:{_slugify(name)}",
+        weapon_id=f"{unit_id}:{weapon_type}:{_slugify(name)}",
         unit_id=unit_id,
         name=name,
         weapon_type=weapon_type,

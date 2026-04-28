@@ -609,10 +609,12 @@ def test_standalone_html_can_calculate_matchup_in_headless_browser():
                             reviewSearchExists: Boolean(document.getElementById("data-review-search")),
                             reviewStatusExists: Boolean(document.getElementById("data-review-status")),
                             footprintSuggestionsText: document.body.textContent.includes("Footprint Match Suggestions"),
+                            footprintSuggestionsSourceText: document.body.textContent.includes("Guide source"),
                             footprintTemplateStatusText: document.body.textContent.includes("Footprint Override Template Status"),
                             footprintTemplateReadyText: document.body.textContent.includes("Ready to promote"),
                             footprintQueueText: document.body.textContent.includes("Footprint Review Queue"),
                             footprintQueueHintText: document.body.textContent.includes("Prioritized manual review batch"),
+                            footprintQueueSourceText: document.body.textContent.includes("Guide source"),
                             footprintReviewText: document.body.textContent.includes("Unit Footprint Review"),
                             footprintEstimateText: document.body.textContent.includes("Non-Numeric Footprint Estimates"),
                             initialFilterStatus: document.getElementById("data-review-filter-status")?.textContent || "",
@@ -652,10 +654,12 @@ def test_standalone_html_can_calculate_matchup_in_headless_browser():
             assert "Suspicious Weapons" in review_result["reviewNavText"]
             assert "Footprints" in review_result["reviewNavText"]
             assert review_result["footprintSuggestionsText"] is True
+            assert review_result["footprintSuggestionsSourceText"] is True
             assert review_result["footprintTemplateStatusText"] is True
             assert review_result["footprintTemplateReadyText"] is True
             assert review_result["footprintQueueText"] is True
             assert review_result["footprintQueueHintText"] is True
+            assert review_result["footprintQueueSourceText"] is True
             assert review_result["footprintReviewText"] is True
             assert review_result["footprintEstimateText"] is True
             assert review_result["reviewSearchExists"] is True
@@ -845,7 +849,38 @@ def test_standalone_html_battlefield_mode_smoke():
                           });
                           const unitStatLabels = [...document.querySelectorAll(".bf-unit-stat-label")].map((node) => node.textContent);
                           const unitBadgeLabels = [...document.querySelectorAll(".bf-unit-badge-text")].map((node) => node.textContent);
-                          const unitTooltipText = document.querySelector(".bf-unit-marker title")?.textContent || "";
+                          const unitMarker = document.querySelector(".bf-unit-marker");
+                          const unitTooltipText = unitMarker?.dataset.hoverText || "";
+                          const nativeUnitTitles = document.querySelectorAll(".bf-unit-marker title").length;
+                          const hoverUnit = document.querySelector(".bf-unit");
+                          const hoverRect = hoverUnit.getBoundingClientRect();
+                          const board = document.getElementById("battle-board");
+                          const hoverUnitState = state.battlefield.state.units.find((unit) => unit.instance_id === hoverUnit.dataset.unitId);
+                          const hoverUnitSvgPoint = board.createSVGPoint();
+                          hoverUnitSvgPoint.x = hoverUnitState.x;
+                          hoverUnitSvgPoint.y = hoverUnitState.y;
+                          const hoverUnitScreenPoint = hoverUnitSvgPoint.matrixTransform(board.getScreenCTM());
+                          const remappedHoverUnitPoint = svgPoint(board, hoverUnitScreenPoint.x, hoverUnitScreenPoint.y);
+                          const dragCoordinateDelta = Math.hypot(
+                            remappedHoverUnitPoint.x - hoverUnitState.x,
+                            remappedHoverUnitPoint.y - hoverUnitState.y
+                          );
+                          showBattleHoverCard(hoverUnit.dataset.unitId, { clientX: hoverRect.left + 4, clientY: hoverRect.top + 4 });
+                          const hoverCard = document.querySelector("[data-testid='battle-hover-card']");
+                          const hoverCardText = hoverCard?.textContent || "";
+                          const hoverCardVisible = hoverCard?.classList.contains("visible") || false;
+                          const hoverCardAria = hoverCard?.getAttribute("aria-hidden") || "";
+                          hideBattleHoverCard();
+                          const hoverCardHidden = hoverCard?.getAttribute("aria-hidden") || "";
+                          const terrainNode = document.querySelector(".bf-terrain");
+                          const terrainRect = terrainNode.getBoundingClientRect();
+                          showBattleHoverText(terrainNode.dataset.hoverText || "", { clientX: terrainRect.left + 4, clientY: terrainRect.top + 4 });
+                          const terrainHoverText = hoverCard?.textContent || "";
+                          const objectiveNode = document.querySelector(".bf-objective");
+                          const objectiveRect = objectiveNode.getBoundingClientRect();
+                          showBattleHoverText(objectiveNode.dataset.hoverText || "", { clientX: objectiveRect.left + 4, clientY: objectiveRect.top + 4 });
+                          const objectiveHoverText = hoverCard?.textContent || "";
+                          hideBattleHoverCard();
                           document.getElementById("battle-next-phase").click();
                           await new Promise((resolve) => setTimeout(resolve, 0));
                           const nextPhaseAfterClick = state.battlefield.state.phase;
@@ -984,6 +1019,7 @@ def test_standalone_html_battlefield_mode_smoke():
                           const inspectorText = document.querySelector("[data-testid='battle-unit-inspector']")?.innerText || "";
                           const inspectorWeaponRows = document.querySelectorAll(".inspector-weapon").length;
                           const selectedClassApplied = document.querySelector(".bf-unit.selected") !== null;
+                          const selectedUnitNameLabels = [...document.querySelectorAll(".bf-unit-name-label")].map((node) => node.textContent);
                           const moveRadius = document.querySelector(".bf-move-radius")?.getAttribute("r") || "";
                           const targetLine = document.querySelector(".bf-target-line") !== null;
                           const objectiveLine = document.querySelector(".bf-objective-line") !== null;
@@ -1051,6 +1087,9 @@ def test_standalone_html_battlefield_mode_smoke():
                           const boardHeaderText = document.querySelector("[data-testid='battlefield-board-header']")?.innerText || "";
                           const boardLegendText = document.querySelector(".battlefield-board-legend")?.innerText || "";
                           const boardGridBackground = Boolean(document.querySelector(".bf-board-bg") && document.querySelector("#bf-grid"));
+                          const rulerLabels = [...document.querySelectorAll(".bf-board-ruler .bf-ruler-text")].map((node) => node.textContent);
+                          const rulerLineCount = document.querySelectorAll(".bf-board-ruler .bf-ruler-line").length;
+                          const rulerScaleLineCount = document.querySelectorAll(".bf-board-ruler .bf-ruler-scale").length;
                           const terrainFeatureCount = document.querySelectorAll(".bf-terrain-feature").length;
                           const terrainEllipseCount = document.querySelectorAll("ellipse.bf-terrain").length;
                           const terrainPolygonCount = document.querySelectorAll("polygon.bf-terrain").length;
@@ -1073,6 +1112,14 @@ def test_standalone_html_battlefield_mode_smoke():
                             unitStatLabels,
                             unitBadgeLabels,
                             unitTooltipText,
+                            nativeUnitTitles,
+                            dragCoordinateDelta,
+                            hoverCardText,
+                            hoverCardVisible,
+                            hoverCardAria,
+                            hoverCardHidden,
+                            terrainHoverText,
+                            objectiveHoverText,
                             redFactionValue,
                             redSelectableText,
                             redFactionOptions,
@@ -1164,11 +1211,15 @@ def test_standalone_html_battlefield_mode_smoke():
                             boardHeaderText,
                             boardLegendText,
                             boardGridBackground,
+                            rulerLabels,
+                            rulerLineCount,
+                            rulerScaleLineCount,
                             terrainFeatureCount,
                             terrainEllipseCount,
                             terrainPolygonCount,
                             terrainLabelText,
                             unitNameLabels,
+                            selectedUnitNameLabels,
                             mainGridColumns,
                             deploymentZones,
                             deploymentLabelText,
@@ -1228,14 +1279,30 @@ def test_standalone_html_battlefield_mode_smoke():
             assert "Woods" in result["boardLegendText"]
             assert "Crater" in result["boardLegendText"]
             assert "Barricade" in result["boardLegendText"]
+            assert "Northwest ruin" in result["boardLegendText"]
+            assert "rectangle" in result["boardLegendText"]
+            assert "oval" in result["boardLegendText"]
+            assert "blocks LOS" in result["boardLegendText"]
+            assert "normal move" in result["boardLegendText"]
             assert "storeys" in result["boardLegendText"]
-            assert "Objective" in result["boardLegendText"]
+            assert "objective" in result["boardLegendText"]
+            assert "Red home" in result["boardLegendText"]
+            assert "Blue home" in result["boardLegendText"]
+            assert "Centre objective" in result["boardLegendText"]
+            assert "3\" radius" in result["boardLegendText"]
+            assert "5 VP" in result["boardLegendText"]
             assert result["boardGridBackground"] is True
+            assert "12\"" in result["rulerLabels"]
+            assert "44\"" in result["rulerLabels"]
+            assert "60\"" in result["rulerLabels"]
+            assert "6\" scale" in result["rulerLabels"]
+            assert result["rulerLineCount"] >= 9
+            assert result["rulerScaleLineCount"] == 3
             assert result["terrainFeatureCount"] >= 7
             assert result["terrainEllipseCount"] >= 3
             assert result["terrainPolygonCount"] >= 2
             assert "2S" in result["terrainLabelText"] or "3S" in result["terrainLabelText"]
-            assert result["unitNameLabels"] >= result["redUnits"] + result["blueUnits"]
+            assert result["unitNameLabels"] == 0
             assert result["mainGridColumns"] != "none"
             assert result["deploymentZones"] == 2
             assert "Red DZ" in result["deploymentLabelText"]
@@ -1251,6 +1318,19 @@ def test_standalone_html_battlefield_mode_smoke():
             assert "Position x " in result["unitTooltipText"]
             assert "Footprint " in result["unitTooltipText"]
             assert "Base " in result["unitTooltipText"]
+            assert result["nativeUnitTitles"] == 0
+            assert result["dragCoordinateDelta"] < 0.01
+            assert result["hoverCardVisible"] is True
+            assert result["hoverCardAria"] == "false"
+            assert result["hoverCardHidden"] == "true"
+            assert "Models " in result["hoverCardText"]
+            assert "Nearest enemy:" in result["hoverCardText"]
+            assert "storey" in result["terrainHoverText"]
+            assert "cover" in result["terrainHoverText"]
+            assert "LOS" in result["terrainHoverText"]
+            assert "objective" in result["objectiveHoverText"]
+            assert "Radius " in result["objectiveHoverText"]
+            assert "VP " in result["objectiveHoverText"]
             assert result["redFactionValue"] == "Xenos - Orks"
             assert "selectable units" in result["redSelectableText"]
             assert any("Boyz" in option for option in result["redFactionOptions"])
@@ -1348,6 +1428,8 @@ def test_standalone_html_battlefield_mode_smoke():
             assert "Base " in result["inspectorText"]
             assert result["inspectorWeaponRows"] >= 1
             assert result["selectedClassApplied"] is True
+            assert len(result["selectedUnitNameLabels"]) == 1
+            assert result["selectedUnitNameLabels"][0]
             assert float(result["moveRadius"]) >= 1
             assert result["targetLine"] is True
             assert result["objectiveLine"] is True

@@ -11,7 +11,9 @@ from warhammer.base_sizes import (
     match_unit_footprints,
     parse_base_size_lines,
     parse_base_size_text,
+    rejected_rows_from_template,
     rejected_rows_from_suggestions,
+    normalize_footprint_review_priority,
     summarize_footprint_override_template,
     unit_name_keys,
 )
@@ -89,6 +91,9 @@ def test_match_unit_footprints_uses_faction_and_flags_multi_base_units():
             "base_shape": "round",
             "base_width_mm": "40",
             "base_depth_mm": "40",
+            "source_page": "44",
+            "source_url": "https://example.test/base-guide.pdf",
+            "source_updated": "Test Updated",
         },
         {
             "guide_faction": "AELDARI",
@@ -207,6 +212,7 @@ def test_build_footprint_suggestions_for_unmatched_units():
             "guide_faction": "AELDARI",
             "guide_unit_name": "Farseer Skyrunner",
             "guide_model_name": "",
+            "page": "22",
             "base_size_text": "Small Flying Base",
             "base_type": "small_flying_base",
             "base_shape": "flying",
@@ -236,6 +242,7 @@ def test_build_footprint_suggestions_for_unmatched_units():
     assert suggestions
     assert suggestions[0]["unit_name"] == "Autarch Skyrunner"
     assert suggestions[0]["guide_faction"] == "AELDARI"
+    assert suggestions[0]["source_page"] == "22"
     assert suggestions[0]["suggestion_score"]
 
 
@@ -255,6 +262,9 @@ def test_accepted_override_rows_from_suggestions_filters_reviewed_rank_and_score
             "base_shape": "round",
             "base_width_mm": "40",
             "base_depth_mm": "40",
+            "source_page": "44",
+            "source_url": "https://example.test/base-guide.pdf",
+            "source_updated": "Test Updated",
         },
         {
             "unit_id": "low",
@@ -271,7 +281,10 @@ def test_accepted_override_rows_from_suggestions_filters_reviewed_rank_and_score
     assert [row["unit_id"] for row in accepted] == ["safe"]
     assert accepted[0]["guide_unit_name"] == "Ancient in Terminator Armour"
     assert accepted[0]["base_width_mm"] == "40"
+    assert accepted[0]["source_url"] == "https://example.test/base-guide.pdf"
+    assert accepted[0]["source_updated"] == "Test Updated"
     assert "Accepted footprint suggestion" in accepted[0]["review_reason"]
+    assert "guide page 44" in accepted[0]["review_reason"]
 
 
 def test_rejected_rows_from_suggestions_filter_future_candidates():
@@ -285,13 +298,14 @@ def test_rejected_rows_from_suggestions_filter_future_candidates():
             "guide_faction": "SPACE MARINES",
             "guide_unit_name": "Chaplain on Bike",
             "base_size_text": "90x52.5mm Oval Base",
+            "source_page": "44",
         }
     ]
     rejected = rejected_rows_from_suggestions(suggestions, [], min_score=0.8, reason="Different datasheet.")
 
     assert rejected[0]["unit_id"] == "unsafe"
     assert rejected[0]["decision"] == "rejected"
-    assert rejected[0]["review_reason"] == "Different datasheet."
+    assert rejected[0]["review_reason"] == "Different datasheet.; guide page 44"
 
     units = [
         {
@@ -320,6 +334,38 @@ def test_rejected_rows_from_suggestions_filter_future_candidates():
     assert build_footprint_suggestions(units, guide, footprints, min_score=0.1, rejection_rows=rejected) == []
 
 
+def test_rejected_rows_from_template_records_reviewed_queue_rejections():
+    queue_rows = [
+        {
+            "review_rank": "1",
+            "unit_id": "unsafe",
+            "unit_name": "Captain on Bike",
+            "faction_contains": "Imperium - Adeptus Astartes",
+            "suggested_guide_faction": "SPACE MARINES",
+            "suggested_guide_unit_name": "Chaplain on Bike",
+            "suggested_base_size_text": "90x52.5mm Oval Base",
+            "suggested_source_page": "45",
+            "review_decision": "reject",
+            "review_notes": "Different datasheet.",
+        },
+        {
+            "unit_id": "unknown",
+            "unit_name": "Unknown Unit",
+            "review_decision": "reject",
+        },
+    ]
+
+    rejected = rejected_rows_from_template(queue_rows, [], reason="Reviewed queue row.")
+
+    assert len(rejected) == 1
+    assert rejected[0]["unit_id"] == "unsafe"
+    assert rejected[0]["guide_unit_name"] == "Chaplain on Bike"
+    assert rejected[0]["decision"] == "rejected"
+    assert "guide page 45" in rejected[0]["review_reason"]
+    assert "Different datasheet" in rejected[0]["review_reason"]
+    assert rejected_rows_from_template(queue_rows, rejected) == []
+
+
 def test_build_footprint_override_template_prefills_unmatched_units_and_suggestion_context():
     review_rows = [
         {
@@ -346,6 +392,9 @@ def test_build_footprint_override_template_prefills_unmatched_units_and_suggesti
             "suggestion_reason": "similar",
             "guide_faction": "TEST",
             "guide_unit_name": "Suggested Unit",
+            "source_page": "42",
+            "source_url": "https://example.test/base-guide.pdf",
+            "source_updated": "Test Updated",
             "base_size_text": "40mm",
         }
     ]
@@ -356,6 +405,8 @@ def test_build_footprint_override_template_prefills_unmatched_units_and_suggesti
     assert template[0]["unit_id"] == "missing"
     assert template[0]["faction_contains"] == "Test Faction"
     assert template[0]["suggested_guide_unit_name"] == "Suggested Unit"
+    assert template[0]["suggested_source_page"] == "42"
+    assert template[0]["suggested_source_url"] == "https://example.test/base-guide.pdf"
     assert template[0]["override_base_size_text"] == ""
 
 
@@ -414,6 +465,53 @@ def test_build_footprint_review_queue_filters_faction_and_limits_rows():
     assert [row["unit_id"] for row in queue] == ["ork"]
 
 
+def test_build_footprint_review_queue_filters_priorities_before_limit():
+    template = [
+        {
+            "unit_id": "high",
+            "unit_name": "High",
+            "suggestion_score": "0.82",
+            "suggested_guide_unit_name": "High Official",
+            "suggested_base_size_text": "40mm",
+        },
+        {
+            "unit_id": "medium",
+            "unit_name": "Medium",
+            "suggestion_score": "0.70",
+            "suggested_guide_unit_name": "Medium Official",
+            "suggested_base_size_text": "32mm",
+        },
+        {
+            "unit_id": "none",
+            "unit_name": "No Suggestion",
+        },
+    ]
+
+    queue = build_footprint_review_queue(template, priorities={"review_suggestion_medium", "no_suggestion"}, limit=1)
+
+    assert [row["unit_id"] for row in queue] == ["medium"]
+    assert queue[0]["review_priority"] == "review_suggestion_medium"
+
+
+def test_build_footprint_review_queue_accepts_priority_aliases():
+    template = [
+        {
+            "unit_id": "high",
+            "unit_name": "High",
+            "suggestion_score": "0.82",
+            "suggested_guide_unit_name": "High Official",
+            "suggested_base_size_text": "40mm",
+        },
+        {"unit_id": "none", "unit_name": "No Suggestion"},
+    ]
+
+    assert normalize_footprint_review_priority("high") == "review_suggestion_high"
+    assert normalize_footprint_review_priority("none") == "no_suggestion"
+    queue = build_footprint_review_queue(template, priorities={"high", "none"})
+
+    assert [row["unit_id"] for row in queue] == ["high", "none"]
+
+
 def test_accepted_override_rows_from_template_promotes_reviewed_rows_only():
     template = [
         {
@@ -425,6 +523,9 @@ def test_accepted_override_rows_from_template_promotes_reviewed_rows_only():
             "suggested_guide_faction": "TEST",
             "suggested_guide_unit_name": "Official Suggested Unit",
             "suggested_base_size_text": "40mm",
+            "suggested_source_page": "42",
+            "suggested_source_url": "https://example.test/base-guide.pdf",
+            "suggested_source_updated": "Test Updated",
             "review_decision": "accept_suggestion",
             "review_notes": "Checked official PDF.",
         },
@@ -449,6 +550,9 @@ def test_accepted_override_rows_from_template_promotes_reviewed_rows_only():
     assert [row["unit_id"] for row in accepted] == ["suggested", "manual"]
     assert accepted[0]["base_width_mm"] == "40"
     assert accepted[0]["guide_unit_name"] == "Official Suggested Unit"
+    assert accepted[0]["source_url"] == "https://example.test/base-guide.pdf"
+    assert accepted[0]["source_updated"] == "Test Updated"
+    assert "guide page 42" in accepted[0]["review_reason"]
     assert "Checked official PDF" in accepted[0]["review_reason"]
     assert accepted[1]["base_shape"] == "oval"
     assert accepted[1]["base_depth_mm"] == "52.5"

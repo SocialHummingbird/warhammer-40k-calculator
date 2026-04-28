@@ -50,7 +50,7 @@ To refresh the BSData checkout, rebuild all generated files, and open the standa
 ```powershell
 .\update_and_open_local_html.ps1
 .\update_and_open_local_html.ps1 -FailOnReviewIssues
-.\update_and_open_local_html.ps1 -FailOnReviewIssues -MaxSuspiciousWeaponWarnings 18 -MaxLoadoutWarnings 143 -MaxNoWeaponUnits 16
+.\update_and_open_local_html.ps1 -FailOnReviewIssues -MaxSuspiciousWeaponWarnings 18 -MaxLoadoutWarnings 145 -MaxNoWeaponUnits 16
 .\update_and_open_local_html.ps1 -FailOnReviewIssues -ReviewThresholds config\review_thresholds_10e.json
 .\update_and_open_local_html.ps1 -WriteReviewThresholds config\review_thresholds_10e.json
 .\update_and_open_local_html.ps1 -MlModelType logistic_regression -MlLabels data\ml\10e\real_matchup_labels.csv
@@ -193,7 +193,7 @@ For a compact terminal summary of the generated review artifacts, run:
 ```powershell
 python data_review_summary.py --data-dir data\10e\latest
 python data_review_summary.py --data-dir data\10e\latest --fail-on-issues
-python data_review_summary.py --data-dir data\10e\latest --fail-on-issues --max-suspicious-weapon-warnings 18 --max-loadout-warnings 143 --max-no-weapon-units 16
+python data_review_summary.py --data-dir data\10e\latest --fail-on-issues --max-suspicious-weapon-warnings 18 --max-loadout-warnings 145 --max-no-weapon-units 16
 python data_review_summary.py --data-dir data\10e\latest --fail-on-issues --thresholds config\review_thresholds_10e.json
 python data_review_summary.py --data-dir data\10e\latest --write-thresholds config\review_thresholds_10e.json
 ```
@@ -211,7 +211,7 @@ For manual data review, open:
 - `data\10e\latest\unit_footprint_overrides.csv` for reviewable local footprint aliases or manual corrections that cannot be matched safely by name.
 - `data\10e\latest\unit_footprint_rejections.csv` for reviewed footprint suggestions that should not be resurfaced as candidate matches.
 - `data\10e\latest\unit_footprint_override_template.csv` for unmatched units prefilled with unit IDs and top suggestion context, ready for manual override research.
-- `data\10e\latest\unit_footprint_review_queue.csv` for the same unmatched units sorted into a prioritized manual review queue.
+- `data\10e\latest\unit_footprint_review_queue.csv` for the same unmatched units sorted into a prioritized manual review queue, with suggested official guide page/source context where available.
 - `data\10e\latest\unit_footprints.csv` for imported units joined to official base sizes, used by Battlefield blob sizing where a numeric base is available.
 - `data\10e\latest\unit_footprint_review.csv` for unmatched, mixed-base, non-numeric-base, and faction-ambiguous footprint rows that need manual review.
 - `data\10e\latest\unit_footprint_review.md` for a human-readable footprint triage report with status counts, high-confidence suggestions, and override workflow commands.
@@ -228,20 +228,25 @@ After reviewing high-confidence footprint suggestions, promote them into the man
 
 ```powershell
 python footprint_review_report.py --data-dir data\10e\latest
+python footprint_review_report.py --data-dir data\10e\latest --row-limit 75 --high-score-threshold 0.75
 python accept_footprint_suggestions.py --min-score 0.9
 python accept_footprint_suggestions.py --min-score 0.9 --apply
 python reject_footprint_suggestions.py --min-score 0.8 --unit-id <unit-id> --apply
 python plan_footprint_review.py --limit 50 --output data\10e\latest\unit_footprint_review_queue.csv
+python plan_footprint_review.py --priority high --output data\10e\latest\unit_footprint_review_queue_high.csv
 python promote_footprint_override_template.py --template data\10e\latest\unit_footprint_override_template.csv
 python promote_footprint_override_template.py --template data\10e\latest\unit_footprint_override_template.csv --apply
 python promote_footprint_override_template.py --queue data\10e\latest\unit_footprint_review_queue.csv
 python promote_footprint_override_template.py --queue data\10e\latest\unit_footprint_review_queue.csv --apply
+python promote_footprint_override_template.py --queue data\10e\latest\unit_footprint_review_queue.csv --record-rejections --apply
 python update_database.py --skip-fetch --skip-ml
 ```
 
 In `unit_footprint_override_template.csv`, leave uncertain rows blank. Set `review_decision` to
 `accept_suggestion` to promote the prefilled official-guide suggestion, or `override` after filling the
-`override_*` fields for a researched manual base-size row. The promotion script reports suggestion-ready,
+`override_*` fields for a researched manual base-size row. Set `review_decision` to `reject` for unsafe
+suggestions and pass `--record-rejections --apply` to suppress those candidates from future suggestion
+runs. The promotion script reports suggestion-ready,
 manual override-ready, invalid, blank, skipped, and already-overridden rows before it writes anything.
 Those same counts are visible in the Data Review screen as “Footprint Override Template Status”.
 Data Review also renders “Footprint Review Queue” with the priority counts and first rows from

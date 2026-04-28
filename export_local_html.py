@@ -1556,18 +1556,50 @@ def _local_script(data: dict[str, Any]) -> str:
       const blueLive = (battleState.units || []).filter((unit) => unit.side === "blue" && Number(unit.models_remaining || 0) > 0).length;
       const deploymentZones = (battleMap.deployment_zones || []).map((zone) => `<g class="bf-deployment-zone" data-side="${{escapeHtml(zone.side || "")}}"><rect class="bf-deployment ${{escapeHtml(zone.side || "")}}" x="${{zone.x}}" y="${{zone.y}}" width="${{zone.width}}" height="${{zone.height}}"><title>${{escapeHtml(titleCase(zone.side || "Unknown"))}} deployment zone</title></rect><text class="bf-deployment-label" x="${{Number(zone.x || 0) + Number(zone.width || 0) / 2}}" y="${{Number(zone.y || 0) + Number(zone.height || 0) / 2}}">${{escapeHtml(titleCase(zone.side || ""))}} DZ</text></g>`).join("");
       const terrain = (battleMap.terrain || []).map((feature) => renderTerrainFeature(feature)).join("");
-      const objectives = (battleMap.objectives || []).map((objective, index) => `<circle class="bf-objective" cx="${{objective.x}}" cy="${{objective.y}}" r="${{objective.radius}}"><title>${{escapeHtml(objective.name)}} objective</title></circle><text class="bf-objective-label" x="${{objective.x}}" y="${{objective.y}}">${{escapeHtml(battleObjectiveLabel(objective, index))}}</text>`).join("");
+      const objectives = (battleMap.objectives || []).map((objective, index) => `<circle class="bf-objective" cx="${{objective.x}}" cy="${{objective.y}}" r="${{objective.radius}}" data-objective-index="${{index}}" data-hover-text="${{escapeHtml(objectiveTooltip(objective, index))}}"></circle><text class="bf-objective-label" x="${{objective.x}}" y="${{objective.y}}">${{escapeHtml(battleObjectiveLabel(objective, index))}}</text>`).join("");
       const overlays = renderBattleOverlays(battleState);
       const units = (battleState.units || []).map((unit) => {{
         const profile = battleUnitProfile(unit);
         const radius = Number(unit.radius || 1);
+        const selected = state.battlefield.selectedInstanceId === unit.instance_id;
         const badgeRadius = Math.max(0.72, Math.min(1.25, radius * 0.42));
         const badgeX = Number(unit.x || 0) + radius * 0.68;
         const badgeY = Number(unit.y || 0) - radius * 0.68;
         const statY = Number(unit.y || 0) + radius * 0.42;
-        return `<g class="bf-unit-marker ${{escapeHtml(unit.side)}}" data-unit-id="${{escapeHtml(unit.instance_id)}}"><title>${{escapeHtml(battleUnitTooltip(unit, profile, battleState))}}</title><circle class="bf-unit ${{escapeHtml(unit.side)}} ${{(unit.status_flags || []).includes("destroyed") ? "destroyed" : ""}} ${{state.battlefield.selectedInstanceId === unit.instance_id ? "selected" : ""}}" cx="${{unit.x}}" cy="${{unit.y}}" r="${{unit.radius}}" data-unit-id="${{escapeHtml(unit.instance_id)}}"></circle><text class="bf-label" x="${{unit.x}}" y="${{Number(unit.y || 0) - radius * 0.18}}" font-size="${{battleLabelFontSize(unit)}}">${{escapeHtml(unitInitials(unit.name))}}</text><text class="bf-unit-stat-label" x="${{unit.x}}" y="${{statY}}" textLength="${{battleUnitStatLabelWidth(unit)}}" lengthAdjust="spacingAndGlyphs">${{escapeHtml(battleUnitStatText(unit))}}</text><circle class="bf-unit-badge" cx="${{badgeX}}" cy="${{badgeY}}" r="${{badgeRadius}}"></circle><text class="bf-unit-badge-text" x="${{badgeX}}" y="${{badgeY}}">${{escapeHtml(battleUnitBadgeText(unit))}}</text><text class="bf-unit-name-label" x="${{unit.x}}" y="${{Number(unit.y || 0) + radius + 1.5}}" textLength="${{battleUnitNameLabelWidth(unit)}}" lengthAdjust="spacingAndGlyphs">${{escapeHtml(shortUnitLabel(unit.name))}}</text></g>`;
+        const nameLabel = selected ? `<text class="bf-unit-name-label" x="${{unit.x}}" y="${{Number(unit.y || 0) + radius + 1.5}}" textLength="${{battleUnitNameLabelWidth(unit)}}" lengthAdjust="spacingAndGlyphs">${{escapeHtml(shortUnitLabel(unit.name))}}</text>` : "";
+        return `<g class="bf-unit-marker ${{escapeHtml(unit.side)}}" data-unit-id="${{escapeHtml(unit.instance_id)}}" data-hover-text="${{escapeHtml(battleUnitTooltip(unit, profile, battleState))}}"><circle class="bf-unit ${{escapeHtml(unit.side)}} ${{(unit.status_flags || []).includes("destroyed") ? "destroyed" : ""}} ${{selected ? "selected" : ""}}" cx="${{unit.x}}" cy="${{unit.y}}" r="${{unit.radius}}" data-unit-id="${{escapeHtml(unit.instance_id)}}"></circle><text class="bf-label" x="${{unit.x}}" y="${{Number(unit.y || 0) - radius * 0.18}}" font-size="${{battleLabelFontSize(unit)}}">${{escapeHtml(unitInitials(unit.name))}}</text><text class="bf-unit-stat-label" x="${{unit.x}}" y="${{statY}}" textLength="${{battleUnitStatLabelWidth(unit)}}" lengthAdjust="spacingAndGlyphs">${{escapeHtml(battleUnitStatText(unit))}}</text><circle class="bf-unit-badge" cx="${{badgeX}}" cy="${{badgeY}}" r="${{badgeRadius}}"></circle><text class="bf-unit-badge-text" x="${{badgeX}}" y="${{badgeY}}">${{escapeHtml(battleUnitBadgeText(unit))}}</text>${{nameLabel}}</g>`;
       }}).join("");
-      return `<div class="battlefield-board-wrap"><div class="battlefield-board-header" data-testid="battlefield-board-header"><div class="battlefield-board-title"><h3>${{escapeHtml(battleMap.name || "Battlefield")}}</h3><div class="small">${{escapeHtml(battleMap.width)}}" x ${{escapeHtml(battleMap.height)}}" | ${{escapeHtml(titleCase(battleState.phase || "movement"))}} phase | Red ${{redLive}} live, Blue ${{blueLive}} live</div></div><div class="battlefield-board-legend" aria-label="Battlefield legend">${{renderTerrainLegend(battleMap)}}<span><i class="legend-swatch objective"></i>Objective marker</span><span><i class="legend-swatch red"></i>Red unit</span><span><i class="legend-swatch blue"></i>Blue unit</span></div></div><svg class="battlefield-board" id="battle-board" viewBox="0 0 ${{battleMap.width}} ${{battleMap.height}}" data-width="${{battleMap.width}}" data-height="${{battleMap.height}}" role="img" aria-label="${{escapeHtml(battleMap.name)}} battlefield"><defs><pattern id="bf-grid" width="4" height="4" patternUnits="userSpaceOnUse"><path d="M 4 0 L 0 0 0 4" fill="none" stroke="#dfe7ee" stroke-width="0.08"></path></pattern></defs><rect class="bf-board-bg" x="0" y="0" width="${{battleMap.width}}" height="${{battleMap.height}}"></rect><rect x="0" y="0" width="${{battleMap.width}}" height="${{battleMap.height}}" fill="url(#bf-grid)" opacity=".8"></rect>${{deploymentZones}}${{terrain}}${{objectives}}${{overlays}}${{units}}</svg></div><div class="small">Phase: ${{escapeHtml(titleCase(battleState.phase || "movement"))}} | Score: Red ${{battleState.score?.red || 0}} | Blue ${{battleState.score?.blue || 0}}. Drag unit blobs to adjust the current state before asking the AI.</div>`;
+      return `<div class="battlefield-board-wrap"><div class="battlefield-board-header" data-testid="battlefield-board-header"><div class="battlefield-board-title"><h3>${{escapeHtml(battleMap.name || "Battlefield")}}</h3><div class="small">${{escapeHtml(battleMap.width)}}" x ${{escapeHtml(battleMap.height)}}" | ${{escapeHtml(titleCase(battleState.phase || "movement"))}} phase | Red ${{redLive}} live, Blue ${{blueLive}} live</div></div><div class="battlefield-board-legend" aria-label="Battlefield legend">${{renderTerrainLegend(battleMap)}}${{renderObjectiveLegend(battleMap)}}<span><i class="legend-swatch red"></i>Red unit</span><span><i class="legend-swatch blue"></i>Blue unit</span></div></div><svg class="battlefield-board" id="battle-board" viewBox="0 0 ${{battleMap.width}} ${{battleMap.height}}" data-width="${{battleMap.width}}" data-height="${{battleMap.height}}" role="img" aria-label="${{escapeHtml(battleMap.name)}} battlefield"><defs><pattern id="bf-grid" width="4" height="4" patternUnits="userSpaceOnUse"><path d="M 4 0 L 0 0 0 4" fill="none" stroke="#dfe7ee" stroke-width="0.08"></path></pattern></defs><rect class="bf-board-bg" x="0" y="0" width="${{battleMap.width}}" height="${{battleMap.height}}"></rect><rect x="0" y="0" width="${{battleMap.width}}" height="${{battleMap.height}}" fill="url(#bf-grid)" opacity=".8"></rect>${{renderBoardRuler(battleMap)}}${{deploymentZones}}${{terrain}}${{objectives}}${{overlays}}${{units}}</svg><div class="battle-hover-card" id="battle-hover-card" data-testid="battle-hover-card" aria-hidden="true"></div></div><div class="small">Phase: ${{escapeHtml(titleCase(battleState.phase || "movement"))}} | Score: Red ${{battleState.score?.red || 0}} | Blue ${{battleState.score?.blue || 0}}. Drag unit blobs to adjust the current state before asking the AI.</div>`;
+    }}
+
+    function renderBoardRuler(battleMap) {{
+      const width = Number(battleMap.width || 44);
+      const height = Number(battleMap.height || 60);
+      const xMarks = rulerMarks(width);
+      const yMarks = rulerMarks(height);
+      const xTicks = xMarks.map((mark) => {{
+        const x = clamp(mark, 1.15, width - 1.15);
+        return `<line class="bf-ruler-line" x1="${{mark}}" y1="0" x2="${{mark}}" y2="1.05"></line><text class="bf-ruler-text" x="${{x}}" y="2.25">${{compactNumber(mark)}}"</text>`;
+      }}).join("");
+      const yTicks = yMarks.map((mark) => {{
+        const y = clamp(mark, 1.2, height - 1.2);
+        return `<line class="bf-ruler-line" x1="0" y1="${{mark}}" x2="1.05" y2="${{mark}}"></line><text class="bf-ruler-text" x="2.25" y="${{y}}">${{compactNumber(mark)}}"</text>`;
+      }}).join("");
+      const scaleX1 = Math.max(2, width - 8);
+      const scaleX2 = Math.max(scaleX1 + 1, width - 2);
+      const scaleY = Math.max(2, height - 2);
+      return `<g class="bf-board-ruler" aria-label="Board measurement ruler">${{xTicks}}${{yTicks}}<line class="bf-ruler-scale" x1="${{scaleX1}}" y1="${{scaleY}}" x2="${{scaleX2}}" y2="${{scaleY}}"></line><line class="bf-ruler-scale" x1="${{scaleX1}}" y1="${{scaleY - .55}}" x2="${{scaleX1}}" y2="${{scaleY + .55}}"></line><line class="bf-ruler-scale" x1="${{scaleX2}}" y1="${{scaleY - .55}}" x2="${{scaleX2}}" y2="${{scaleY + .55}}"></line><text class="bf-ruler-text" x="${{(scaleX1 + scaleX2) / 2}}" y="${{scaleY - 1.15}}">6" scale</text></g>`;
+    }}
+
+    function rulerMarks(size) {{
+      const marks = [0];
+      for (let mark = 12; mark < Number(size || 0); mark += 12) marks.push(mark);
+      if (!marks.includes(Number(size))) marks.push(Number(size));
+      return marks;
+    }}
+
+    function clamp(value, min, max) {{
+      return Math.max(min, Math.min(max, Number(value)));
     }}
 
     function renderTerrainFeature(feature) {{
@@ -1581,16 +1613,20 @@ def _local_script(data: dict[str, Any]) -> str:
       const title = terrainTitle(feature);
       let shapeHtml = "";
       if (shape === "ellipse" || shape === "oval" || shape === "circle") {{
-        shapeHtml = `<ellipse class="bf-terrain ${{escapeHtml(feature.type)}}" cx="${{cx}}" cy="${{cy}}" rx="${{width / 2}}" ry="${{height / 2}}"><title>${{title}}</title></ellipse>`;
+        shapeHtml = `<ellipse class="bf-terrain ${{escapeHtml(feature.type)}}" cx="${{cx}}" cy="${{cy}}" rx="${{width / 2}}" ry="${{height / 2}}" data-hover-text="${{title}}"></ellipse>`;
       }} else if (shape === "diamond") {{
-        shapeHtml = `<polygon class="bf-terrain ${{escapeHtml(feature.type)}}" points="${{cx}},${{y}} ${{x + width}},${{cy}} ${{cx}},${{y + height}} ${{x}},${{cy}}"><title>${{title}}</title></polygon>`;
+        shapeHtml = `<polygon class="bf-terrain ${{escapeHtml(feature.type)}}" points="${{cx}},${{y}} ${{x + width}},${{cy}} ${{cx}},${{y + height}} ${{x}},${{cy}}" data-hover-text="${{title}}"></polygon>`;
       }} else {{
-        shapeHtml = `<rect class="bf-terrain ${{escapeHtml(feature.type)}}" x="${{x}}" y="${{y}}" width="${{width}}" height="${{height}}"><title>${{title}}</title></rect>`;
+        shapeHtml = `<rect class="bf-terrain ${{escapeHtml(feature.type)}}" x="${{x}}" y="${{y}}" width="${{width}}" height="${{height}}" data-hover-text="${{title}}"></rect>`;
       }}
       return `<g class="bf-terrain-feature" data-terrain-id="${{escapeHtml(feature.id || "")}}">${{shapeHtml}}<text class="bf-terrain-label" x="${{cx}}" y="${{cy}}">${{escapeHtml(terrainShortLabel(feature))}}</text></g>`;
     }}
 
     function terrainTitle(feature) {{
+      return escapeHtml(terrainTooltip(feature));
+    }}
+
+    function terrainTooltip(feature) {{
       const parts = [
         feature.name || "Terrain",
         terrainTypeLabel(feature.type),
@@ -1599,7 +1635,18 @@ def _local_script(data: dict[str, Any]) -> str:
         feature.blocks_line_of_sight ? "blocks LOS" : "does not block LOS",
         Number(feature.movement_penalty || 0) ? `-${{fmt(feature.movement_penalty)}}" movement` : "no movement penalty"
       ];
-      return escapeHtml(parts.join(" | "));
+      return parts.join("\\n");
+    }}
+
+    function objectiveTooltip(objective, index) {{
+      const vp = objective.vp ?? objective.points ?? 0;
+      return [
+        objectiveDisplayName(objective, index),
+        `Label ${{battleObjectiveLabel(objective, index)}}`,
+        `Radius ${{compactNumber(objective.radius || 0)}}"`,
+        `VP ${{compactNumber(vp)}}`,
+        `Position x ${{fmt(objective.x)}}, y ${{fmt(objective.y)}}`
+      ].join("\\n");
     }}
 
     function terrainShortLabel(feature) {{
@@ -1618,19 +1665,50 @@ def _local_script(data: dict[str, Any]) -> str:
     }}
 
     function renderTerrainLegend(battleMap) {{
-      const byType = new Map();
-      for (const feature of battleMap.terrain || []) {{
+      return (battleMap.terrain || []).map((feature) => {{
         const type = String(feature.type || "terrain").toLowerCase();
-        if (!byType.has(type)) byType.set(type, []);
-        byType.get(type).push(feature);
-      }}
-      return [...byType.entries()].map(([type, rows]) => {{
-        const stories = [...new Set(rows.map((row) => Number(row.stories || 1)).filter(Boolean))].sort((a, b) => a - b);
-        const storeyText = stories.length && Math.max(...stories) > 1 ? `, ${{stories.join("/")}} storeys` : "";
-        const maxPenalty = Math.max(...rows.map((row) => Number(row.movement_penalty || 0)));
-        const rules = [rows.some((row) => row.blocks_line_of_sight) ? "LOS" : "", rows.some((row) => row.grants_cover) ? "cover" : "", maxPenalty > 0 ? `-${{fmt(maxPenalty)}}" move` : ""].filter(Boolean).join(", ");
-        return `<span><i class="legend-swatch ${{escapeHtml(type)}}"></i>${{escapeHtml(terrainTypeLabel(type))}}${{escapeHtml(storeyText)}}${{rules ? `: ${{escapeHtml(rules)}}` : ""}}</span>`;
+        const label = [
+          feature.name || terrainTypeLabel(type),
+          `${{terrainTypeLabel(type)}} ${{terrainShapeLabel(feature.shape)}}`,
+          `${{Number(feature.stories || 1)}} storey${{Number(feature.stories || 1) === 1 ? "" : "s"}}`,
+          terrainRulesLabel(feature)
+        ].filter(Boolean).join(": ");
+        return `<span title="${{terrainTitle(feature)}}"><i class="legend-swatch ${{escapeHtml(type)}}"></i><span class="legend-text">${{escapeHtml(label)}}</span></span>`;
       }}).join("");
+    }}
+
+    function renderObjectiveLegend(battleMap) {{
+      return (battleMap.objectives || []).map((objective, index) => {{
+        const vp = objective.vp ?? objective.points ?? 0;
+        const label = [
+          `${{battleObjectiveLabel(objective, index)}}: ${{objectiveDisplayName(objective, index)}}`,
+          `${{compactNumber(objective.radius || 0)}}" radius`,
+          `${{compactNumber(vp)}} VP`
+        ].join(": ");
+        return `<span title="${{escapeHtml(objectiveTooltip(objective, index))}}"><i class="legend-swatch objective"></i><span class="legend-text">${{escapeHtml(label)}}</span></span>`;
+      }}).join("");
+    }}
+
+    function objectiveDisplayName(objective, index) {{
+      const name = String((objective && objective.name) || `Objective ${{index + 1}}`).trim();
+      return name.toLowerCase().includes("objective") ? name : `${{name}} objective`;
+    }}
+
+    function terrainShapeLabel(shape) {{
+      const value = String(shape || "rectangle").toLowerCase();
+      if (value === "ellipse" || value === "oval") return "oval";
+      if (value === "circle") return "circle";
+      if (value === "diamond") return "diamond";
+      return "rectangle";
+    }}
+
+    function terrainRulesLabel(feature) {{
+      const rules = [
+        feature.grants_cover ? "cover" : "no cover",
+        feature.blocks_line_of_sight ? "blocks LOS" : "open LOS",
+        Number(feature.movement_penalty || 0) ? `-${{fmt(feature.movement_penalty)}}" move` : "normal move"
+      ];
+      return rules.join(", ");
     }}
 
     function battleObjectiveLabel(objective, index) {{
@@ -1874,12 +1952,24 @@ def _local_script(data: dict[str, Any]) -> str:
     function wireBattleBoardDrag() {{
       const board = el("battle-board");
       if (!board) return;
+      board.querySelectorAll(".bf-terrain").forEach((node) => {{
+        node.addEventListener("pointerenter", (event) => {{ showBattleHoverText(node.dataset.hoverText || "Terrain", event); }});
+        node.addEventListener("pointermove", (event) => {{ showBattleHoverText(node.dataset.hoverText || "Terrain", event); }});
+        node.addEventListener("pointerleave", hideBattleHoverCard);
+      }});
+      board.querySelectorAll(".bf-objective").forEach((node) => {{
+        node.addEventListener("pointerenter", (event) => {{ showBattleHoverText(node.dataset.hoverText || "Objective", event); }});
+        node.addEventListener("pointermove", (event) => {{ showBattleHoverText(node.dataset.hoverText || "Objective", event); }});
+        node.addEventListener("pointerleave", hideBattleHoverCard);
+      }});
       board.querySelectorAll(".bf-unit").forEach((node) => {{
-        node.addEventListener("pointerdown", (event) => {{ event.preventDefault(); node.setPointerCapture(event.pointerId); state.battlefield.dragging = node.dataset.unitId; }});
+        node.addEventListener("pointerenter", (event) => {{ showBattleHoverCard(node.dataset.unitId, event); }});
+        node.addEventListener("pointerdown", (event) => {{ event.preventDefault(); node.setPointerCapture(event.pointerId); state.battlefield.dragging = node.dataset.unitId; showBattleHoverCard(node.dataset.unitId, event); }});
         node.addEventListener("click", () => {{
           selectBattleUnit(node.dataset.unitId).catch(showBattlefieldError);
         }});
         node.addEventListener("pointermove", (event) => {{
+          showBattleHoverCard(node.dataset.unitId, event);
           if (state.battlefield.dragging !== node.dataset.unitId) return;
           const point = svgPoint(board, event.clientX, event.clientY);
           updateBattleUnitPosition(node.dataset.unitId, point.x, point.y);
@@ -1891,8 +1981,51 @@ def _local_script(data: dict[str, Any]) -> str:
           if (label) {{ label.setAttribute("x", unit.x); label.setAttribute("y", unit.y); }}
           if (nameLabel) {{ nameLabel.setAttribute("x", unit.x); nameLabel.setAttribute("y", Number(unit.y || 0) + Number(unit.radius || 1) + 1.5); }}
         }});
-        node.addEventListener("pointerup", () => {{ state.battlefield.dragging = null; state.battlefield.plan = null; resetBattlefieldManualActions(); refreshBattlefieldSelectedActions().then(() => renderBattlefield()).catch(showBattlefieldError); }});
+        node.addEventListener("pointerleave", () => {{ if (state.battlefield.dragging !== node.dataset.unitId) hideBattleHoverCard(); }});
+        node.addEventListener("pointerup", () => {{ state.battlefield.dragging = null; hideBattleHoverCard(); state.battlefield.plan = null; resetBattlefieldManualActions(); refreshBattlefieldSelectedActions().then(() => renderBattlefield()).catch(showBattlefieldError); }});
       }});
+    }}
+
+    function showBattleHoverCard(instanceId, event) {{
+      const card = el("battle-hover-card");
+      const board = el("battle-board");
+      if (!card || !board || !state.battlefield.state) return;
+      const unit = battleUnitByInstance(instanceId);
+      if (!unit) return;
+      const profile = battleUnitProfile(unit);
+      card.textContent = battleUnitTooltip(unit, profile, state.battlefield.state);
+      showPositionedBattleHoverCard(card, board, event);
+    }}
+
+    function showBattleHoverText(text, event) {{
+      const card = el("battle-hover-card");
+      const board = el("battle-board");
+      if (!card || !board) return;
+      card.textContent = text;
+      showPositionedBattleHoverCard(card, board, event);
+    }}
+
+    function showPositionedBattleHoverCard(card, board, event) {{
+      card.classList.add("visible");
+      card.setAttribute("aria-hidden", "false");
+      positionBattleHoverCard(card, board, event);
+    }}
+
+    function positionBattleHoverCard(card, board, event) {{
+      const wrap = board.closest(".battlefield-board-wrap");
+      if (!wrap) return;
+      const bounds = wrap.getBoundingClientRect();
+      const x = Math.min(bounds.width - card.offsetWidth - 12, Math.max(12, event.clientX - bounds.left + 14));
+      const y = Math.min(bounds.height - card.offsetHeight - 12, Math.max(12, event.clientY - bounds.top + 14));
+      card.style.left = `${{x}}px`;
+      card.style.top = `${{y}}px`;
+    }}
+
+    function hideBattleHoverCard() {{
+      const card = el("battle-hover-card");
+      if (!card) return;
+      card.classList.remove("visible");
+      card.setAttribute("aria-hidden", "true");
     }}
 
     async function selectBattleUnit(instanceId) {{
@@ -1905,10 +2038,23 @@ def _local_script(data: dict[str, Any]) -> str:
     }}
 
     function svgPoint(svg, clientX, clientY) {{
-      const rect = svg.getBoundingClientRect();
       const width = Number(svg.dataset.width || 44);
       const height = Number(svg.dataset.height || 60);
-      return {{ x: Math.max(0, Math.min(width, ((clientX - rect.left) / rect.width) * width)), y: Math.max(0, Math.min(height, ((clientY - rect.top) / rect.height) * height)) }};
+      const ctm = svg.getScreenCTM?.();
+      if (ctm) {{
+        const point = svg.createSVGPoint();
+        point.x = clientX;
+        point.y = clientY;
+        const mapped = point.matrixTransform(ctm.inverse());
+        return {{ x: Math.max(0, Math.min(width, mapped.x)), y: Math.max(0, Math.min(height, mapped.y)) }};
+      }}
+      const rect = svg.getBoundingClientRect();
+      const scale = Math.min(rect.width / width, rect.height / height);
+      const renderedWidth = width * scale;
+      const renderedHeight = height * scale;
+      const offsetX = (rect.width - renderedWidth) / 2;
+      const offsetY = (rect.height - renderedHeight) / 2;
+      return {{ x: Math.max(0, Math.min(width, (clientX - rect.left - offsetX) / scale)), y: Math.max(0, Math.min(height, (clientY - rect.top - offsetY) / scale)) }};
     }}
 
     function updateBattleUnitPosition(instanceId, x, y) {{
@@ -3839,6 +3985,7 @@ def _local_script(data: dict[str, Any]) -> str:
           <td>${{escapeHtml(row.guide_unit_name || "")}}${{row.guide_model_name ? `: ${{escapeHtml(row.guide_model_name)}}` : ""}}</td>
           <td>${{escapeHtml(row.guide_faction || "")}}</td>
           <td>${{escapeHtml(row.base_size_text || (row.base_width_mm && row.base_depth_mm ? `${{row.base_width_mm}}x${{row.base_depth_mm}}mm` : row.base_type || ""))}}</td>
+          <td>${{row.source_url ? `<a href="${{escapeHtml(row.source_url)}}" target="_blank" rel="noreferrer">Page ${{escapeHtml(row.source_page || "unknown")}}</a>` : escapeHtml(row.source_page || "")}}</td>
           <td>${{escapeHtml(row.suggestion_reason || "")}}</td>
         </tr>
       `).join("");
@@ -3852,8 +3999,8 @@ def _local_script(data: dict[str, Any]) -> str:
             ${{factionCards.join("")}}
           </div>
           <table class="report-table">
-            <thead><tr><th>Rank</th><th>Score</th><th>Imported unit</th><th>Faction</th><th>Suggested guide row</th><th>Guide faction</th><th>Base</th><th>Reason</th></tr></thead>
-            <tbody>${{rows || `<tr><td colspan="8">No footprint suggestions were generated.</td></tr>`}}</tbody>
+            <thead><tr><th>Rank</th><th>Score</th><th>Imported unit</th><th>Faction</th><th>Suggested guide row</th><th>Guide faction</th><th>Base</th><th>Guide source</th><th>Reason</th></tr></thead>
+            <tbody>${{rows || `<tr><td colspan="9">No footprint suggestions were generated.</td></tr>`}}</tbody>
           </table>
         </div>
       `;
@@ -3903,6 +4050,7 @@ def _local_script(data: dict[str, Any]) -> str:
           <td>${{escapeHtml(row.suggestion_score || "")}}</td>
           <td>${{escapeHtml(row.suggested_guide_unit_name || "")}}${{row.suggested_guide_model_name ? `: ${{escapeHtml(row.suggested_guide_model_name)}}` : ""}}</td>
           <td>${{escapeHtml(row.suggested_base_size_text || "")}}</td>
+          <td>${{row.suggested_source_url ? `<a href="${{escapeHtml(row.suggested_source_url)}}" target="_blank" rel="noreferrer">Page ${{escapeHtml(row.suggested_source_page || "unknown")}}</a>` : escapeHtml(row.suggested_source_page || "")}}</td>
           <td>${{escapeHtml(row.review_hint || "")}}</td>
         </tr>
       `).join("");
@@ -3916,8 +4064,8 @@ def _local_script(data: dict[str, Any]) -> str:
             ${{factionCards.join("")}}
           </div>
           <table class="report-table">
-            <thead><tr><th>Rank</th><th>Priority</th><th>Unit</th><th>Faction</th><th>Score</th><th>Suggested guide row</th><th>Base</th><th>Review hint</th></tr></thead>
-            <tbody>${{rows || `<tr><td colspan="8">No footprint review queue rows were generated.</td></tr>`}}</tbody>
+            <thead><tr><th>Rank</th><th>Priority</th><th>Unit</th><th>Faction</th><th>Score</th><th>Suggested guide row</th><th>Base</th><th>Guide source</th><th>Review hint</th></tr></thead>
+            <tbody>${{rows || `<tr><td colspan="9">No footprint review queue rows were generated.</td></tr>`}}</tbody>
           </table>
         </div>
       `;

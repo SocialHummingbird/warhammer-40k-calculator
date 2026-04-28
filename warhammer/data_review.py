@@ -603,6 +603,9 @@ def _unit_footprint_queue_row(row: Dict[str, str]) -> Dict[str, str]:
         "suggested_guide_unit_name": row.get("suggested_guide_unit_name", ""),
         "suggested_guide_model_name": row.get("suggested_guide_model_name", ""),
         "suggested_base_size_text": row.get("suggested_base_size_text", ""),
+        "suggested_source_page": row.get("suggested_source_page", ""),
+        "suggested_source_url": row.get("suggested_source_url", ""),
+        "suggested_source_updated": row.get("suggested_source_updated", ""),
     }
 
 
@@ -634,6 +637,9 @@ def _unit_footprint_suggestion_row(row: Dict[str, str]) -> Dict[str, str]:
         "base_shape": row.get("base_shape", ""),
         "base_width_mm": row.get("base_width_mm", ""),
         "base_depth_mm": row.get("base_depth_mm", ""),
+        "source_page": row.get("source_page", ""),
+        "source_url": row.get("source_url", ""),
+        "source_updated": row.get("source_updated", ""),
     }
 
 

@@ -95,6 +95,7 @@ FOOTPRINT_SUGGESTION_FIELDNAMES = [
     "base_shape",
     "base_width_mm",
     "base_depth_mm",
+    "source_page",
     "source",
     "source_url",
     "source_updated",
@@ -124,6 +125,9 @@ FOOTPRINT_OVERRIDE_TEMPLATE_FIELDNAMES = [
     "suggested_guide_unit_name",
     "suggested_guide_model_name",
     "suggested_base_size_text",
+    "suggested_source_page",
+    "suggested_source_url",
+    "suggested_source_updated",
     "override_base_size_text",
     "override_base_type",
     "override_base_shape",
@@ -361,6 +365,9 @@ def build_footprint_override_template(
                 "suggested_guide_unit_name": suggestion.get("guide_unit_name", ""),
                 "suggested_guide_model_name": suggestion.get("guide_model_name", ""),
                 "suggested_base_size_text": suggestion.get("base_size_text", ""),
+                "suggested_source_page": suggestion.get("source_page", ""),
+                "suggested_source_url": suggestion.get("source_url", ""),
+                "suggested_source_updated": suggestion.get("source_updated", ""),
                 "override_base_size_text": "",
                 "override_base_type": "",
                 "override_base_shape": "",
@@ -381,14 +388,22 @@ def build_footprint_review_queue(
     *,
     include_decided: bool = False,
     faction_contains: str = "",
+    priorities: set[str] | None = None,
     limit: int | None = None,
 ) -> list[dict[str, str]]:
     faction_filter = normalize_faction(faction_contains)
+    wanted_priorities = {
+        normalized
+        for priority in (priorities or set())
+        if (normalized := normalize_footprint_review_priority(priority))
+    }
     candidates = []
     for row in template_rows:
         if not include_decided and normalize_review_decision(row.get("review_decision", "")):
             continue
         if faction_filter and faction_filter not in normalize_faction(row.get("faction_contains", "")):
+            continue
+        if wanted_priorities and footprint_review_priority_label(row) not in wanted_priorities:
             continue
         candidates.append(row)
 
@@ -423,6 +438,27 @@ def footprint_review_priority_label(row: dict[str, str]) -> str:
     if score >= 0.65:
         return "review_suggestion_medium"
     return "review_suggestion_low"
+
+
+def normalize_footprint_review_priority(value: str) -> str:
+    cleaned = normalize_unit_name(value).replace(" ", "_").replace("-", "_")
+    aliases = {
+        "high": "review_suggestion_high",
+        "suggestion_high": "review_suggestion_high",
+        "review_suggestion_high": "review_suggestion_high",
+        "medium": "review_suggestion_medium",
+        "med": "review_suggestion_medium",
+        "suggestion_medium": "review_suggestion_medium",
+        "review_suggestion_medium": "review_suggestion_medium",
+        "low": "review_suggestion_low",
+        "suggestion_low": "review_suggestion_low",
+        "review_suggestion_low": "review_suggestion_low",
+        "none": "no_suggestion",
+        "unknown": "no_suggestion",
+        "no_suggestion": "no_suggestion",
+        "no_suggestions": "no_suggestion",
+    }
+    return aliases.get(cleaned, cleaned)
 
 
 def footprint_review_hint(row: dict[str, str]) -> str:
@@ -560,6 +596,7 @@ def build_footprint_suggestions(
                     "base_shape": guide.get("base_shape", ""),
                     "base_width_mm": guide.get("base_width_mm", ""),
                     "base_depth_mm": guide.get("base_depth_mm", ""),
+                    "source_page": guide.get("page", ""),
                     "source": guide.get("source") or BASE_SIZE_GUIDE_SOURCE,
                     "source_url": guide.get("source_url") or BASE_SIZE_GUIDE_URL,
                     "source_updated": guide.get("source_updated") or BASE_SIZE_GUIDE_UPDATED,
@@ -673,6 +710,16 @@ def accepted_override_rows_from_suggestions(
 
 
 def override_row_from_suggestion(suggestion: dict[str, str]) -> dict[str, str]:
+    source_page = str(suggestion.get("source_page", "")).strip()
+    reason_parts = [
+        (
+            "Accepted footprint suggestion "
+            f"rank {suggestion.get('suggestion_rank', '')}, score {suggestion.get('suggestion_score', '')}"
+        ).strip(),
+        suggestion.get("suggestion_reason", ""),
+    ]
+    if source_page:
+        reason_parts.append(f"guide page {source_page}")
     return {
         "unit_id": suggestion.get("unit_id", ""),
         "unit_name": suggestion.get("unit_name", ""),
@@ -688,11 +735,9 @@ def override_row_from_suggestion(suggestion: dict[str, str]) -> dict[str, str]:
         "source": suggestion.get("source") or BASE_SIZE_GUIDE_SOURCE,
         "source_url": suggestion.get("source_url") or BASE_SIZE_GUIDE_URL,
         "source_updated": suggestion.get("source_updated") or BASE_SIZE_GUIDE_UPDATED,
-        "review_reason": (
-            "Accepted footprint suggestion "
-            f"rank {suggestion.get('suggestion_rank', '')}, score {suggestion.get('suggestion_score', '')}: "
-            f"{suggestion.get('suggestion_reason', '')}"
-        ).strip(),
+        "review_reason": ": ".join(
+            [reason_parts[0], "; ".join(str(part).strip() for part in reason_parts[1:] if str(part).strip())]
+        ).strip(": "),
     }
 
 
@@ -809,12 +854,18 @@ def override_row_from_template(row: dict[str, str], *, decision: str | None = No
         guide_faction = str(row.get("suggested_guide_faction", "")).strip()
         guide_unit_name = str(row.get("suggested_guide_unit_name", "")).strip()
         guide_model_name = str(row.get("suggested_guide_model_name", "")).strip()
+        source_url = str(row.get("suggested_source_url", "")).strip() or BASE_SIZE_GUIDE_URL
+        source_updated = str(row.get("suggested_source_updated", "")).strip() or BASE_SIZE_GUIDE_UPDATED
+        source_page = str(row.get("suggested_source_page", "")).strip()
         reason_prefix = "Accepted footprint override-template suggestion"
     elif resolved_decision == "override":
         base_size_text = str(row.get("override_base_size_text", "")).strip()
         guide_faction = str(row.get("override_guide_faction", "")).strip()
         guide_unit_name = str(row.get("override_guide_unit_name", "")).strip()
         guide_model_name = str(row.get("override_guide_model_name", "")).strip()
+        source_url = BASE_SIZE_GUIDE_URL
+        source_updated = BASE_SIZE_GUIDE_UPDATED
+        source_page = ""
         reason_prefix = "Accepted manual footprint override-template row"
     else:
         return None
@@ -835,6 +886,8 @@ def override_row_from_template(row: dict[str, str], *, decision: str | None = No
         reason_parts.append(f"template score {suggestion_score}")
     if suggestion_reason:
         reason_parts.append(suggestion_reason)
+    if source_page:
+        reason_parts.append(f"guide page {source_page}")
     if notes:
         reason_parts.append(notes)
 
@@ -851,8 +904,8 @@ def override_row_from_template(row: dict[str, str], *, decision: str | None = No
         "guide_unit_name": guide_unit_name or row.get("unit_name", ""),
         "guide_model_name": guide_model_name,
         "source": BASE_SIZE_GUIDE_SOURCE,
-        "source_url": BASE_SIZE_GUIDE_URL,
-        "source_updated": BASE_SIZE_GUIDE_UPDATED,
+        "source_url": source_url,
+        "source_updated": source_updated,
         "review_reason": ": ".join([reason_parts[0], "; ".join(reason_parts[1:])]) if len(reason_parts) > 1 else reason_parts[0],
     }
 
@@ -900,7 +953,40 @@ def rejected_rows_from_suggestions(
     return selected
 
 
+def rejected_rows_from_template(
+    template_rows: list[dict[str, str]],
+    existing_rejections: list[dict[str, str]],
+    *,
+    unit_ids: set[str] | None = None,
+    reason: str = "Reviewed and not accepted as a safe official base-size match.",
+    limit: int | None = None,
+) -> list[dict[str, str]]:
+    selected: list[dict[str, str]] = []
+    for row in template_rows:
+        unit_id = str(row.get("unit_id", "")).strip()
+        if not unit_id:
+            continue
+        if unit_ids is not None and unit_id not in unit_ids:
+            continue
+        if normalize_review_decision(row.get("review_decision", "")) != "reject":
+            continue
+        rejection = rejection_row_from_template(row, reason=reason)
+        if not rejection:
+            continue
+        if matching_rejection(_template_row_as_suggestion(row), existing_rejections):
+            continue
+        selected.append(rejection)
+        existing_rejections.append(rejection)
+        if limit is not None and len(selected) >= limit:
+            break
+    return selected
+
+
 def rejection_row_from_suggestion(suggestion: dict[str, str], *, reason: str) -> dict[str, str]:
+    source_page = str(suggestion.get("source_page", "")).strip()
+    reason_parts = [reason]
+    if source_page:
+        reason_parts.append(f"guide page {source_page}")
     return {
         "unit_id": suggestion.get("unit_id", ""),
         "unit_name": suggestion.get("unit_name", ""),
@@ -910,7 +996,44 @@ def rejection_row_from_suggestion(suggestion: dict[str, str], *, reason: str) ->
         "guide_model_name": suggestion.get("guide_model_name", ""),
         "base_size_text": suggestion.get("base_size_text", ""),
         "decision": "rejected",
-        "review_reason": reason,
+        "review_reason": "; ".join(part for part in reason_parts if str(part).strip()),
+    }
+
+
+def rejection_row_from_template(row: dict[str, str], *, reason: str) -> dict[str, str] | None:
+    guide_unit_name = str(row.get("suggested_guide_unit_name", "")).strip()
+    base_size_text = str(row.get("suggested_base_size_text", "")).strip()
+    if not guide_unit_name and not base_size_text:
+        return None
+    source_page = str(row.get("suggested_source_page", "")).strip()
+    notes = str(row.get("review_notes", "")).strip()
+    reason_parts = [reason]
+    if source_page:
+        reason_parts.append(f"guide page {source_page}")
+    if notes:
+        reason_parts.append(notes)
+    return {
+        "unit_id": row.get("unit_id", ""),
+        "unit_name": row.get("unit_name", ""),
+        "faction_contains": row.get("faction_contains", ""),
+        "guide_faction": row.get("suggested_guide_faction", ""),
+        "guide_unit_name": guide_unit_name,
+        "guide_model_name": row.get("suggested_guide_model_name", ""),
+        "base_size_text": base_size_text,
+        "decision": "rejected",
+        "review_reason": "; ".join(part for part in reason_parts if str(part).strip()),
+    }
+
+
+def _template_row_as_suggestion(row: dict[str, str]) -> dict[str, str]:
+    return {
+        "unit_id": row.get("unit_id", ""),
+        "unit_name": row.get("unit_name", ""),
+        "faction": row.get("faction_contains", ""),
+        "guide_faction": row.get("suggested_guide_faction", ""),
+        "guide_unit_name": row.get("suggested_guide_unit_name", ""),
+        "guide_model_name": row.get("suggested_guide_model_name", ""),
+        "base_size_text": row.get("suggested_base_size_text", ""),
     }
 
 

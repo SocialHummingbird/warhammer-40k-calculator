@@ -312,9 +312,9 @@ def test_data_review_payload_summarizes_unit_footprint_suggestions(tmp_path):
     (tmp_path / "unit_footprint_suggestions.csv").write_text(
         "\n".join(
             [
-                "unit_id,faction,unit_name,selection_type,models_min,models_max,suggestion_rank,suggestion_score,suggestion_reason,guide_faction,guide_unit_name,guide_model_name,base_size_text,base_type,base_shape,base_width_mm,base_depth_mm,source,source_url,source_updated",
-                "u1,Test,Autarch Skyrunner,model,1,1,1,0.72,similar name,AELDARI,Farseer Skyrunner,,Small Flying Base,small_flying_base,flying,,,guide,url,January 2026",
-                "u2,Test,Odd Unit,model,1,1,1,0.58,weak name,AELDARI,Other Unit,,32mm,round,round,32,32,guide,url,January 2026",
+                "unit_id,faction,unit_name,selection_type,models_min,models_max,suggestion_rank,suggestion_score,suggestion_reason,guide_faction,guide_unit_name,guide_model_name,base_size_text,base_type,base_shape,base_width_mm,base_depth_mm,source_page,source,source_url,source_updated",
+                "u1,Test,Autarch Skyrunner,model,1,1,1,0.72,similar name,AELDARI,Farseer Skyrunner,,Small Flying Base,small_flying_base,flying,,,22,guide,https://example.test/base-guide.pdf,January 2026",
+                "u2,Test,Odd Unit,model,1,1,1,0.58,weak name,AELDARI,Other Unit,,32mm,round,round,32,32,23,guide,https://example.test/base-guide.pdf,January 2026",
             ]
         ),
         encoding="utf-8",
@@ -329,6 +329,8 @@ def test_data_review_payload_summarizes_unit_footprint_suggestions(tmp_path):
     assert summary["by_faction"] == {"Test": 2}
     assert summary["rows"][0]["unit_name"] == "Autarch Skyrunner"
     assert summary["rows"][0]["guide_unit_name"] == "Farseer Skyrunner"
+    assert summary["rows"][0]["source_page"] == "22"
+    assert summary["rows"][0]["source_url"] == "https://example.test/base-guide.pdf"
 
 
 def test_data_review_payload_summarizes_unit_footprint_override_template(tmp_path):
@@ -366,9 +368,9 @@ def test_data_review_payload_summarizes_unit_footprint_review_queue(tmp_path):
     (tmp_path / "unit_footprint_review_queue.csv").write_text(
         "\n".join(
             [
-                "review_rank,review_priority,review_hint,unit_id,unit_name,faction_contains,models_min,models_max,suggestion_score,suggested_guide_faction,suggested_guide_unit_name,suggested_guide_model_name,suggested_base_size_text",
-                "1,review_suggestion_high,Check same datasheet,u1,Commander in Crisis Battlesuit [Legends],Xenos - T'au Empire,1,1,0.86,T'AU EMPIRE,Commander in Enforcer Battlesuit,,60mm",
-                "2,no_suggestion,Research official base,u2,Unknown Unit,Test,1,1,,,,,",
+                "review_rank,review_priority,review_hint,unit_id,unit_name,faction_contains,models_min,models_max,suggestion_score,suggested_guide_faction,suggested_guide_unit_name,suggested_guide_model_name,suggested_base_size_text,suggested_source_page,suggested_source_url,suggested_source_updated",
+                "1,review_suggestion_high,Check same datasheet,u1,Commander in Crisis Battlesuit [Legends],Xenos - T'au Empire,1,1,0.86,T'AU EMPIRE,Commander in Enforcer Battlesuit,,60mm,48,https://example.test/base-guide.pdf,January 2026",
+                "2,no_suggestion,Research official base,u2,Unknown Unit,Test,1,1,,,,,,,,",
             ]
         ),
         encoding="utf-8",
@@ -382,6 +384,8 @@ def test_data_review_payload_summarizes_unit_footprint_review_queue(tmp_path):
     assert summary["by_faction"]["Xenos - T'au Empire"] == 1
     assert summary["rows"][0]["review_rank"] == "1"
     assert summary["rows"][0]["suggested_guide_unit_name"] == "Commander in Enforcer Battlesuit"
+    assert summary["rows"][0]["suggested_source_page"] == "48"
+    assert summary["rows"][0]["suggested_source_url"] == "https://example.test/base-guide.pdf"
     assert summary["rows"][1]["review_priority"] == "no_suggestion"
 
 

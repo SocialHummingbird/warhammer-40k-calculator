@@ -28,6 +28,22 @@ def main() -> int:
     )
     parser.add_argument("--limit", type=int, help="Maximum number of queue rows to write.")
     parser.add_argument("--faction-contains", default="", help="Only include rows whose faction contains this text.")
+    parser.add_argument(
+        "--priority",
+        action="append",
+        default=[],
+        choices=[
+            "high",
+            "medium",
+            "low",
+            "none",
+            "no_suggestion",
+            "review_suggestion_high",
+            "review_suggestion_medium",
+            "review_suggestion_low",
+        ],
+        help="Only include this review priority. Accepts high, medium, low, none, or the full priority label. Repeat to include multiple priorities.",
+    )
     parser.add_argument("--include-decided", action="store_true", help="Include rows that already have review_decision.")
     args = parser.parse_args()
 
@@ -39,6 +55,7 @@ def main() -> int:
         rows,
         include_decided=args.include_decided,
         faction_contains=args.faction_contains,
+        priorities=set(args.priority) if args.priority else None,
         limit=args.limit,
     )
     args.output.parent.mkdir(parents=True, exist_ok=True)
